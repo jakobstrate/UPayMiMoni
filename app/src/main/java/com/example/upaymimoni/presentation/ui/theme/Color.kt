@@ -1,4 +1,4 @@
-package com.example.upaymimoni.ui.theme
+package com.example.upaymimoni.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

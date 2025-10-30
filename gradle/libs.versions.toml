@@ -12,6 +12,7 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
 composeBom = "2024.09.00"
+navigationCompose = "2.9.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +33,7 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndr
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidxCompose" }
 koin-androidx-navigation = { module = "io.insert-koin:koin-androidx-navigation", version.ref = "koinAndroidxNavigation" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
