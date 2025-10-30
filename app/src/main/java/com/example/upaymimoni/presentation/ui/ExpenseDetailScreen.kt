@@ -60,10 +60,6 @@ fun ExpenseDetailScreen(
     onBackClick: () -> Unit,
     viewModel: ExpenseDetailViewModel = koinViewModel { parametersOf(expenseId) }
 ) {
-    // Trigger the detail load when the screen is first composed
-    androidx.compose.runtime.LaunchedEffect(expenseId) {
-        //viewModel.loadExpenseDetail(expenseId)
-    }
 
     // Collect the state containing the detailed expense data
     val state by viewModel.state.collectAsState()
