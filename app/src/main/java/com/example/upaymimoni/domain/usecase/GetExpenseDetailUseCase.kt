@@ -1,11 +1,10 @@
 package com.example.upaymimoni.domain.usecase
 
-import com.example.upaymimoni.data.model.Attachment
 import com.example.upaymimoni.data.model.Expense
 import com.example.upaymimoni.data.repository.ExpenseRepository
 import kotlinx.coroutines.flow.Flow
 
-//TODO
+
 class GetExpenseDetailUseCase(private val expenseRepository: ExpenseRepository) {
     operator fun invoke(expenseId: String): Expense? {
         // The Use Case delegates the responsibility of fetching the data to the repository.

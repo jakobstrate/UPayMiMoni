@@ -41,9 +41,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.upaymimoni.data.model.Expense
+import com.example.upaymimoni.presentation.viewmodel.AddExpenseState
+import com.example.upaymimoni.presentation.viewmodel.ExpenseAddViewModel
 import com.example.upaymimoni.presentation.viewmodel.ExpenseDetailViewModel
 import java.util.Locale.getDefault
 import org.koin.androidx.compose.koinViewModel
@@ -53,16 +56,30 @@ import org.koin.core.parameter.parametersOf
  * Screen to display the detailed information for a single expense.
  * It fetches the expense data using the provided expenseId.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseDetailScreen(
     expenseId: String,
     onBackClick: () -> Unit,
     viewModel: ExpenseDetailViewModel = koinViewModel { parametersOf(expenseId) }
 ) {
-
     // Collect the state containing the detailed expense data
     val state by viewModel.state.collectAsState()
+
+    ExpenseDetailContent(
+        state = state,
+        onBackClick = onBackClick
+    )
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExpenseDetailContent(
+    state: Expense?,
+    onBackClick: () -> Unit,
+) {
+
+
 
     Scaffold(
         topBar = {
@@ -108,12 +125,16 @@ fun ExpenseDetailCard(expense: Expense) {
         shape = MaterialTheme.shapes.medium // Simple rectangular shape
     ) {
         Column(
-            modifier = Modifier.padding(24.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.Start
         ) {
             // 1. Header: Name and Amount
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -148,7 +169,7 @@ fun ExpenseDetailCard(expense: Expense) {
             DetailRow(
                 icon = Icons.Default.DateRange,
                 label = "Date",
-                value = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", getDefault()).format(expense.date),
+                value = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", getDefault()).format(expense.createdAt),
                 tint = Color(0xFF303F9F)
             )
 
@@ -188,7 +209,9 @@ fun DetailRow(icon: ImageVector, label: String, value: String, tint: Color) {
             imageVector = icon,
             contentDescription = label,
             tint = tint,
-            modifier = Modifier.size(24.dp).padding(end = 8.dp)
+            modifier = Modifier
+                .size(24.dp)
+                .padding(end = 8.dp)
         )
         Column {
             Text(
@@ -212,5 +235,22 @@ fun NoDataMessage() {
     Text(
         text = "Expense not found or is missing data.",
         color = Color(0xFF757575)
+    )
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewExpenseDetailContent() {
+    ExpenseDetailContent(
+        state = Expense(
+            name = "Coffee",
+            amount = 4.20,
+            id = "1",
+            payerUserId = "2",
+            groupId = "3",
+            attachment = null,
+        ),
+        onBackClick = {}
     )
 }

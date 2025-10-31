@@ -6,7 +6,6 @@ package com.example.upaymimoni.data.model
  * @property id Unique identifier.
  * @property name Short description of the expense.
  * @property amount The total amount of the expense in DKK.
- * @property date Date the expense was made (using standard timestamp or ISO string).
  * @property payerUserId The ID of the user who paid the expense.
  * @property groupId The ID of the group the expense is added to.
  * @property attachment Optional attachment.
@@ -16,7 +15,6 @@ data class Expense(
     val id: String = "",
     val name: String,
     val amount: Double,
-    val date: Long, // Long for timestamp
     val payerUserId: String,
     val groupId: String,
     val attachment: Attachment?,

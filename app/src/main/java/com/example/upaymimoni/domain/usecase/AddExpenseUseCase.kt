@@ -13,7 +13,6 @@ class AddExpenseUseCase(
     suspend operator fun invoke(
         name: String,
         amount: Double,
-        date: Long,
         payerUserId: String,
         groupId: String,
         attachment: Attachment?
@@ -29,7 +28,6 @@ class AddExpenseUseCase(
         val newExpense = Expense(
             name = name.trim(),
             amount = amount,
-            date = date,
             payerUserId = payerUserId,
             groupId = groupId,
             attachment = attachment

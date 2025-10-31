@@ -53,7 +53,6 @@ class MockExpenseRepository : ExpenseRepository {
             id = "mock1",
             name = "Flight Tickets",
             amount = 550.00,
-            date = System.currentTimeMillis() - 86400000 * 2,
             payerUserId = mockUserId,
             groupId = mockGroupId,
             attachment = mockAttachment
@@ -62,7 +61,6 @@ class MockExpenseRepository : ExpenseRepository {
             id = "mock2",
             name = "Dinner at Italian Place",
             amount = 75.50,
-            date = System.currentTimeMillis(),
             payerUserId = mockUserId,
             groupId = mockGroupId,
             attachment = null
