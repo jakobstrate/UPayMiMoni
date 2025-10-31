@@ -1,9 +1,13 @@
 <resources>
-    <string name="login_email_label">Email Address*</string>
-    <string name="login_email_placeholder">Your Email Address</string>
-    <string name="login_password_label">Password*</string>
-    <string name="login_password_placeholder">Your Password</string>
+    <string name="auth_email_label">Email Address*</string>
+    <string name="auth_email_placeholder">Your Email Address</string>
+    <string name="auth_password_label">Password*</string>
+    <string name="auth_password_placeholder">Your Password</string>
     <string name="login_button_text">Login</string>
     <string name="login_signup_noclick">Don\'t have an account?</string>
-    <string name="login_signup_click">click here!</string>
+    <string name="auth_signup_click">click here!</string>
+    <string name="register_phone_label">Phone Number*</string>
+    <string name="register_phone_placeholder">Your Phone number</string>
+    <string name="register_button_text">Register</string>
+    <string name="register_login_page_noclick">Already have an account?</string>
 </resources>

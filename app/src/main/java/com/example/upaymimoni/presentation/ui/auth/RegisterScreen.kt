@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.example.upaymimoni.R
 import com.example.upaymimoni.presentation.ui.auth.components.AppLogo
 import com.example.upaymimoni.presentation.ui.auth.components.AuthButton
+import com.example.upaymimoni.presentation.ui.auth.components.AuthRegisterViewModel
 import com.example.upaymimoni.presentation.ui.auth.components.ClickableText
 import com.example.upaymimoni.presentation.ui.auth.components.ErrorDialogue
 import com.example.upaymimoni.presentation.ui.auth.components.UserInputField
@@ -28,35 +29,40 @@ import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun LoginScreen(
-    authViewModel: AuthLoginViewModel = koinViewModel(),
-    onNavigateToRegister: () -> Unit,
+fun RegisterScreen(
+    authViewModel: AuthRegisterViewModel = koinViewModel(),
+    onNavigateToLogin: () -> Unit,
 ) {
+    val phone by authViewModel.phone.collectAsState()
     val email by authViewModel.email.collectAsState()
     val pass by authViewModel.pass.collectAsState()
     val error by authViewModel.errorMsg.collectAsState()
 
-    LoginContent(
+    RegisterScreenContent(
+        phone,
         email,
         pass,
         error,
+        authViewModel::updatePhone,
         authViewModel::updateEmail,
         authViewModel::updatePassword,
-        authViewModel::onSignInClick,
-        onNavigateToRegister
-
+        authViewModel::onRegisterClick,
+        onNavigateToLogin
     )
+
 }
 
 @Composable
-fun LoginContent(
+fun RegisterScreenContent(
+    phone: TextFieldValue,
     email: TextFieldValue,
     pass: TextFieldValue,
     error: String? = null,
+    onPhoneUpdate: (TextFieldValue) -> Unit,
     onEmailUpdate: (TextFieldValue) -> Unit,
     onPassUpdate: (TextFieldValue) -> Unit,
-    onSignInClick: () -> Unit,
-    onSingUpClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onLoginClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -80,6 +86,13 @@ fun LoginContent(
             modifier = Modifier.fillMaxWidth(0.9f)
         ) {
             UserInputField(
+                label = stringResource(R.string.register_phone_label),
+                placeHolder = stringResource(R.string.register_phone_placeholder),
+                value = phone,
+                onValueChange = { onPhoneUpdate(it) },
+            )
+
+            UserInputField(
                 label = stringResource(R.string.auth_email_label),
                 placeHolder = stringResource(R.string.auth_email_placeholder),
                 value = email,
@@ -97,8 +110,8 @@ fun LoginContent(
             ErrorDialogue(error)
 
             AuthButton(
-                stringResource(R.string.login_button_text),
-                onClick = { onSignInClick() },
+                stringResource(R.string.register_button_text),
+                onClick = { onRegisterClick() },
             )
         }
 
@@ -106,28 +119,29 @@ fun LoginContent(
         Spacer(modifier = Modifier.weight(1f))
 
         ClickableText(
-            normalText = stringResource(R.string.login_signup_noclick),
+            normalText = stringResource(R.string.register_login_page_noclick),
             clickText = stringResource(R.string.auth_signup_click),
             fontSize = 18.sp,
-            onClick = onSingUpClick,
+            onClick = onLoginClick,
             modifier = Modifier.padding(bottom = 32.dp)
         )
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
-fun LoginPreview() {
+private fun RegisterScreenPreview() {
     UPayMiMoniTheme {
-        LoginContent(
+        RegisterScreenContent(
+            phone = TextFieldValue("+4588888888"),
             email = TextFieldValue("example@gmail.com"),
             pass =TextFieldValue("ExamplePassword"),
             error = "No user was found for the given email, the user might have been deleted or something",
+            onPhoneUpdate = {},
             onEmailUpdate = {},
             onPassUpdate = {},
-            onSignInClick = {},
-            onSingUpClick = {},
+            onRegisterClick = {},
+            onLoginClick = {}
         )
     }
 }

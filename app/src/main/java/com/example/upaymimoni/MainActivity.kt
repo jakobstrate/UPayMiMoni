@@ -8,10 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,12 +16,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.upaymimoni.presentation.ui.ExpenseDetailScreen
 import com.example.upaymimoni.presentation.ui.auth.LoginScreen
+import com.example.upaymimoni.presentation.ui.auth.RegisterScreen
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.auth
 
 class MainActivity : ComponentActivity() {
     @ExperimentalMaterial3Api
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        configureFirebaseEmulator()
 
         enableEdgeToEdge()
         setContent {
@@ -54,12 +56,33 @@ class MainActivity : ComponentActivity() {
                         composable(
                             "Login"
                         ) {
-                            LoginScreen()
+                            LoginScreen(
+                                onNavigateToRegister = {
+                                    navController.navigate("Register")
+                                }
+                            )
+                        }
+
+                        composable(
+                            "Register"
+                        ) {
+                            RegisterScreen(
+                                onNavigateToLogin = {
+                                    navController.navigate("Login")
+                                }
+                            )
                         }
 
                     }
                 }
             }
         }
+    }
+
+    // This configures firebase auth to run on a emulator.
+    // A emulator has to be setup and running on localhost:9099 for this to work.
+    private fun configureFirebaseEmulator() {
+        FirebaseApp.initializeApp(this)
+        Firebase.auth.useEmulator("10.0.2.2", 9099)
     }
 }
