@@ -8,33 +8,43 @@ import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import kotlinx.coroutines.tasks.await
+import java.lang.IllegalArgumentException
 
+class AuthException(val error: AuthError) : Exception()
 class FirebaseAuthRepository(
     private val auth: FirebaseAuth
 ) : AuthRepository {
-    override suspend fun loginUser(email: String, password: String): Result<User> {
-        return try {
-            val result = auth.signInWithEmailAndPassword(email, password).await()
-            val firebaseUser = result.user ?: throw Exception("Auth returned null user")
 
-            Result.success(
-                User(
-                    id = firebaseUser.uid,
-                    email = firebaseUser.email
-                )
-            )
-        } catch (e: Exception) {
-            val error = mapExceptionToAuthError(e)
-            Result.failure(AuthException(error))
-        }
+    override suspend fun loginUser(email: String, password: String): Result<User> = runCatching {
+        val result = auth.signInWithEmailAndPassword(email, password).await()
+        val firebaseUser = result.user ?: throw Exception("Login Auth returned null user")
+
+        User(
+            id = firebaseUser.uid,
+            email = firebaseUser.email
+        )
+
+    }.recoverCatching { e ->
+        val error = mapExceptionToAuthError(e)
+        throw AuthException(error)
     }
 
-    override suspend fun registerUser(email: String, password: String) {
-        TODO("Not yet implemented")
+    override suspend fun registerUser(email: String, password: String): Result<User> = runCatching {
+        val result = auth.createUserWithEmailAndPassword(email, password).await()
+        val firebaseUser = result.user ?: throw Exception("Register Auth returned null user")
+
+        User(
+            id = firebaseUser.uid,
+            email = firebaseUser.email
+        )
+    }.recoverCatching { e ->
+        val error = mapExceptionToAuthError(e)
+        throw AuthException(error)
     }
 
-    private fun mapExceptionToAuthError(e: Exception): AuthError {
+    private fun mapExceptionToAuthError(e: Throwable): AuthError {
         return when (e) {
             is FirebaseAuthInvalidUserException -> AuthError.InvalidUser
             is FirebaseAuthInvalidCredentialsException -> when (e.errorCode) {
@@ -42,11 +52,12 @@ class FirebaseAuthRepository(
                 "ERROR_INVALID_EMAIL" -> AuthError.InvalidEmailFormat
                 else -> AuthError.Unknown
             }
+
             is FirebaseNetworkException -> AuthError.NetworkFailure
             is FirebaseTooManyRequestsException -> AuthError.TooManyLogins
+            is FirebaseAuthUserCollisionException -> AuthError.EmailInUse
+            is IllegalArgumentException -> AuthError.EmptyOrNull
             else -> AuthError.Unknown
         }
     }
 }
-
-class AuthException(val error: AuthError): Exception()

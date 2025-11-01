@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,19 +32,30 @@ import org.koin.androidx.compose.koinViewModel
 fun LoginScreen(
     authViewModel: AuthLoginViewModel = koinViewModel(),
     onNavigateToRegister: () -> Unit,
+    onNavigateToHomePage: () -> Unit,
 ) {
     val email by authViewModel.email.collectAsState()
     val pass by authViewModel.pass.collectAsState()
     val error by authViewModel.errorMsg.collectAsState()
 
+    val uiEvent = authViewModel.uiEvent
+
+    LaunchedEffect(Unit) {
+        uiEvent.collect { event ->
+            when (event) {
+                is AuthUiEvent.NavigateToHome -> onNavigateToHomePage()
+            }
+        }
+    }
+
     LoginContent(
-        email,
-        pass,
-        error,
-        authViewModel::updateEmail,
-        authViewModel::updatePassword,
-        authViewModel::onSignInClick,
-        onNavigateToRegister
+        email = email,
+        pass = pass,
+        error = error,
+        onEmailUpdate = authViewModel::updateEmail,
+        onPassUpdate = authViewModel::updatePassword,
+        onSignInClick = authViewModel::onSignInClick,
+        onSingUpClick = onNavigateToRegister
 
     )
 }

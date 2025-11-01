@@ -6,5 +6,7 @@ sealed class AuthError {
     object InvalidEmailFormat : AuthError()
     object NetworkFailure : AuthError()
     object TooManyLogins : AuthError()
+    object EmptyOrNull : AuthError()
+    object EmailInUse : AuthError()
     object Unknown : AuthError()
 }

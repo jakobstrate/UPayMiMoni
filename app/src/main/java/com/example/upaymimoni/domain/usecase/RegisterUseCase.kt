@@ -6,5 +6,7 @@ import com.example.upaymimoni.domain.repository.AuthRepository
 class RegisterUseCase(
     private val repo: AuthRepository
 ) {
-    suspend operator fun invoke() {}
+    suspend operator fun invoke(email: String, password: String): Result<User> {
+        return repo.registerUser(email, password)
+    }
 }

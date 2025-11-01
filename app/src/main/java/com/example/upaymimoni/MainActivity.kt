@@ -22,6 +22,11 @@ import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.auth
 
+const val EMULATOR_HOST = "10.0.0.2"
+
+//    val EMULATOR_HOST = "192.168.1.129"
+const val EMULATOR_PORT = 9099
+
 class MainActivity : ComponentActivity() {
     @ExperimentalMaterial3Api
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,21 +36,28 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             UPayMiMoniTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     val navController = rememberNavController()
                     val TEST_EXPENSE_ID = "mock1"
 
                     NavHost(
                         navController = navController,
 //                        startDestination = "expense_detail/$TEST_EXPENSE_ID") {
-                        startDestination = "Login") {
+                        startDestination = "Login"
+                    ) {
 // 1. Expense Detail Screen Composable
                         composable(
                             "expense_detail/{expenseId}",
-                            arguments = listOf(navArgument("expenseId") { type = NavType.StringType })
+                            arguments = listOf(navArgument("expenseId") {
+                                type = NavType.StringType
+                            })
                         ) { backStackEntry ->
                             // Retrieve the expenseId from the navigation arguments
-                            val expenseId = backStackEntry.arguments?.getString("expenseId") ?: TEST_EXPENSE_ID
+                            val expenseId =
+                                backStackEntry.arguments?.getString("expenseId") ?: TEST_EXPENSE_ID
 
                             ExpenseDetailScreen(
                                 expenseId = expenseId,
@@ -54,21 +66,27 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(
-                            "Login"
+                            route = NavigationRoutes.loginPage
                         ) {
                             LoginScreen(
                                 onNavigateToRegister = {
-                                    navController.navigate("Register")
+                                    navController.navigate(NavigationRoutes.registerPage)
+                                },
+                                onNavigateToHomePage = {
+                                    navController.navigate("expense_detail/$TEST_EXPENSE_ID")
                                 }
                             )
                         }
 
                         composable(
-                            "Register"
+                            route = NavigationRoutes.registerPage
                         ) {
                             RegisterScreen(
                                 onNavigateToLogin = {
-                                    navController.navigate("Login")
+                                    navController.navigate(NavigationRoutes.loginPage)
+                                },
+                                onNavigateToHomePage = {
+                                    navController.navigate("expense_detail/$TEST_EXPENSE_ID")
                                 }
                             )
                         }
@@ -79,10 +97,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // This configures firebase auth to run on a emulator.
-    // A emulator has to be setup and running on localhost:9099 for this to work.
+    /**
+     * This configures firebase auth to run on a emulator.
+     *
+     * An emulator has to be setup and running on <EMULATOR_HOST>:<EMULATOR_PORT> for this to work.
+     */
     private fun configureFirebaseEmulator() {
         FirebaseApp.initializeApp(this)
-        Firebase.auth.useEmulator("10.0.2.2", 9099)
+        Firebase.auth.useEmulator(EMULATOR_HOST, EMULATOR_PORT)
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.example.upaymimoni.R
 import com.example.upaymimoni.presentation.ui.auth.components.AppLogo
 import com.example.upaymimoni.presentation.ui.auth.components.AuthButton
-import com.example.upaymimoni.presentation.ui.auth.components.AuthRegisterViewModel
+import com.example.upaymimoni.presentation.ui.auth.AuthRegisterViewModel
 import com.example.upaymimoni.presentation.ui.auth.components.ClickableText
 import com.example.upaymimoni.presentation.ui.auth.components.ErrorDialogue
 import com.example.upaymimoni.presentation.ui.auth.components.UserInputField
@@ -32,11 +33,22 @@ import org.koin.androidx.compose.koinViewModel
 fun RegisterScreen(
     authViewModel: AuthRegisterViewModel = koinViewModel(),
     onNavigateToLogin: () -> Unit,
+    onNavigateToHomePage: () -> Unit,
 ) {
     val phone by authViewModel.phone.collectAsState()
     val email by authViewModel.email.collectAsState()
     val pass by authViewModel.pass.collectAsState()
     val error by authViewModel.errorMsg.collectAsState()
+
+    val uiEvent = authViewModel.uiEvent
+
+    LaunchedEffect(Unit) {
+        uiEvent.collect { event ->
+            when (event) {
+                is AuthUiEvent.NavigateToHome -> onNavigateToHomePage()
+            }
+        }
+    }
 
     RegisterScreenContent(
         phone,
