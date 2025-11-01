@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -94,7 +95,17 @@ fun ExpenseDetailContent(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
-                )
+                ),
+                actions = {
+                    IconButton(onClick = { TODO() }) {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = "EditExpense",
+                            tint = Color.White
+                        )
+                    }
+                },
+
             )
         },
         containerColor = Color(0xFFF5F5F5)
