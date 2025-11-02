@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
 import com.example.upaymimoni.presentation.ui.ExpenseAddScreen
 import com.example.upaymimoni.presentation.ui.ExpenseDetailScreen
 import com.example.upaymimoni.presentation.ui.auth.LoginScreen
@@ -49,7 +50,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
 //                        startDestination = "expense_detail/$TEST_EXPENSE_ID") {
-                        startDestination = "Login"
+                        startDestination = NavigationRoutes.authStack
                     ) {
 // 1. Expense Detail Screen Composable
                         composable(
@@ -70,12 +71,15 @@ class MainActivity : ComponentActivity() {
                         // Expense Add Screen Composable
                         composable(
                             "expense_add/{groupId}/{userId}",
-                            arguments = listOf(navArgument("groupId") { type = NavType.StringType },
+                            arguments = listOf(
+                                navArgument("groupId") { type = NavType.StringType },
                                 navArgument("userId") { type = NavType.StringType })
                         ) { backStackEntry ->
                             // Retrieve the expenseId from the navigation arguments
-                            val groupId = backStackEntry.arguments?.getString("groupId") ?: TEST_GROUP_ID
-                            val userId = backStackEntry.arguments?.getString("userId") ?: TEST_USER_ID
+                            val groupId =
+                                backStackEntry.arguments?.getString("groupId") ?: TEST_GROUP_ID
+                            val userId =
+                                backStackEntry.arguments?.getString("userId") ?: TEST_USER_ID
 
                             ExpenseAddScreen(
                                 groupId = groupId,
@@ -84,32 +88,41 @@ class MainActivity : ComponentActivity() {
                                 onExpenseAdded = { }
                             )
                         }
-                        composable(
-                            route = NavigationRoutes.loginPage
-                        ) {
-                            LoginScreen(
-                                onNavigateToRegister = {
-                                    navController.navigate(NavigationRoutes.registerPage)
-                                },
-                                onNavigateToHomePage = {
-                                    navController.navigate("expense_detail/$TEST_EXPENSE_ID")
-                                }
-                            )
-                        }
 
-                        composable(
-                            route = NavigationRoutes.registerPage
+                        navigation(
+                            startDestination = NavigationRoutes.loginPage,
+                            route = NavigationRoutes.authStack
                         ) {
-                            RegisterScreen(
-                                onNavigateToLogin = {
-                                    navController.navigate(NavigationRoutes.loginPage)
-                                },
-                                onNavigateToHomePage = {
-                                    navController.navigate("expense_detail/$TEST_EXPENSE_ID")
-                                }
-                            )
-                        }
+                            composable(
+                                route = NavigationRoutes.loginPage
+                            ) {
+                                LoginScreen(
+                                    onNavigateToRegister = {
+                                        navController.navigate(NavigationRoutes.registerPage)
+                                    },
+                                    onNavigateToHomePage = {
+                                        navController.navigate("expense_detail/$TEST_EXPENSE_ID") {
+                                            popUpTo(NavigationRoutes.authStack) { inclusive = true }
+                                        }
+                                    }
+                                )
+                            }
 
+                            composable(
+                                route = NavigationRoutes.registerPage
+                            ) {
+                                RegisterScreen(
+                                    onNavigateToLogin = {
+                                        navController.navigate(NavigationRoutes.loginPage)
+                                    },
+                                    onNavigateToHomePage = {
+                                        navController.navigate("expense_detail/$TEST_EXPENSE_ID") {
+                                            popUpTo(NavigationRoutes.authStack) { inclusive = true }
+                                        }
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
