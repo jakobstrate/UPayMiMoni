@@ -7,6 +7,7 @@ class LoginUseCase(
         private val repo: AuthRepository
 ) {
         suspend operator fun invoke(email: String, password: String): Result<User> {
-                return repo.loginUser(email, password)
+                val result = repo.loginUser(email, password)
+                return result
         }
 }

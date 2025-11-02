@@ -1,6 +1,7 @@
 package com.example.upaymimoni.data.repository
 
 import com.example.upaymimoni.domain.model.AuthError
+import com.example.upaymimoni.domain.model.AuthException
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.google.firebase.FirebaseNetworkException
@@ -9,10 +10,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import kotlinx.coroutines.tasks.await
 import java.lang.IllegalArgumentException
 
-class AuthException(val error: AuthError) : Exception()
 class FirebaseAuthRepository(
     private val auth: FirebaseAuth
 ) : AuthRepository {
@@ -47,16 +48,21 @@ class FirebaseAuthRepository(
     private fun mapExceptionToAuthError(e: Throwable): AuthError {
         return when (e) {
             is FirebaseAuthInvalidUserException -> AuthError.InvalidUser
+            is FirebaseNetworkException -> AuthError.NetworkFailure
+            is FirebaseTooManyRequestsException -> AuthError.TooManyLogins
+            is FirebaseAuthUserCollisionException -> AuthError.EmailInUse
+            is FirebaseAuthWeakPasswordException -> AuthError.WeakPassword(
+                e.reason ?: "Password is too weak"
+            )
+
             is FirebaseAuthInvalidCredentialsException -> when (e.errorCode) {
                 "ERROR_WRONG_PASSWORD" -> AuthError.InvalidCredentials
                 "ERROR_INVALID_EMAIL" -> AuthError.InvalidEmailFormat
                 else -> AuthError.Unknown
             }
 
-            is FirebaseNetworkException -> AuthError.NetworkFailure
-            is FirebaseTooManyRequestsException -> AuthError.TooManyLogins
-            is FirebaseAuthUserCollisionException -> AuthError.EmailInUse
             is IllegalArgumentException -> AuthError.EmptyOrNull
+
             else -> AuthError.Unknown
         }
     }

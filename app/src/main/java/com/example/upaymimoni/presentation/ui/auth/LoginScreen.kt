@@ -37,13 +37,16 @@ fun LoginScreen(
     val email by authViewModel.email.collectAsState()
     val pass by authViewModel.pass.collectAsState()
     val error by authViewModel.errorMsg.collectAsState()
+    val loading by authViewModel.loading.collectAsState()
 
     val uiEvent = authViewModel.uiEvent
 
     LaunchedEffect(Unit) {
         uiEvent.collect { event ->
             when (event) {
-                is AuthUiEvent.NavigateToHome -> onNavigateToHomePage()
+                is AuthUiEvent.NavigateToHome -> {
+                    onNavigateToHomePage()
+                }
             }
         }
     }
@@ -52,6 +55,7 @@ fun LoginScreen(
         email = email,
         pass = pass,
         error = error,
+        loading = loading,
         onEmailUpdate = authViewModel::updateEmail,
         onPassUpdate = authViewModel::updatePassword,
         onSignInClick = authViewModel::onSignInClick,
@@ -65,6 +69,7 @@ fun LoginContent(
     email: TextFieldValue,
     pass: TextFieldValue,
     error: String? = null,
+    loading: Boolean,
     onEmailUpdate: (TextFieldValue) -> Unit,
     onPassUpdate: (TextFieldValue) -> Unit,
     onSignInClick: () -> Unit,
@@ -111,6 +116,7 @@ fun LoginContent(
             AuthButton(
                 stringResource(R.string.login_button_text),
                 onClick = { onSignInClick() },
+                loading
             )
         }
 
@@ -136,6 +142,7 @@ fun LoginPreview() {
             email = TextFieldValue("example@gmail.com"),
             pass =TextFieldValue("ExamplePassword"),
             error = "No user was found for the given email, the user might have been deleted or something",
+            loading = false,
             onEmailUpdate = {},
             onPassUpdate = {},
             onSignInClick = {},

@@ -22,6 +22,9 @@ class AuthRegisterViewModel(
     private val _pass = MutableStateFlow(TextFieldValue(""))
     val pass: StateFlow<TextFieldValue> = _pass
 
+    private val _loading = MutableStateFlow<Boolean>(false)
+    val loading: StateFlow<Boolean> = _loading
+
     private val _errorMsg = MutableStateFlow<String?>(null)
     val errorMsg: StateFlow<String?> = _errorMsg
 
@@ -41,7 +44,9 @@ class AuthRegisterViewModel(
     }
 
     fun onRegisterClick() = viewModelScope.launch {
+        _loading.value = true
         val result = registerUseCase(_email.value.text, _pass.value.text)
+        _loading.value = false
 
         result.onSuccess { user ->
             println("Registered and logged in as user ${user.id}; Email: ${user.email}")

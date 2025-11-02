@@ -39,6 +39,7 @@ fun RegisterScreen(
     val email by authViewModel.email.collectAsState()
     val pass by authViewModel.pass.collectAsState()
     val error by authViewModel.errorMsg.collectAsState()
+    val loading by authViewModel.loading.collectAsState()
 
     val uiEvent = authViewModel.uiEvent
 
@@ -55,6 +56,7 @@ fun RegisterScreen(
         email,
         pass,
         error,
+        loading,
         authViewModel::updatePhone,
         authViewModel::updateEmail,
         authViewModel::updatePassword,
@@ -70,6 +72,7 @@ fun RegisterScreenContent(
     email: TextFieldValue,
     pass: TextFieldValue,
     error: String? = null,
+    loading: Boolean,
     onPhoneUpdate: (TextFieldValue) -> Unit,
     onEmailUpdate: (TextFieldValue) -> Unit,
     onPassUpdate: (TextFieldValue) -> Unit,
@@ -124,6 +127,7 @@ fun RegisterScreenContent(
             AuthButton(
                 stringResource(R.string.register_button_text),
                 onClick = { onRegisterClick() },
+                loading
             )
         }
 
@@ -149,6 +153,7 @@ private fun RegisterScreenPreview() {
             email = TextFieldValue("example@gmail.com"),
             pass =TextFieldValue("ExamplePassword"),
             error = "No user was found for the given email, the user might have been deleted or something",
+            loading = false,
             onPhoneUpdate = {},
             onEmailUpdate = {},
             onPassUpdate = {},
