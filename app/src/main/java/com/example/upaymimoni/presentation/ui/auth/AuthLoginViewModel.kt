@@ -42,7 +42,6 @@ class AuthLoginViewModel(
 
     fun onSignInClick() = viewModelScope.launch {
         _loading.value = true
-        delay(5000)
         val result = loginUseCase(_email.value.text, _pass.value.text)
         _loading.value = false
 

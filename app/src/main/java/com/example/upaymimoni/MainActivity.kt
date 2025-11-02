@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.upaymimoni.presentation.ui.ExpenseAddScreen
 import com.example.upaymimoni.presentation.ui.ExpenseDetailScreen
 import com.example.upaymimoni.presentation.ui.auth.LoginScreen
 import com.example.upaymimoni.presentation.ui.auth.RegisterScreen
@@ -42,6 +43,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     val TEST_EXPENSE_ID = "mock1"
+                    val TEST_GROUP_ID = "group1"
+                    val TEST_USER_ID = "user1"
 
                     NavHost(
                         navController = navController,
@@ -61,8 +64,24 @@ class MainActivity : ComponentActivity() {
 
                             ExpenseDetailScreen(
                                 expenseId = expenseId,
-                                // Since this is the only screen, onBackClick will just close the app (or navigate nowhere)
-                                onBackClick = { /* No-op or finish Activity */ }
+                                onBackClick = { }
+                            )
+                        }
+                        // Expense Add Screen Composable
+                        composable(
+                            "expense_add/{groupId}/{userId}",
+                            arguments = listOf(navArgument("groupId") { type = NavType.StringType },
+                                navArgument("userId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            // Retrieve the expenseId from the navigation arguments
+                            val groupId = backStackEntry.arguments?.getString("groupId") ?: TEST_GROUP_ID
+                            val userId = backStackEntry.arguments?.getString("userId") ?: TEST_USER_ID
+
+                            ExpenseAddScreen(
+                                groupId = groupId,
+                                userId = userId,
+                                onBackClick = { },
+                                onExpenseAdded = { }
                             )
                         }
                         composable(
