@@ -3,8 +3,8 @@ package com.example.upaymimoni.presentation.ui.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.LoginUseCase
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,8 @@ import kotlinx.coroutines.launch
 
 class AuthLoginViewModel(
     private val loginUseCase: LoginUseCase,
-    private val uiMessageTranslation: UiMessageTranslation
+    private val uiMessageTranslation: UiMessageTranslation,
+    private val userSession: UserSession
 ) : ViewModel() {
     // Store TextFieldValue instead of strings, as we want the position to survive reconfigurations
     private val _email = MutableStateFlow(TextFieldValue(""))
@@ -47,6 +48,7 @@ class AuthLoginViewModel(
 
         result.onSuccess { user ->
             println("Logged in as ${user.id}; Email: ${user.email}")
+            userSession.setCurrentUser(user)
             _uiEvent.emit(AuthUiEvent.NavigateToHome)
         }.onFailure { throwable ->
             val message = uiMessageTranslation.getUiExceptionMessage(throwable)

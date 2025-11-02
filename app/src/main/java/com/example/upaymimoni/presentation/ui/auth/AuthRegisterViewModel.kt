@@ -3,6 +3,7 @@ package com.example.upaymimoni.presentation.ui.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.RegisterUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +13,8 @@ import kotlinx.coroutines.launch
 
 class AuthRegisterViewModel(
     private val registerUseCase: RegisterUseCase,
-    private val uiMessageTranslation: UiMessageTranslation
+    private val uiMessageTranslation: UiMessageTranslation,
+    private val userSession: UserSession
 ) : ViewModel() {
     private val _phone = MutableStateFlow(TextFieldValue(""))
     val phone: StateFlow<TextFieldValue> = _phone
@@ -50,6 +52,7 @@ class AuthRegisterViewModel(
 
         result.onSuccess { user ->
             println("Registered and logged in as user ${user.id}; Email: ${user.email}")
+            userSession.setCurrentUser(user)
             _uiEvent.emit(AuthUiEvent.NavigateToHome)
         }.onFailure { throwable ->
             val message = uiMessageTranslation.getUiExceptionMessage(throwable)

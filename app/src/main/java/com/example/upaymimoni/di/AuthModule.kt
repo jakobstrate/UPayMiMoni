@@ -14,7 +14,7 @@ import org.koin.dsl.module
 val authModule = module {
     single { FirebaseAuth.getInstance() }
 
-    single <AuthRepository> { FirebaseAuthRepository(get()) }
+    single<AuthRepository> { FirebaseAuthRepository(get()) }
 
     single { UiMessageTranslation() }
 
@@ -23,10 +23,10 @@ val authModule = module {
     factory { RegisterUseCase(get()) }
 
     viewModel {
-        AuthLoginViewModel(get(), get())
+        AuthLoginViewModel(get(), get(), get())
     }
 
     viewModel {
-        AuthRegisterViewModel(get(), get())
+        AuthRegisterViewModel(get(), get(), get())
     }
 }
