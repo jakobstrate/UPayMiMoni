@@ -1,21 +1,18 @@
 package com.example.upaymimoni.presentation.ui.auth
 
-import com.example.upaymimoni.domain.model.AuthError
+import com.example.upaymimoni.domain.model.AuthErrorType
 import com.example.upaymimoni.domain.model.AuthException
 
 class UiMessageTranslation {
-    fun getUiExceptionMessage(throwable: Throwable): String {
-        val authError = (throwable as? AuthException)?.error ?: return "Unexpected error occurred"
-        return when (authError) {
-            is AuthError.InvalidCredentials -> "Incorrect Email or Password"
-            is AuthError.InvalidEmailFormat -> "Email is not a valid email."
-            is AuthError.Unknown -> "Something unexpected went wrong. Please try again."
-            is AuthError.InvalidUser -> "No account found with that email."
-            is AuthError.NetworkFailure -> "Network error. Please try again."
-            is AuthError.TooManyLogins -> "Too many attempts. Try again later."
-            is AuthError.EmptyOrNull -> "Please fill in all required fields."
-            is AuthError.EmailInUse -> "An account with that email is already in use"
-            is AuthError.WeakPassword -> "Password too weak: ${authError.message}"
-        }
+    fun getUiExceptionMessage(t: AuthException): String = when(t.errorType) {
+        AuthErrorType.InvalidCredentials -> "Incorrect Email or Password"
+        AuthErrorType.InvalidUser -> "No account found with that email."
+        AuthErrorType.NetworkFailure -> "Network error. Please try again."
+        AuthErrorType.TooManyLogins -> "Too many attempts. Try again later."
+        AuthErrorType.EmailInUse -> "An account with that email is already in use"
+        AuthErrorType.WeakPassword -> "Password too weak: ${t.errorMessage}"
+        AuthErrorType.InvalidEmailFormat -> "Email is not a valid email."
+        AuthErrorType.EmptyOrNull -> "Please fill in all required fields."
+        AuthErrorType.Unknown -> "Something unexpected went wrong. Please try again."
     }
 }

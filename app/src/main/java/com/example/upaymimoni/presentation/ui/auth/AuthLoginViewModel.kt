@@ -3,6 +3,7 @@ package com.example.upaymimoni.presentation.ui.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.LoginUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -46,13 +47,17 @@ class AuthLoginViewModel(
         val result = loginUseCase(_email.value.text, _pass.value.text)
         _loading.value = false
 
-        result.onSuccess { user ->
-            println("Logged in as ${user.id}; Email: ${user.email}")
-            userSession.setCurrentUser(user)
-            _uiEvent.emit(AuthUiEvent.NavigateToHome)
-        }.onFailure { throwable ->
-            val message = uiMessageTranslation.getUiExceptionMessage(throwable)
-            _errorMsg.value = message
+        when (result) {
+            is AuthResult.Success -> {
+                val user = result.user
+                println("Logged in as ${user.id}; Email: ${user.email}")
+                userSession.setCurrentUser(user)
+                _uiEvent.emit(AuthUiEvent.NavigateToHome)
+            }
+            is AuthResult.Failure -> {
+                val message = uiMessageTranslation.getUiExceptionMessage(result.exception)
+                _errorMsg.value = message
+            }
         }
     }
 }
