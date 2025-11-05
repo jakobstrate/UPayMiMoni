@@ -8,11 +8,11 @@ import com.example.upaymimoni.domain.repository.AuthRepository
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 import java.lang.IllegalArgumentException
 
@@ -46,8 +46,23 @@ class FirebaseAuthRepository(
             )
         )
 
+    } catch (t: Throwable) {
+        AuthResult.Failure(mapExceptionToDomain(t))
     }
-    catch (t: Throwable) {
+
+    override suspend fun loginUserWithGoogle(idToken: String): AuthResult = try {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        val result = auth.signInWithCredential(credential).await()
+        val firebaseUser =
+            result.user ?: throw Exception("Login With Google Auth returned null user")
+
+        AuthResult.Success(
+            User(
+                id = firebaseUser.uid,
+                email = firebaseUser.email
+            )
+        )
+    } catch (t: Throwable) {
         AuthResult.Failure(mapExceptionToDomain(t))
     }
 

@@ -61,7 +61,7 @@ import org.koin.core.parameter.parametersOf
 fun ExpenseDetailScreen(
     expenseId: String,
     onBackClick: () -> Unit,
-    viewModel: ExpenseDetailViewModel = koinViewModel { parametersOf(expenseId) }
+    viewModel: ExpenseDetailViewModel = koinViewModel { parametersOf(expenseId) },
 ) {
     // Collect the state containing the detailed expense data
     val state by viewModel.state.collectAsState()

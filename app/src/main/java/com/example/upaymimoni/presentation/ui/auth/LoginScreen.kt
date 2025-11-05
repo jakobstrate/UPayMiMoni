@@ -59,6 +59,7 @@ fun LoginScreen(
         onEmailUpdate = authViewModel::updateEmail,
         onPassUpdate = authViewModel::updatePassword,
         onSignInClick = authViewModel::onSignInClick,
+        onGoogleSignInClick = authViewModel::onGoogleSignIn,
         onSingUpClick = onNavigateToRegister
 
     )
@@ -73,6 +74,7 @@ fun LoginContent(
     onEmailUpdate: (TextFieldValue) -> Unit,
     onPassUpdate: (TextFieldValue) -> Unit,
     onSignInClick: () -> Unit,
+    onGoogleSignInClick: () -> Unit,
     onSingUpClick: () -> Unit
 ) {
     Column(
@@ -114,10 +116,17 @@ fun LoginContent(
             ErrorDialogue(error)
 
             AuthButton(
-                stringResource(R.string.login_button_text),
+                text = stringResource(R.string.login_button_text),
                 onClick = { onSignInClick() },
-                loading
+                isLoading = loading
             )
+
+            AuthButton(
+                text = stringResource(R.string.login_google_button_text),
+                onClick = { onGoogleSignInClick() },
+                isLoading = loading
+            )
+
         }
 
 
@@ -140,12 +149,13 @@ fun LoginPreview() {
     UPayMiMoniTheme {
         LoginContent(
             email = TextFieldValue("example@gmail.com"),
-            pass =TextFieldValue("ExamplePassword"),
+            pass = TextFieldValue("ExamplePassword"),
             error = "No user was found for the given email, the user might have been deleted or something",
             loading = false,
             onEmailUpdate = {},
             onPassUpdate = {},
             onSignInClick = {},
+            onGoogleSignInClick = {},
             onSingUpClick = {},
         )
     }

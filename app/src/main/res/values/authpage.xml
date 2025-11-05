@@ -4,6 +4,7 @@
     <string name="auth_password_label">Password*</string>
     <string name="auth_password_placeholder">Your Password</string>
     <string name="login_button_text">Login</string>
+    <string name="login_google_button_text">Login With Google</string>
     <string name="login_signup_noclick">Don\'t have an account?</string>
     <string name="auth_signup_click">click here!</string>
     <string name="register_phone_label">Phone Number*</string>
