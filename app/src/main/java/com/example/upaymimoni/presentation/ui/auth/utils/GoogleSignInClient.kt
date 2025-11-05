@@ -1,4 +1,4 @@
-package com.example.upaymimoni.presentation.ui.auth
+package com.example.upaymimoni.presentation.ui.auth.utils
 
 import android.content.Context
 import android.util.Log
@@ -10,7 +10,6 @@ import androidx.credentials.exceptions.GetCredentialException
 import com.example.upaymimoni.R
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 
 class GoogleSignInClient(
     val context: Context
@@ -24,7 +23,7 @@ class GoogleSignInClient(
         val request = configureRequest()
 
         try {
-            val result = CredentialManager.create(context).getCredential(
+            val result = CredentialManager.Companion.create(context).getCredential(
                 request = request,
                 context = context
             )
@@ -56,8 +55,8 @@ class GoogleSignInClient(
      * @return The idToken of the account as a string, null if it is not a google account.
      */
     private fun getIdToken(credential: Credential): String? {
-        if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+        if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+            val googleIdTokenCredential = GoogleIdTokenCredential.Companion.createFrom(credential.data)
             return googleIdTokenCredential.idToken
         } else {
             Log.w("GoogleAuth", "Credential is not of type Google ID")

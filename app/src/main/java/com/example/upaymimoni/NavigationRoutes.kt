@@ -5,4 +5,5 @@ object NavigationRoutes {
     const val loginPage = "Login"
     const val registerPage = "Register"
     const val authStack = "AuthStack"
+    const val forgotPassPage = "ForgotPassword"
 }

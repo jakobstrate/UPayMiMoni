@@ -5,11 +5,13 @@ import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.usecase.auth.GoogleLoginUseCase
 import com.example.upaymimoni.domain.usecase.auth.LoginUseCase
 import com.example.upaymimoni.domain.usecase.auth.RegisterUseCase
+import com.example.upaymimoni.domain.usecase.auth.ResetPasswordUseCase
 import org.koin.core.module.dsl.viewModel
-import com.example.upaymimoni.presentation.ui.auth.AuthLoginViewModel
-import com.example.upaymimoni.presentation.ui.auth.AuthRegisterViewModel
-import com.example.upaymimoni.presentation.ui.auth.GoogleSignInClient
-import com.example.upaymimoni.presentation.ui.auth.UiMessageTranslation
+import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthLoginViewModel
+import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthRegisterViewModel
+import com.example.upaymimoni.presentation.ui.auth.utils.GoogleSignInClient
+import com.example.upaymimoni.presentation.ui.auth.utils.UiMessageTranslation
+import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthForgotPassViewModel
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -29,6 +31,8 @@ val authModule = module {
 
     factory { GoogleLoginUseCase(get()) }
 
+    factory { ResetPasswordUseCase(get()) }
+
     viewModel {
         AuthLoginViewModel(
             get(),
@@ -42,6 +46,13 @@ val authModule = module {
     viewModel {
         AuthRegisterViewModel(
             get(),
+            get(),
+            get()
+        )
+    }
+
+    viewModel {
+        AuthForgotPassViewModel(
             get(),
             get()
         )

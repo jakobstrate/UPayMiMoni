@@ -1,4 +1,4 @@
-package com.example.upaymimoni.presentation.ui.auth
+package com.example.upaymimoni.presentation.ui.auth.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,9 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.upaymimoni.R
+import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent
 import com.example.upaymimoni.presentation.ui.auth.components.AppLogo
 import com.example.upaymimoni.presentation.ui.auth.components.AuthButton
-import com.example.upaymimoni.presentation.ui.auth.AuthRegisterViewModel
+import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthRegisterViewModel
 import com.example.upaymimoni.presentation.ui.auth.components.ClickableText
 import com.example.upaymimoni.presentation.ui.auth.components.ErrorDialogue
 import com.example.upaymimoni.presentation.ui.auth.components.UserInputField
@@ -81,7 +82,7 @@ fun RegisterScreenContent(
 ) {
     Column(
         modifier = Modifier
-            .padding(top = 24.dp)
+            .padding(top = 32.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
 

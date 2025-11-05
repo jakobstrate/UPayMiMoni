@@ -1,5 +1,6 @@
-package com.example.upaymimoni.presentation.ui.auth
+package com.example.upaymimoni.presentation.ui.auth.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -16,15 +18,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.upaymimoni.R
+import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent
 import com.example.upaymimoni.presentation.ui.auth.components.AppLogo
 import com.example.upaymimoni.presentation.ui.auth.components.AuthButton
 import com.example.upaymimoni.presentation.ui.auth.components.ClickableText
 import com.example.upaymimoni.presentation.ui.auth.components.ErrorDialogue
 import com.example.upaymimoni.presentation.ui.auth.components.UserInputField
+import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthLoginViewModel
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -33,6 +38,7 @@ fun LoginScreen(
     authViewModel: AuthLoginViewModel = koinViewModel(),
     onNavigateToRegister: () -> Unit,
     onNavigateToHomePage: () -> Unit,
+    onNavigateToForgotPass: () -> Unit,
 ) {
     val email by authViewModel.email.collectAsState()
     val pass by authViewModel.pass.collectAsState()
@@ -60,7 +66,8 @@ fun LoginScreen(
         onPassUpdate = authViewModel::updatePassword,
         onSignInClick = authViewModel::onSignInClick,
         onGoogleSignInClick = authViewModel::onGoogleSignIn,
-        onSingUpClick = onNavigateToRegister
+        onSingUpClick = onNavigateToRegister,
+        onForgotPassClick = onNavigateToForgotPass
 
     )
 }
@@ -75,11 +82,12 @@ fun LoginContent(
     onPassUpdate: (TextFieldValue) -> Unit,
     onSignInClick: () -> Unit,
     onGoogleSignInClick: () -> Unit,
-    onSingUpClick: () -> Unit
+    onSingUpClick: () -> Unit,
+    onForgotPassClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
-            .padding(top = 24.dp)
+            .padding(top = 32.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -111,6 +119,19 @@ fun LoginContent(
                 value = pass,
                 onValueChange = { onPassUpdate(it) },
                 visualTransformation = PasswordVisualTransformation()
+            )
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(32.dp),
+            modifier = Modifier.fillMaxWidth(0.9f)
+        ) {
+            Text(
+                text = stringResource(R.string.login_forgot_pass),
+                textAlign = TextAlign.Right,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(4.dp)
+                    .clickable(onClick = onForgotPassClick)
             )
 
             ErrorDialogue(error)
@@ -157,6 +178,7 @@ fun LoginPreview() {
             onSignInClick = {},
             onGoogleSignInClick = {},
             onSingUpClick = {},
+            onForgotPassClick = {}
         )
     }
 }

@@ -17,8 +17,9 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.upaymimoni.presentation.ui.ExpenseAddScreen
 import com.example.upaymimoni.presentation.ui.ExpenseDetailScreen
-import com.example.upaymimoni.presentation.ui.auth.LoginScreen
-import com.example.upaymimoni.presentation.ui.auth.RegisterScreen
+import com.example.upaymimoni.presentation.ui.auth.screens.ForgotPassScreen
+import com.example.upaymimoni.presentation.ui.auth.screens.LoginScreen
+import com.example.upaymimoni.presentation.ui.auth.screens.RegisterScreen
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
@@ -104,6 +105,9 @@ class MainActivity : ComponentActivity() {
                                         navController.navigate("expense_detail/$TEST_EXPENSE_ID") {
                                             popUpTo(NavigationRoutes.authStack) { inclusive = true }
                                         }
+                                    },
+                                    onNavigateToForgotPass = {
+                                        navController.navigate(NavigationRoutes.forgotPassPage)
                                     }
                                 )
                             }
@@ -119,6 +123,16 @@ class MainActivity : ComponentActivity() {
                                         navController.navigate("expense_detail/$TEST_EXPENSE_ID") {
                                             popUpTo(NavigationRoutes.authStack) { inclusive = true }
                                         }
+                                    }
+                                )
+                            }
+
+                            composable(
+                                route = NavigationRoutes.forgotPassPage
+                            ) {
+                                ForgotPassScreen(
+                                    onBackClick = {
+                                        navController.navigate(NavigationRoutes.loginPage)
                                     }
                                 )
                             }
