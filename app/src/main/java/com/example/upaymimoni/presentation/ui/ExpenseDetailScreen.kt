@@ -1,4 +1,5 @@
 package com.example.upaymimoni.presentation.ui
+import com.example.upaymimoni.presentation.ui.groups.groupsScreen
 
 import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -79,7 +83,11 @@ fun ExpenseDetailContent(
     state: Expense?,
     onBackClick: () -> Unit,
 ) {
-
+    var showGroupsScreen by remember { mutableStateOf(false) }
+    if (showGroupsScreen) {
+        groupsScreen()
+        return
+    }
 
 
     Scaffold(
@@ -97,7 +105,7 @@ fun ExpenseDetailContent(
                     navigationIconContentColor = Color.White
                 ),
                 actions = {
-                    IconButton(onClick = { TODO() }) {
+                    IconButton(onClick = { showGroupsScreen = true }) {
                         Icon(
                             imageVector = Icons.Filled.Edit,
                             contentDescription = "EditExpense",
