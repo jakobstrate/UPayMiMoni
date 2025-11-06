@@ -17,10 +17,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,6 +31,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -170,17 +174,21 @@ fun ExpenseDetailCard(expense: Expense) {
                     color = Color(0xFFD32F2F) // Red for expense amount
                 )
             }
-            Divider(color = Color(0xFFE0E0E0), thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp,
+                color = Color(0xFFE0E0E0)
+            )
 
             // 2. Metadata: Date, Group, Payer
             DetailRow(
-                icon = Icons.Default.AccountBox,
+                icon = Icons.Filled.Groups,
                 label = "Group ID",
                 value = expense.groupId,
                 tint = Color(0xFF6A1B9A)
             )
             DetailRow(
-                icon = Icons.Default.Person,
+                icon = Icons.Filled.Person,
                 label = "Paid By (User ID)",
                 value = expense.payerUserId,
                 tint = Color(0xFF00796B)
@@ -192,12 +200,16 @@ fun ExpenseDetailCard(expense: Expense) {
                 tint = Color(0xFF303F9F)
             )
 
-            Divider(color = Color(0xFFE0E0E0), thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp),
+                thickness = 1.dp,
+                color = Color(0xFFE0E0E0)
+            )
 
             // 3. Attachment Status
             val hasAttachment = expense.attachment != null
             DetailRow(
-                icon = if (hasAttachment) Icons.Default.CheckCircle else Icons.Default.Email,
+                icon = if (hasAttachment) Icons.Default.CheckCircle else Icons.Default.AttachFile,
                 label = "Receipt/Invoice",
                 value = if (hasAttachment) "Attached (Tap to View)" else "No Attachment",
                 tint = if (hasAttachment) Color(0xFF388E3C) else Color(0xFF757575)
@@ -229,7 +241,7 @@ fun DetailRow(icon: ImageVector, label: String, value: String, tint: Color) {
             contentDescription = label,
             tint = tint,
             modifier = Modifier
-                .size(24.dp)
+                .size(32.dp)
                 .padding(end = 8.dp)
         )
         Column {

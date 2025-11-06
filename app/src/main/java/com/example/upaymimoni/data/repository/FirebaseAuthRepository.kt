@@ -27,7 +27,9 @@ class FirebaseAuthRepository(
         AuthResult.Success(
             User(
                 id = firebaseUser.uid,
-                email = firebaseUser.email
+                email = firebaseUser.email,
+                displayName = null,
+                phoneNumber = null
             )
         )
 
@@ -42,7 +44,9 @@ class FirebaseAuthRepository(
         AuthResult.Success(
             User(
                 id = firebaseUser.uid,
-                email = firebaseUser.email
+                email = firebaseUser.email,
+                displayName = null,
+                phoneNumber = null
             )
         )
 
@@ -59,7 +63,9 @@ class FirebaseAuthRepository(
         AuthResult.Success(
             User(
                 id = firebaseUser.uid,
-                email = firebaseUser.email
+                email = firebaseUser.email,
+                displayName = null,
+                phoneNumber = null
             )
         )
     } catch (t: Throwable) {
