@@ -20,7 +20,7 @@ class FirebaseAuthRepository(
     private val auth: FirebaseAuth
 ) : AuthRepository {
 
-    override suspend fun loginUser(email: String, password: String): AuthResult = try {
+    override suspend fun loginUser(email: String, password: String): AuthResult<User> = try {
         val result = auth.signInWithEmailAndPassword(email, password).await()
         val firebaseUser = result.user ?: throw Exception("Login Auth returned null user")
 
@@ -35,7 +35,7 @@ class FirebaseAuthRepository(
         AuthResult.Failure(mapExceptionToDomain(t))
     }
 
-    override suspend fun registerUser(email: String, password: String): AuthResult = try {
+    override suspend fun registerUser(email: String, password: String): AuthResult<User> = try {
         val result = auth.createUserWithEmailAndPassword(email, password).await()
         val firebaseUser = result.user ?: throw Exception("Register Auth returned null user")
 
@@ -50,7 +50,7 @@ class FirebaseAuthRepository(
         AuthResult.Failure(mapExceptionToDomain(t))
     }
 
-    override suspend fun loginUserWithGoogle(idToken: String): AuthResult = try {
+    override suspend fun loginUserWithGoogle(idToken: String): AuthResult<User> = try {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         val result = auth.signInWithCredential(credential).await()
         val firebaseUser =
@@ -63,6 +63,17 @@ class FirebaseAuthRepository(
             )
         )
     } catch (t: Throwable) {
+        AuthResult.Failure(mapExceptionToDomain(t))
+    }
+
+    override suspend fun sendResetPasswordEmail(email: String): AuthResult<Unit> = try {
+        auth.sendPasswordResetEmail(email).await()
+        // Just return a Unit if we are successful, this saves us from having to create a custom class.
+        AuthResult.Success(
+            Unit
+        )
+    } catch (t: Throwable) {
+        t.printStackTrace()
         AuthResult.Failure(mapExceptionToDomain(t))
     }
 

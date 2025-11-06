@@ -49,7 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.upaymimoni.data.model.Expense
+import com.example.upaymimoni.domain.model.Expense
 import com.example.upaymimoni.presentation.viewmodel.AddExpenseState
 import com.example.upaymimoni.presentation.viewmodel.ExpenseAddViewModel
 import com.example.upaymimoni.presentation.viewmodel.ExpenseDetailViewModel

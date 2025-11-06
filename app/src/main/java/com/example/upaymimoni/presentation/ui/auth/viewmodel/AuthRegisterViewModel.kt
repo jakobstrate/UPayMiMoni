@@ -1,4 +1,4 @@
-package com.example.upaymimoni.presentation.ui.auth
+package com.example.upaymimoni.presentation.ui.auth.viewmodel
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.auth.RegisterUseCase
+import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent
+import com.example.upaymimoni.presentation.ui.auth.utils.UiMessageTranslation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,14 +55,14 @@ class AuthRegisterViewModel(
 
         when (result) {
             is AuthResult.Success -> {
-                val user = result.user
+                val user = result.data
                 println("Registered and logged in as user ${user.id}; Email: ${user.email}")
                 userSession.setCurrentUser(user)
                 _uiEvent.emit(AuthUiEvent.NavigateToHome)
             }
 
             is AuthResult.Failure -> {
-                val message = uiMessageTranslation.getUiExceptionMessage(result.exception)
+                val message = uiMessageTranslation.getUiExceptionMessage(result.error)
                 _errorMsg.value = message
             }
         }

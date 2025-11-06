@@ -1,6 +1,6 @@
 package com.example.upaymimoni.domain.usecase
 
-import com.example.upaymimoni.data.model.Expense
+import com.example.upaymimoni.domain.model.Expense
 import com.example.upaymimoni.data.repository.ExpenseRepository
 import kotlinx.coroutines.flow.Flow
 

@@ -1,4 +1,4 @@
-package com.example.upaymimoni.data.model
+package com.example.upaymimoni.domain.model
 
 /**
  * Represents a single expense record in the app.

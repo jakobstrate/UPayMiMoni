@@ -1,6 +1,6 @@
-# 1. firebase emualtor setup
+# 1. firebase emulator setup
 
-for this project to function locally a firebase auth emualtor must be configured and running.
+for this project to function locally a firebase auth emulator must be configured and running.
 
 ---
 
@@ -30,7 +30,7 @@ the install can be verified with:
 firebase --version
 ```
 
-## 3. login and initialize the emualtor
+## 3. login and initialize the emulator
 
 1. authenticate with firebase (this only has to be done once, if you have authenticated previously skip this step)
 
@@ -38,25 +38,25 @@ firebase --version
 firebase login
 ```
 
-2. inside this project directory, initialize the firebase emualtor
+2. inside this project directory, initialize the firebase emulator
 
 ```bash
-firebase init emulators
+firebase init emulator
 ```
 when prompted:
 - select emulators and authentication.
-- when asked which emualtors to set up, select auth.
+- when asked which emulators to set up, select auth.
 - choose a port (e.g 9099).
-- allow "enable emualtor ui".
-- install emualtors now when prompted.
+- allow "enable emulator ui".
+- install emulator now when prompted.
 - save the config to firebase.json when prompted.
 
-## 4. start the emualtor
+## 4. start the emulator
 
-run the emualtor locally with:
+run the emulator locally with:
 
 ```bash
-firebase emualtors:start
+firebase emulators:start
 ```
 
 you'll get an output showing where the auth emulator and emulator ui is running.
@@ -65,7 +65,7 @@ once up and running you can connect to the ui on the provided url.
 ## 5. configure your android app
 
 in `app/src/main/java/com/example/upaymimoni/mainactivity.kt`
-change the constants emulator_host and emualtor_port to the values you have configured.
+change the constants emulator_host and emulator_port to the values you have configured.
 for emulator_host it should be "10.0.2.2" as this allows the android emulator to access localhost.
 if you're running on a real device, replace it with your machine's local ip (e.g. "192.168.1.129").
 the emulator_port should be the auth emualtor port and not the ui port.

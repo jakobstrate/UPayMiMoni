@@ -1,6 +1,9 @@
 package com.example.upaymimoni.domain.model
 
-sealed class AuthResult {
-    data class Success(val user: User): AuthResult()
-    data class Failure(val exception: AuthException): AuthResult()
+/**
+ * Generic Result wrapper so that we can return anything + an AuthException
+ */
+sealed class AuthResult<out T> {
+    data class Success<out T>(val data: T): AuthResult<T>()
+    data class Failure(val error: AuthException): AuthResult<Nothing>()
 }

@@ -1,13 +1,12 @@
 package com.example.upaymimoni.domain.usecase.auth
 
 import com.example.upaymimoni.domain.model.AuthResult
-import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.repository.AuthRepository
 
-class GoogleLoginUseCase(
+class ResetPasswordUseCase(
     private val repo: AuthRepository
 ) {
-    suspend operator fun invoke(idToken: String): AuthResult<User> {
-        return repo.loginUserWithGoogle(idToken)
+    suspend operator fun invoke(email: String): AuthResult<Unit> {
+        return repo.sendResetPasswordEmail(email)
     }
 }

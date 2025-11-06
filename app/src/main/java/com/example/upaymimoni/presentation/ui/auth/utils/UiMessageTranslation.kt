@@ -1,4 +1,4 @@
-package com.example.upaymimoni.presentation.ui.auth
+package com.example.upaymimoni.presentation.ui.auth.utils
 
 import com.example.upaymimoni.domain.model.AuthErrorType
 import com.example.upaymimoni.domain.model.AuthException

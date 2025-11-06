@@ -1,4 +1,4 @@
-package com.example.upaymimoni.presentation.ui.auth
+package com.example.upaymimoni.presentation.ui.auth.viewmodel
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
@@ -7,6 +7,9 @@ import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.auth.GoogleLoginUseCase
 import com.example.upaymimoni.domain.usecase.auth.LoginUseCase
+import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent
+import com.example.upaymimoni.presentation.ui.auth.utils.GoogleSignInClient
+import com.example.upaymimoni.presentation.ui.auth.utils.UiMessageTranslation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,14 +55,14 @@ class AuthLoginViewModel(
 
         when (result) {
             is AuthResult.Success -> {
-                val user = result.user
+                val user = result.data
                 println("Logged in as ${user.id}; Email: ${user.email}")
                 userSession.setCurrentUser(user)
                 _uiEvent.emit(AuthUiEvent.NavigateToHome)
             }
 
             is AuthResult.Failure -> {
-                val message = uiMessageTranslation.getUiExceptionMessage(result.exception)
+                val message = uiMessageTranslation.getUiExceptionMessage(result.error)
                 _errorMsg.value = message
             }
         }
@@ -73,7 +76,7 @@ class AuthLoginViewModel(
             _loading.value = false
             _errorMsg.value =
                 "Failed to retrieve google account." +
-                        " Ensure your are logged in your device and have an internet connection"
+                        " Ensure you are logged in to your device and have an active internet connection"
             return@launch
         }
 
@@ -82,14 +85,14 @@ class AuthLoginViewModel(
 
         when (result) {
             is AuthResult.Success -> {
-                val user = result.user
+                val user = result.data
                 println("Logged in as ${user.id}; Email: ${user.email}")
                 userSession.setCurrentUser(user)
                 _uiEvent.emit(AuthUiEvent.NavigateToHome)
             }
 
             is AuthResult.Failure -> {
-                val message = uiMessageTranslation.getUiExceptionMessage(result.exception)
+                val message = uiMessageTranslation.getUiExceptionMessage(result.error)
                 _errorMsg.value = message
             }
         }
