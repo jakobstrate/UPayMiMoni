@@ -2,11 +2,10 @@ package com.example.upaymimoni.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.upaymimoni.data.model.Attachment
-import com.example.upaymimoni.data.model.Expense
+import com.example.upaymimoni.domain.model.Attachment
+import com.example.upaymimoni.domain.model.Expense
 import com.example.upaymimoni.data.repository.ExpenseRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 

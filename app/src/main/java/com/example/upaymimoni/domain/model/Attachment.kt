@@ -1,4 +1,4 @@
-package com.example.upaymimoni.data.model
+package com.example.upaymimoni.domain.model
 
 /**
  * Represents a single attachment entity, added to an expense.

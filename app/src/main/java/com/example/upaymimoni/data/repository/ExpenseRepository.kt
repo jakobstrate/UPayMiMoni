@@ -1,8 +1,8 @@
 package com.example.upaymimoni.data.repository
 
-import com.example.upaymimoni.data.model.Attachment
-import com.example.upaymimoni.data.model.AttachmentType
-import com.example.upaymimoni.data.model.Expense
+import com.example.upaymimoni.domain.model.Attachment
+import com.example.upaymimoni.domain.model.AttachmentType
+import com.example.upaymimoni.domain.model.Expense
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
