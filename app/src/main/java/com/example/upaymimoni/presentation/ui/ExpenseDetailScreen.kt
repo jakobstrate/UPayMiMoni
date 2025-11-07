@@ -54,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.upaymimoni.domain.model.Expense
+import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import com.example.upaymimoni.presentation.viewmodel.AddExpenseState
 import com.example.upaymimoni.presentation.viewmodel.ExpenseAddViewModel
 import com.example.upaymimoni.presentation.viewmodel.ExpenseDetailViewModel
@@ -104,23 +105,23 @@ fun ExpenseDetailContent(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    titleContentColor = MaterialTheme.colorScheme.onTertiary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onTertiary
                 ),
                 actions = {
                     IconButton(onClick = { showGroupsScreen = true }) {
                         Icon(
                             imageVector = Icons.Filled.Edit,
                             contentDescription = "EditExpense",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onTertiary
                         )
                     }
                 },
 
             )
         },
-        containerColor = Color(0xFFF5F5F5)
+        containerColor = MaterialTheme.colorScheme.surface
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -143,7 +144,7 @@ fun ExpenseDetailContent(
 fun ExpenseDetailCard(expense: Expense) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = MaterialTheme.shapes.medium // Simple rectangular shape
     ) {
@@ -153,7 +154,7 @@ fun ExpenseDetailCard(expense: Expense) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.Start
         ) {
-            // 1. Header: Name and Amount
+            // Header: Name and Amount
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -171,13 +172,13 @@ fun ExpenseDetailCard(expense: Expense) {
                     text = "$${String.format("%.2f", expense.amount)}",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFFD32F2F) // Red for expense amount
+                    color = MaterialTheme.colorScheme.error // Red for expense amount
                 )
             }
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
                 thickness = 1.dp,
-                color = Color(0xFFE0E0E0)
+                color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.35f)
             )
 
             // 2. Metadata: Date, Group, Payer
@@ -191,19 +192,19 @@ fun ExpenseDetailCard(expense: Expense) {
                 icon = Icons.Filled.Person,
                 label = "Paid By (User ID)",
                 value = expense.payerUserId,
-                tint = Color(0xFF00796B)
+                tint = MaterialTheme.colorScheme.tertiary
             )
             DetailRow(
                 icon = Icons.Default.DateRange,
                 label = "Date",
                 value = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", getDefault()).format(expense.createdAt),
-                tint = Color(0xFF303F9F)
+                tint = MaterialTheme.colorScheme.primary
             )
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 16.dp),
                 thickness = 1.dp,
-                color = Color(0xFFE0E0E0)
+                color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.35f)
             )
 
             // 3. Attachment Status
@@ -212,15 +213,15 @@ fun ExpenseDetailCard(expense: Expense) {
                 icon = if (hasAttachment) Icons.Default.CheckCircle else Icons.Default.AttachFile,
                 label = "Receipt/Invoice",
                 value = if (hasAttachment) "Attached (Tap to View)" else "No Attachment",
-                tint = if (hasAttachment) Color(0xFF388E3C) else Color(0xFF757575)
+                tint = MaterialTheme.colorScheme.secondary
             )
             if (hasAttachment) {
                 Spacer(Modifier.height(8.dp))
                 Button(onClick = { /* TODO: Implement PDF Viewer/Link Opener */ },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("View Attachment (Simulated)")
+                    Text("View Attachment")
                 }
             }
         }
@@ -249,13 +250,13 @@ fun DetailRow(icon: ImageVector, label: String, value: String, tint: Color) {
                 text = label,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF757575) // Lo-fi gray label
+                color = MaterialTheme.colorScheme.secondary
             )
             Text(
                 text = value,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.Black.copy(alpha = 0.8f)
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -265,7 +266,7 @@ fun DetailRow(icon: ImageVector, label: String, value: String, tint: Color) {
 fun NoDataMessage() {
     Text(
         text = "Expense not found or is missing data.",
-        color = Color(0xFF757575)
+        color = MaterialTheme.colorScheme.error
     )
 }
 
@@ -273,15 +274,17 @@ fun NoDataMessage() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewExpenseDetailContent() {
-    ExpenseDetailContent(
-        state = Expense(
-            name = "Coffee",
-            amount = 4.20,
-            id = "1",
-            payerUserId = "2",
-            groupId = "3",
-            attachment = null,
-        ),
-        onBackClick = {}
-    )
+    UPayMiMoniTheme(darkTheme = false) {
+        ExpenseDetailContent(
+            state = Expense(
+                name = "Coffee",
+                amount = 4.20,
+                id = "1",
+                payerUserId = "2",
+                groupId = "3",
+                attachment = null,
+            ),
+            onBackClick = {}
+        )
+    }
 }

@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
 //                        startDestination = "expense_detail/$TEST_EXPENSE_ID") {
                         startDestination = NavigationRoutes.authStack
                     ) {
-// 1. Expense Detail Screen Composable
+                        // Expense Detail Screen Composable
                         composable(
                             "expense_detail/{expenseId}",
                             arguments = listOf(navArgument("expenseId") {

@@ -33,15 +33,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -74,6 +78,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import com.example.upaymimoni.presentation.viewmodel.AddExpenseState
 import com.example.upaymimoni.presentation.viewmodel.ExpenseAddViewModel
 import kotlinx.coroutines.launch
@@ -119,7 +124,7 @@ fun ExpenseAddContent(
         topBar = {
             TopAppBar(
                 title = { Column {
-                    Text(color = LocalContentColor.current.copy(alpha = 0.5f),
+                    Text(color = MaterialTheme.colorScheme.onTertiary,
                         text = "Add Expense")
                     Text(
                         fontSize = 16.sp,
@@ -131,9 +136,9 @@ fun ExpenseAddContent(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    titleContentColor = MaterialTheme.colorScheme.onTertiary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onTertiary
                 )
             )
         },
@@ -147,7 +152,7 @@ fun ExpenseAddContent(
                 )
             }
         },
-        containerColor = Color(0xFFF5F5F5)
+        containerColor = MaterialTheme.colorScheme.surface
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -180,11 +185,22 @@ fun ExpenseAddBody(
 
     Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
 
-        TextField(
+        OutlinedTextField(
             value = state.name,
             onValueChange = onNameChange,
-            label = { Text("Title on expense") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                unfocusedTextColor = if (state.name.isBlank()) MaterialTheme.colorScheme.onPrimaryContainer
+                else MaterialTheme.colorScheme.onPrimary,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                cursorColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = Color.Transparent
+            ),
+            shape = RoundedCornerShape(50),
+            placeholder = { Text("Enter expense title") },
+
         )
 
         Spacer(Modifier.height(36.dp))
@@ -212,13 +228,17 @@ fun ExpenseAddBody(
             onClick = { showAttachFilePopup = true },
             shape = RoundedCornerShape(50.dp),
             contentPadding = PaddingValues(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             Text("Attach file")
             Icon(Icons.Filled.Add,contentDescription = "Attach")
         }
 
         state.error?.let {
-            Text(text = it, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+            Text(text = it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp))
         }
     }
 }
@@ -282,13 +302,14 @@ fun AmountSelector(
                 text = (value.ifEmpty { "0" }),
                 style = MaterialTheme.typography.bodyLarge,
                 fontSize = 42.sp,
-                color = Color.DarkGray
+                color = MaterialTheme.colorScheme.secondary
             )
             Spacer(Modifier.width(6.dp))
             Text(
                 text = currency,
                 style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -317,18 +338,19 @@ fun SplitBetweenPopup(label: String, value: String, onClick: () -> Unit){
 @Composable
 fun SelectionBar(label: String, value: String, onClick: () -> Unit) {
     Column(Modifier.fillMaxWidth()) {
-        Text(label, style = MaterialTheme.typography.bodySmall)
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface)
         Spacer(Modifier.height(4.dp))
         Row(
             Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
-                .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
+                .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(6.dp))
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(value, Modifier.weight(1f))
-            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            Text(value, Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface)
+            Icon(Icons.Default.ArrowDropDown, contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface)
         }
     }
 }
@@ -354,7 +376,12 @@ fun ConfirmSlider(
             .padding(16.dp)
             .height(60.dp)
             .onGloballyPositioned { barSize = it.size }
-            .background(Color.LightGray, RoundedCornerShape(50)),
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest, RoundedCornerShape(50))
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.surfaceDim,
+                shape = RoundedCornerShape(50),
+            ),
         contentAlignment = Alignment.CenterStart
     ) {
         val maxOffset = (barSize.width - handleSize.width).toFloat()
@@ -362,7 +389,7 @@ fun ConfirmSlider(
         // Text in center
         Text(
             text = "Slide to $sliderText",
-            color = Color.DarkGray,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.align(Alignment.Center)
         )
 
@@ -379,7 +406,7 @@ fun ConfirmSlider(
                 }
                 .size(56.dp)
                 .onGloballyPositioned { handleSize = it.size }
-                .background(Color(0xFF236DF1), RoundedCornerShape(50))
+                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
                 .pointerInput(maxOffset) {
                     if (!confirmed) {
                         detectDragGestures(
@@ -414,11 +441,11 @@ fun ConfirmSlider(
             contentAlignment = Alignment.Center
         ) {
             if (confirmed) {
-                CircularProgressIndicator(color = Color.White)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
             } else {
                 Icon(Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = "ConfirmArrow",
-                    tint = Color.White)
+                    tint = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }
@@ -427,12 +454,14 @@ fun ConfirmSlider(
 @Preview(showBackground = true)
 @Composable
 fun PreviewExpenseAddContent() {
-    ExpenseAddContent(
-        state = AddExpenseState(
-            name = "Coffee",
-            amount = "4.20",
-            isSaving = false,
-            error = null
+    UPayMiMoniTheme (darkTheme = false) {
+        ExpenseAddContent(
+            state = AddExpenseState(
+                name = "Coffee",
+                amount = "4.20",
+                isSaving = false,
+                error = null
+            )
         )
-    )
+    }
 }

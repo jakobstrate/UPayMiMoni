@@ -16,6 +16,7 @@ composeBom = "2024.09.00"
 navigationCompose = "2.9.5"
 firebaseCommonKtx = "22.0.1"
 foundation = "1.9.4"
+uiTextGoogleFonts = "1.9.4"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
@@ -47,6 +48,7 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
