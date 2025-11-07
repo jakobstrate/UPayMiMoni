@@ -5,19 +5,20 @@ import com.example.upaymimoni.data.session.UserSessionImpl
 import com.example.upaymimoni.domain.repository.UserRepository
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.user.GetUserUseCase
-import com.example.upaymimoni.domain.usecase.user.SaveUserUseCase
+import com.google.firebase.firestore.FirebaseFirestore
 import org.koin.dsl.module
 
 val ApplicationModule = module {
+
+    single { FirebaseFirestore.getInstance() }
     single <UserSession> {
         UserSessionImpl()
     }
 
     single < UserRepository> {
-        FirestoreUserRepository()
+        FirestoreUserRepository(get())
     }
 
     factory { GetUserUseCase(get()) }
 
-    factory { SaveUserUseCase(get()) }
 }
