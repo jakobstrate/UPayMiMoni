@@ -27,7 +27,7 @@ val authModule = module {
 
     factory { LoginUseCase(get()) }
 
-    factory { RegisterUseCase(get(), get()) }
+    factory { RegisterUseCase(get(), get(), get()) }
 
     factory { GoogleLoginUseCase(get(), get()) }
 

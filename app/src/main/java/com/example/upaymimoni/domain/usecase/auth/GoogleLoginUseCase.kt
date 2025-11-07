@@ -35,7 +35,9 @@ class GoogleLoginUseCase(
                 }
             }
 
-            is AuthResult.Failure -> authResult
+            is AuthResult.Failure -> {
+                AuthResult.Failure(authResult.error)
+            }
         }
     }
 }

@@ -66,7 +66,7 @@ class FirebaseAuthRepository(
     private fun createNewUser(firebaseUser: FirebaseUser): User {
         return User(
             id = firebaseUser.uid,
-            profilePictureUrl = firebaseUser.photoUrl,
+            profilePictureUrl = firebaseUser.photoUrl?.toString(),
             displayName = firebaseUser.displayName,
             phoneNumber = firebaseUser.phoneNumber,
             email = firebaseUser.email,

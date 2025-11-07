@@ -1,6 +1,6 @@
 # 1. firebase emulator setup
 
-for this project to function locally a firebase auth emulator must be configured and running.
+for this project to function locally a firebase auth and firestore emulator must be configured and running.
 
 ---
 
@@ -45,8 +45,8 @@ firebase init emulator
 ```
 when prompted:
 - select emulators and authentication.
-- when asked which emulators to set up, select auth.
-- choose a port (e.g 9099).
+- when asked which emulators to set up, select auth and firestore.
+- choose ports (e.g 9099 and 8080).
 - allow "enable emulator ui".
 - install emulator now when prompted.
 - save the config to firebase.json when prompted.
