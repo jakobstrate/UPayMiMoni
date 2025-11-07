@@ -14,5 +14,6 @@ class UiMessageTranslation {
         AuthErrorType.InvalidEmailFormat -> "Email is not a valid email."
         AuthErrorType.EmptyOrNull -> "Please fill in all required fields."
         AuthErrorType.Unknown -> "Something unexpected went wrong. Please try again."
+        AuthErrorType.InternalDataSaveError -> "Something went wrong on our end. Please try again."
     }
 }

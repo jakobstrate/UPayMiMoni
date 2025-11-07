@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 import java.lang.IllegalArgumentException
@@ -24,14 +25,7 @@ class FirebaseAuthRepository(
         val result = auth.signInWithEmailAndPassword(email, password).await()
         val firebaseUser = result.user ?: throw Exception("Login Auth returned null user")
 
-        AuthResult.Success(
-            User(
-                id = firebaseUser.uid,
-                email = firebaseUser.email,
-                displayName = null,
-                phoneNumber = null
-            )
-        )
+        AuthResult.Success(createNewUser(firebaseUser))
 
     } catch (t: Throwable) {
         AuthResult.Failure(mapExceptionToDomain(t))
@@ -41,14 +35,7 @@ class FirebaseAuthRepository(
         val result = auth.createUserWithEmailAndPassword(email, password).await()
         val firebaseUser = result.user ?: throw Exception("Register Auth returned null user")
 
-        AuthResult.Success(
-            User(
-                id = firebaseUser.uid,
-                email = firebaseUser.email,
-                displayName = null,
-                phoneNumber = null
-            )
-        )
+        AuthResult.Success(createNewUser(firebaseUser))
 
     } catch (t: Throwable) {
         AuthResult.Failure(mapExceptionToDomain(t))
@@ -60,14 +47,7 @@ class FirebaseAuthRepository(
         val firebaseUser =
             result.user ?: throw Exception("Login With Google Auth returned null user")
 
-        AuthResult.Success(
-            User(
-                id = firebaseUser.uid,
-                email = firebaseUser.email,
-                displayName = null,
-                phoneNumber = null
-            )
-        )
+        AuthResult.Success(createNewUser(firebaseUser))
     } catch (t: Throwable) {
         AuthResult.Failure(mapExceptionToDomain(t))
     }
@@ -81,6 +61,17 @@ class FirebaseAuthRepository(
     } catch (t: Throwable) {
         t.printStackTrace()
         AuthResult.Failure(mapExceptionToDomain(t))
+    }
+
+    private fun createNewUser(firebaseUser: FirebaseUser): User {
+        return User(
+            id = firebaseUser.uid,
+            profilePictureUrl = firebaseUser.photoUrl?.toString(),
+            displayName = firebaseUser.displayName,
+            phoneNumber = firebaseUser.phoneNumber,
+            email = firebaseUser.email,
+            groups = emptyList()
+        )
     }
 
     /**
