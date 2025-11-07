@@ -24,11 +24,13 @@ import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 
-//const val EMULATOR_HOST = "10.0.2.2"
+const val EMULATOR_HOST = "10.0.2.2"
 
-const val EMULATOR_HOST = "10.126.69.219"
-const val EMULATOR_PORT = 9099
+//const val EMULATOR_HOST = "10.126.69.219"
+const val AUTH_EMULATOR_PORT = 9099
+const val FIRESTORE_EMULATOR_PORT = 8080
 
 class MainActivity : ComponentActivity() {
     @ExperimentalMaterial3Api
@@ -150,6 +152,7 @@ class MainActivity : ComponentActivity() {
      */
     private fun configureFirebaseEmulator() {
         FirebaseApp.initializeApp(this)
-        Firebase.auth.useEmulator(EMULATOR_HOST, EMULATOR_PORT)
+        Firebase.auth.useEmulator(EMULATOR_HOST, AUTH_EMULATOR_PORT)
+        Firebase.firestore.useEmulator(EMULATOR_HOST, FIRESTORE_EMULATOR_PORT)
     }
 }
