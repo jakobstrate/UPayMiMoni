@@ -29,9 +29,12 @@
 
     <string name="register_login_page_click">Login!</string>
 
+    <string name="reset_pass_bar_title">Forgot Password</string>
     <string name="reset_pass_title">Forgot Password?</string>
+    <string name="reset_pass_desc">Enter your email below, \nto change your password.</string>
     <string name="reset_pass_submit_button">Submit</string>
+
     <string name="popup_title">Email Sent</string>
-    <string name="popup_body">An Email with instructions has been sent to %1$s. \nPlease check your inbox and follow the steps to reset your password.</string>
+    <string name="popup_body">An Email with instructions has been sent to %1$s.</string>
     <string name="popup_button">Back to Login</string>
 </resources>

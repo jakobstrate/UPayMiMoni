@@ -24,12 +24,12 @@ class UiMessageTranslation {
      */
     fun getUiExceptionMessage(t: AuthException): UiError = when (t.errorType) {
         AuthErrorType.InvalidCredentials -> UiError(
-            message = "Incorrect Email or Password",
+            message = "Incorrect Email or Password.",
             type = UiErrorType.INPUT
         )
 
         AuthErrorType.InvalidUser -> UiError(
-            message = "Incorrect Email Or Password",
+            message = "No account with that email found.",
             type = UiErrorType.INPUT
         )
 
@@ -44,7 +44,7 @@ class UiMessageTranslation {
         )
 
         AuthErrorType.EmailInUse -> UiError(
-            message = "An account with that email is already in use",
+            message = "An account with that email is already in use.",
             type = UiErrorType.EMAIL
         )
 

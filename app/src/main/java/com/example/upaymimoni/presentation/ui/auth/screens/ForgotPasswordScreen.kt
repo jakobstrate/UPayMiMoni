@@ -1,27 +1,39 @@
 package com.example.upaymimoni.presentation.ui.auth.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.LockReset
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +70,7 @@ fun ForgotPassScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPassScreenContent(
     onBackClick: () -> Unit,
@@ -69,32 +82,99 @@ fun ForgotPassScreenContent(
     showPopUp: Boolean,
     removePopUp: () -> Unit
 ) {
-}
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.reset_pass_bar_title),
+                        style = MaterialTheme.typography.headlineMedium
 
-@Composable
-fun ForgotPasswordHeader(
-    onBackClick: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onBackClick
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back"
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    titleContentColor = MaterialTheme.colorScheme.onTertiary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onTertiary
+                )
             )
         }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(vertical = 48.dp, horizontal = 24.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Default.LockReset,
+                contentDescription = "Reset Password Icon",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth(0.5f)
+                    .aspectRatio(1f)
+            )
 
-        Text(
-            text =  stringResource(R.string.reset_pass_title),
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1f)
-        )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(R.string.reset_pass_title),
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = stringResource(R.string.reset_pass_desc),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.secondary,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            UserInputField(
+                value = email,
+                label = stringResource(R.string.auth_email_label),
+                placeHolder = stringResource(R.string.auth_email_placeholder),
+                isError = error.emailError,
+                onValueChange = onEmailUpdate,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            )
+
+            ErrorDialogue(
+                active = error.emailError,
+                message = error.emailMsg
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            AuthButton(
+                text = stringResource(R.string.reset_pass_submit_button),
+                onClick = onSubmitClick,
+                enabled = !loading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(42.dp)
+            )
+
+            if (showPopUp) {
+                ResetEmailPopUp(
+                    email = email.text,
+                    onDismiss = {
+                        removePopUp()
+                        onBackClick()
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -116,10 +196,12 @@ fun ResetEmailPopUp(
         title = { Text(stringResource(R.string.popup_title)) },
         text = {
             Text(
-                text = stringResource(R.string.popup_body, email)
+                text = stringResource(R.string.popup_body, email),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center
             )
         },
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(4.dp)
     )
 }
 

@@ -48,7 +48,8 @@ class AuthForgotPassViewModel(
             is AuthResult.Failure -> {
                 val uiError = uiMessageTranslation.getUiExceptionMessage(result.error)
                 _errorState.value = AuthErrorState(
-                    errorMsg = uiError.message
+                    emailError = true,
+                    emailMsg = uiError.message
                 )
             }
         }
