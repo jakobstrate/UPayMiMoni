@@ -30,6 +30,7 @@ import com.example.upaymimoni.R
 import com.example.upaymimoni.presentation.ui.auth.components.AuthButton
 import com.example.upaymimoni.presentation.ui.auth.components.ErrorDialogue
 import com.example.upaymimoni.presentation.ui.auth.components.UserInputField
+import com.example.upaymimoni.presentation.ui.auth.utils.AuthErrorState
 import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthForgotPassViewModel
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import org.koin.androidx.compose.koinViewModel
@@ -41,7 +42,7 @@ fun ForgotPassScreen(
 ) {
     val email by forgotPassViewModel.email.collectAsState()
     val loading by forgotPassViewModel.loading.collectAsState()
-    val error by forgotPassViewModel.errorMsg.collectAsState()
+    val error by forgotPassViewModel.errorState.collectAsState()
 
     val showPopUp by forgotPassViewModel.showPopUp.collectAsState()
 
@@ -64,54 +65,10 @@ fun ForgotPassScreenContent(
     onEmailUpdate: (TextFieldValue) -> Unit,
     loading: Boolean,
     onSubmitClick: () -> Unit,
-    error: String?,
+    error: AuthErrorState,
     showPopUp: Boolean,
     removePopUp: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        ForgotPasswordHeader(
-            onBackClick = onBackClick
-        )
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(32.dp),
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-        ) {
-            UserInputField(
-                label = stringResource(R.string.auth_email_label),
-                placeHolder = stringResource(R.string.auth_email_placeholder),
-                value = email,
-                onValueChange = { onEmailUpdate(it) }
-            )
-
-            ErrorDialogue(error)
-
-            AuthButton(
-                text = stringResource(R.string.reset_pass_submit_button),
-                onClick = onSubmitClick,
-                isLoading = loading
-            )
-        }
-
-    }
-
-    if (showPopUp) {
-        ResetEmailPopUp(
-            email = email.text,
-            onDismiss = {
-                removePopUp()
-                onBackClick()
-            }
-        )
-    }
 }
 
 @Composable
@@ -178,7 +135,9 @@ private fun ForgotPassScreenPreview(
             onEmailUpdate = {},
             loading = false,
             onSubmitClick = {},
-            error = "Please fill in the required fields.",
+            error = AuthErrorState(
+                errorMsg = "Please fill in the required fields."
+            ),
             showPopUp = true,
             removePopUp = {}
         )

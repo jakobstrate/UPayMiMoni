@@ -7,8 +7,10 @@ import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.auth.GoogleLoginUseCase
 import com.example.upaymimoni.domain.usecase.auth.LoginUseCase
+import com.example.upaymimoni.presentation.ui.auth.utils.AuthErrorState
 import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent
 import com.example.upaymimoni.presentation.ui.auth.utils.GoogleSignInClient
+import com.example.upaymimoni.presentation.ui.auth.utils.UiErrorType.*
 import com.example.upaymimoni.presentation.ui.auth.utils.UiMessageTranslation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,25 +32,44 @@ class AuthLoginViewModel(
     private val _pass = MutableStateFlow(TextFieldValue(""))
     val pass: StateFlow<TextFieldValue> = _pass
 
-    private val _errorMsg = MutableStateFlow<String?>(null)
-    val errorMsg: StateFlow<String?> = _errorMsg
+    private val _errorState = MutableStateFlow(AuthErrorState())
+    val errorState: StateFlow<AuthErrorState> = _errorState
 
-    private val _loading = MutableStateFlow<Boolean>(false)
+    private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
 
     private val _uiEvent = MutableSharedFlow<AuthUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
+    private fun clearErrors() {
+        _errorState.value = AuthErrorState()
+    }
+
 
     fun updateEmail(newEmail: TextFieldValue) {
         _email.value = newEmail
+        clearErrors()
+        if (_email.value.text.isEmpty()) {
+            _errorState.value = _errorState.value.copy(
+                emailError = true,
+                errorMsg = "Please fill in your email."
+            )
+        }
     }
 
     fun updatePassword(newPass: TextFieldValue) {
         _pass.value = newPass
+        clearErrors()
+        if (_pass.value.text.isEmpty()) {
+            _errorState.value = _errorState.value.copy(
+                passwordError = true,
+                errorMsg = "Please fill in your password."
+            )
+        }
     }
 
     fun onSignInClick() = viewModelScope.launch {
+        clearErrors()
         _loading.value = true
         val result = loginUseCase(_email.value.text, _pass.value.text)
         _loading.value = false
@@ -62,21 +83,36 @@ class AuthLoginViewModel(
             }
 
             is AuthResult.Failure -> {
-                val message = uiMessageTranslation.getUiExceptionMessage(result.error)
-                _errorMsg.value = message
+                val uiError = uiMessageTranslation.getUiExceptionMessage(result.error)
+                _errorState.value = AuthErrorState(
+                    errorMsg = uiError.message
+                )
+                when (uiError.type) {
+                    EMAIL -> _errorState.value = _errorState.value.copy(emailError = true)
+                    PASSWORD -> _errorState.value = _errorState.value.copy(passwordError = true)
+                    INPUT -> _errorState.value = _errorState.value.copy(emailError = true, passwordError = true)
+                    GOOGLE -> _errorState.value = _errorState.value.copy(googleError = true)
+                    GENERAL -> _errorState.value = _errorState.value.copy()
+                }
             }
+
         }
     }
 
     fun onGoogleSignIn() = viewModelScope.launch {
+        clearErrors()
         _loading.value = true
         val idToken = googleSignInClient.launchCredentialManager()
 
         if (idToken.isNullOrBlank()) {
             _loading.value = false
-            _errorMsg.value =
+            val message =
                 "Failed to retrieve google account." +
                         " Ensure you are logged in to your device and have an active internet connection"
+            _errorState.value = AuthErrorState(
+                googleError = true,
+                errorMsg = message
+            )
             return@launch
         }
 
@@ -92,9 +128,13 @@ class AuthLoginViewModel(
             }
 
             is AuthResult.Failure -> {
-                val message = uiMessageTranslation.getUiExceptionMessage(result.error)
-                _errorMsg.value = message
+                val uiError = uiMessageTranslation.getUiExceptionMessage(result.error)
+                _errorState.value = AuthErrorState(
+                    googleError = true,
+                    errorMsg = uiError.message
+                )
             }
         }
     }
+
 }

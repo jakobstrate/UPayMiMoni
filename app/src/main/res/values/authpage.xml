@@ -1,18 +1,24 @@
 <resources>
-    <string name="auth_email_label">Email Address*</string>
-    <string name="auth_email_placeholder">Your Email Address</string>
-    <string name="auth_password_label">Password*</string>
-    <string name="auth_password_placeholder">Your Password</string>
+    <string name="auth_email_label">Email</string>
+    <string name="auth_email_placeholder">Enter your email</string>
+    <string name="auth_password_label">Password</string>
+    <string name="auth_password_placeholder">Enter your password</string>
+
+    <string name="login_page_title">Login</string>
+    <string name="login_page_sub_title">Welcome back you\'ve \n been missed!</string>
     <string name="login_button_text">Login</string>
     <string name="login_google_button_text">Login With Google</string>
     <string name="login_signup_noclick">Don\'t have an account?</string>
+    <string name="auth_signup_click">Register!</string>
     <string name="login_forgot_pass">Forgot Password?</string>
-    <string name="auth_signup_click">click here!</string>
-    <string name="register_phone_label">Phone Number*</string>
-    <string name="register_phone_placeholder">Your Phone number</string>
+
+    <string name="register_phone_label">Number</string>
+    <string name="register_phone_placeholder">Enter your number</string>
     <string name="register_button_text">Register</string>
     <string name="register_login_page_noclick">Already have an account?</string>
-    <string name="reset_pass_title">Forgot Password</string>
+    <string name="register_login_page_click">Login!</string>
+
+    <string name="reset_pass_title">Forgot Password?</string>
     <string name="reset_pass_submit_button">Submit</string>
     <string name="popup_title">Email Sent</string>
     <string name="popup_body">An Email with instructions has been sent to %1$s. \nPlease check your inbox and follow the steps to reset your password.</string>

@@ -26,9 +26,10 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
-const val EMULATOR_HOST = "10.0.2.2"
+//const val EMULATOR_HOST = "10.0.2.2"
 
 //const val EMULATOR_HOST = "10.126.69.219"
+const val EMULATOR_HOST = "192.168.1.129"
 const val AUTH_EMULATOR_PORT = 9099
 const val FIRESTORE_EMULATOR_PORT = 8080
 

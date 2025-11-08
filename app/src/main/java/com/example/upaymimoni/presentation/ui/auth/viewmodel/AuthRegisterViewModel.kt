@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.auth.RegisterUseCase
+import com.example.upaymimoni.presentation.ui.auth.utils.AuthErrorState
 import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent
 import com.example.upaymimoni.presentation.ui.auth.utils.UiMessageTranslation
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,8 +31,8 @@ class AuthRegisterViewModel(
     private val _loading = MutableStateFlow<Boolean>(false)
     val loading: StateFlow<Boolean> = _loading
 
-    private val _errorMsg = MutableStateFlow<String?>(null)
-    val errorMsg: StateFlow<String?> = _errorMsg
+    private val _errorState = MutableStateFlow(AuthErrorState())
+    val errorState: StateFlow<AuthErrorState> = _errorState
 
     private val _uiEvent = MutableSharedFlow<AuthUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
@@ -62,8 +63,10 @@ class AuthRegisterViewModel(
             }
 
             is AuthResult.Failure -> {
-                val message = uiMessageTranslation.getUiExceptionMessage(result.error)
-                _errorMsg.value = message
+                val uiError = uiMessageTranslation.getUiExceptionMessage(result.error)
+                _errorState.value = AuthErrorState(
+                    errorMsg = uiError.message
+                )
             }
         }
     }

@@ -3,6 +3,7 @@ package com.example.upaymimoni.presentation.ui.auth.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,7 +18,6 @@ import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 fun ClickableText(
     normalText: String,
     clickText: String,
-    fontSize: TextUnit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -26,12 +26,14 @@ fun ClickableText(
     ) {
         Text(
             text = "$normalText ",
-            fontSize = fontSize,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Text(
             text = clickText,
-            fontSize = fontSize,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.clickable(onClick = onClick)
         )
@@ -45,7 +47,6 @@ fun ClickableTextPreview() {
         ClickableText(
             "Testing this",
             "Awesome prompt",
-            14.sp,
             onClick = { println("Text Button Clicked")}
         )
     }

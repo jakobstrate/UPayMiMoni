@@ -27,6 +27,7 @@ import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthRegisterViewMod
 import com.example.upaymimoni.presentation.ui.auth.components.ClickableText
 import com.example.upaymimoni.presentation.ui.auth.components.ErrorDialogue
 import com.example.upaymimoni.presentation.ui.auth.components.UserInputField
+import com.example.upaymimoni.presentation.ui.auth.utils.AuthErrorState
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -39,7 +40,7 @@ fun RegisterScreen(
     val phone by authViewModel.phone.collectAsState()
     val email by authViewModel.email.collectAsState()
     val pass by authViewModel.pass.collectAsState()
-    val error by authViewModel.errorMsg.collectAsState()
+    val error by authViewModel.errorState.collectAsState()
     val loading by authViewModel.loading.collectAsState()
 
     val uiEvent = authViewModel.uiEvent
@@ -72,7 +73,7 @@ fun RegisterScreenContent(
     phone: TextFieldValue,
     email: TextFieldValue,
     pass: TextFieldValue,
-    error: String? = null,
+    error: AuthErrorState,
     loading: Boolean,
     onPhoneUpdate: (TextFieldValue) -> Unit,
     onEmailUpdate: (TextFieldValue) -> Unit,
@@ -80,69 +81,7 @@ fun RegisterScreenContent(
     onRegisterClick: () -> Unit,
     onLoginClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .padding(top = 32.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
 
-    ) {
-        AppLogo(
-            modifier = Modifier
-                .fillMaxWidth(3 / 4f)
-                .wrapContentHeight(),
-        )
-
-        Spacer(
-            modifier = Modifier.padding(44.dp)
-        )
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(32.dp),
-            modifier = Modifier.fillMaxWidth(0.9f)
-        ) {
-            UserInputField(
-                label = stringResource(R.string.register_phone_label),
-                placeHolder = stringResource(R.string.register_phone_placeholder),
-                value = phone,
-                onValueChange = { onPhoneUpdate(it) },
-            )
-
-            UserInputField(
-                label = stringResource(R.string.auth_email_label),
-                placeHolder = stringResource(R.string.auth_email_placeholder),
-                value = email,
-                onValueChange = { onEmailUpdate(it) },
-            )
-
-            UserInputField(
-                label = stringResource(R.string.auth_password_label),
-                placeHolder = stringResource(R.string.auth_password_placeholder),
-                value = pass,
-                onValueChange = { onPassUpdate(it) },
-                visualTransformation = PasswordVisualTransformation()
-            )
-
-            ErrorDialogue(error)
-
-            AuthButton(
-                stringResource(R.string.register_button_text),
-                onClick = { onRegisterClick() },
-                loading
-            )
-        }
-
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        ClickableText(
-            normalText = stringResource(R.string.register_login_page_noclick),
-            clickText = stringResource(R.string.auth_signup_click),
-            fontSize = 18.sp,
-            onClick = onLoginClick,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-    }
 }
 
 @Preview(showBackground = true)
@@ -153,7 +92,9 @@ private fun RegisterScreenPreview() {
             phone = TextFieldValue("+4588888888"),
             email = TextFieldValue("example@gmail.com"),
             pass =TextFieldValue("ExamplePassword"),
-            error = "No user was found for the given email, the user might have been deleted or something",
+            error = AuthErrorState(
+                errorMsg = "No user was found for the given email, the user might have been deleted or something"
+            ),
             loading = false,
             onPhoneUpdate = {},
             onEmailUpdate = {},
