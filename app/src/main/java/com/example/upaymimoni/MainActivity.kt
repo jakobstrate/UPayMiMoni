@@ -52,8 +52,8 @@ class MainActivity : ComponentActivity() {
 
                     NavHost(
                         navController = navController,
-//                        startDestination = "expense_detail/$TEST_EXPENSE_ID") {
                         startDestination = NavigationRoutes.authStack
+                        //startDestination = "expense_add/$TEST_GROUP_ID/$TEST_USER_ID"
                     ) {
                         // Expense Detail Screen Composable
                         composable(

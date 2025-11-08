@@ -3,7 +3,7 @@ package com.example.upaymimoni.di
 import com.example.upaymimoni.data.repository.ExpenseRepository
 import com.example.upaymimoni.data.repository.MockExpenseRepository
 import com.example.upaymimoni.domain.usecase.GetExpenseDetailUseCase
-import com.example.upaymimoni.presentation.viewmodel.ExpenseDetailViewModel
+import com.example.upaymimoni.presentation.ui.expenses.viewmodel.ExpenseDetailViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
