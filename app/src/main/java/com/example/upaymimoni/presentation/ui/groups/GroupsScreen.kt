@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.upaymimoni.presentation.ui.auth.components.AppLogo
+//import com.example.upaymimoni.presentation.ui.auth.components.AppLogo
 import com.example.upaymimoni.presentation.ui.groups.components.InviteButton
 
 
@@ -26,7 +26,7 @@ fun groupsScreen() {
         Row (){
             InviteButton()
             Text("Hello")
-            AppLogo()
+//            AppLogo()
 
         }
 

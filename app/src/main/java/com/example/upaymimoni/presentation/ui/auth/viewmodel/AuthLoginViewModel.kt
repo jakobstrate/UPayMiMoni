@@ -12,6 +12,7 @@ import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent
 import com.example.upaymimoni.presentation.ui.auth.utils.GoogleSignInClient
 import com.example.upaymimoni.presentation.ui.auth.utils.UiErrorType.*
 import com.example.upaymimoni.presentation.ui.auth.utils.UiMessageTranslation
+import com.example.upaymimoni.presentation.ui.utils.TextFieldManipulator
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,25 +46,22 @@ class AuthLoginViewModel(
         _errorState.value = AuthErrorState()
     }
 
-
     fun updateEmail(newEmail: TextFieldValue) {
-        _email.value = newEmail
-        clearErrors()
+        _email.value = TextFieldManipulator.clearWhiteSpaceFromField(newEmail)
         if (_email.value.text.isEmpty()) {
             _errorState.value = _errorState.value.copy(
                 emailError = true,
-                errorMsg = "Please fill in your email."
+                emailMsg = "Please fill in your email."
             )
         }
     }
 
     fun updatePassword(newPass: TextFieldValue) {
-        _pass.value = newPass
-        clearErrors()
+        _pass.value = TextFieldManipulator.clearWhiteSpaceFromField(newPass)
         if (_pass.value.text.isEmpty()) {
             _errorState.value = _errorState.value.copy(
                 passwordError = true,
-                errorMsg = "Please fill in your password."
+                passwordMsg = "Please fill in your password."
             )
         }
     }
@@ -84,18 +82,26 @@ class AuthLoginViewModel(
 
             is AuthResult.Failure -> {
                 val uiError = uiMessageTranslation.getUiExceptionMessage(result.error)
-                _errorState.value = AuthErrorState(
-                    errorMsg = uiError.message
-                )
                 when (uiError.type) {
-                    EMAIL -> _errorState.value = _errorState.value.copy(emailError = true)
-                    PASSWORD -> _errorState.value = _errorState.value.copy(passwordError = true)
-                    INPUT -> _errorState.value = _errorState.value.copy(emailError = true, passwordError = true)
-                    GOOGLE -> _errorState.value = _errorState.value.copy(googleError = true)
-                    GENERAL -> _errorState.value = _errorState.value.copy()
+                    EMAIL -> _errorState.value =
+                        _errorState.value.copy(emailError = true, emailMsg = uiError.message)
+
+                    PASSWORD -> _errorState.value =
+                        _errorState.value.copy(passwordError = true, passwordMsg = uiError.message)
+
+                    INPUT -> _errorState.value =
+                        _errorState.value.copy(
+                            emailError = true,
+                            passwordError = true,
+                            emailMsg = uiError.message,
+                            passwordMsg = uiError.message
+                        )
+
+                    GOOGLE -> _errorState.value =
+                        _errorState.value.copy(googleError = true, errorMsg = uiError.message)
+                    else -> _errorState.value = _errorState.value.copy()
                 }
             }
-
         }
     }
 

@@ -12,10 +12,21 @@
     <string name="auth_signup_click">Register!</string>
     <string name="login_forgot_pass">Forgot Password?</string>
 
+    <string name="register_page_title">Register</string>
+    <string name="register_page_sub_title">Fill in your information \n to get started</string>
+
+    <string name="register_name_label">Name</string>
+    <string name="register_name_placeholder">Enter your name</string>
+
+    <string name="register_number_label">Number</string>
+    <string name="register_number_placeholder">Enter your number</string>
+
     <string name="register_phone_label">Number</string>
     <string name="register_phone_placeholder">Enter your number</string>
+
     <string name="register_button_text">Register</string>
     <string name="register_login_page_noclick">Already have an account?</string>
+
     <string name="register_login_page_click">Login!</string>
 
     <string name="reset_pass_title">Forgot Password?</string>

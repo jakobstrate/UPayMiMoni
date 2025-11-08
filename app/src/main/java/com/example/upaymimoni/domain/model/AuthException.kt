@@ -13,7 +13,10 @@ enum class AuthErrorType() {
     EmailInUse,
     WeakPassword,
     InvalidEmailFormat,
-    EmptyOrNull,
+    EmptyName,
+    EmptyNumber,
+    EmptyEmail,
+    EmptyPassword,
     InternalDataSaveError,
     Unknown
 }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -133,15 +135,16 @@ fun LoginContent(
                 label = stringResource(R.string.auth_email_label),
                 placeHolder = stringResource(R.string.auth_email_placeholder),
                 isError = error.emailError,
-                onValueChange = { onEmailUpdate(it) }
+                onValueChange = { onEmailUpdate(it) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
 
             ErrorDialogue(
                 active = error.emailError,
-                message = error.errorMsg
+                message = error.emailMsg
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             UserInputField(
                 value = pass,
@@ -154,7 +157,7 @@ fun LoginContent(
 
             ErrorDialogue(
                 active = error.passwordError,
-                message = error.errorMsg
+                message = error.passwordMsg
             )
 
             Text(
@@ -232,7 +235,7 @@ fun LoginContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             ClickableText(
                 normalText = stringResource(R.string.login_signup_noclick),

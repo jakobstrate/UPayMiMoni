@@ -2,6 +2,7 @@ package com.example.upaymimoni.presentation.ui.auth.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -29,6 +30,7 @@ fun UserInputField(
     isError: Boolean,
     isPasswordField: Boolean = false,
     onValueChange: (TextFieldValue) -> Unit,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     var passwordVisible by remember { mutableStateOf(!isPasswordField) }
     val currentTransformation = if (isPasswordField && !passwordVisible) {
@@ -57,15 +59,12 @@ fun UserInputField(
     Column {
         OutlinedTextField(
             value = value,
-            onValueChange = { newValue -> // Removes whitespace from input before updating state.
-                val filteredText = newValue.text.filter { !it.isWhitespace() }
-                val filteredValue = newValue.copy(text = filteredText)
-                onValueChange(filteredValue)
-            },
+            onValueChange = onValueChange,
             label = { Text(label) },
             placeholder = { Text(placeHolder) },
             singleLine = true,
             visualTransformation = currentTransformation,
+            keyboardOptions = keyboardOptions,
             isError = isError,
             trailingIcon = trailingIcon,
             modifier = Modifier.fillMaxWidth()

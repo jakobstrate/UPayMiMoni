@@ -82,7 +82,6 @@ class FirebaseAuthRepository(
         is FirebaseNetworkException -> AuthException(AuthErrorType.NetworkFailure, t.message)
         is FirebaseTooManyRequestsException -> AuthException(AuthErrorType.TooManyLogins, t.message)
         is FirebaseAuthUserCollisionException -> AuthException(AuthErrorType.EmailInUse, t.message)
-        is IllegalArgumentException -> AuthException(AuthErrorType.EmptyOrNull, t.message)
         is FirebaseAuthWeakPasswordException -> AuthException(AuthErrorType.WeakPassword, t.reason)
         is FirebaseAuthInvalidCredentialsException -> when (t.errorCode) {
             "ERROR_WRONG_PASSWORD" -> AuthException(AuthErrorType.InvalidCredentials, t.message)
