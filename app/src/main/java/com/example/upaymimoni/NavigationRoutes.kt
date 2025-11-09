@@ -6,4 +6,8 @@ object NavigationRoutes {
     const val registerPage = "Register"
     const val authStack = "AuthStack"
     const val forgotPassPage = "ForgotPassword"
+
+    const val profileStack = "ProfileStack"
+    const val profilePage = "ProfilePage"
+    const val editProfilePage = "EditProfilePage"
 }

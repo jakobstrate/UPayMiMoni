@@ -44,7 +44,7 @@ class RegisterUseCase(
                         )
                     )
                 } else {
-                    AuthResult.Success(user)
+                    AuthResult.Success(saveUser)
                 }
             }
 

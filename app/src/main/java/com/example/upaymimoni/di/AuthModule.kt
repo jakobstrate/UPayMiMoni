@@ -4,6 +4,7 @@ import com.example.upaymimoni.data.repository.FirebaseAuthRepository
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.usecase.auth.GoogleLoginUseCase
 import com.example.upaymimoni.domain.usecase.auth.LoginUseCase
+import com.example.upaymimoni.domain.usecase.auth.LogoutUseCase
 import com.example.upaymimoni.domain.usecase.auth.RegisterUseCase
 import com.example.upaymimoni.domain.usecase.auth.ResetPasswordUseCase
 import org.koin.core.module.dsl.viewModel
@@ -25,13 +26,15 @@ val authModule = module {
 
     single { UiMessageTranslation() }
 
-    factory { LoginUseCase(get()) }
+    factory { LoginUseCase(get(), get()) }
 
     factory { RegisterUseCase(get(), get(), get()) }
 
     factory { GoogleLoginUseCase(get(), get()) }
 
     factory { ResetPasswordUseCase(get()) }
+
+    factory { LogoutUseCase(get()) }
 
     viewModel {
         AuthLoginViewModel(

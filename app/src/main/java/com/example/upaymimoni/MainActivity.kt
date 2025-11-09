@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
@@ -20,6 +21,7 @@ import com.example.upaymimoni.presentation.ui.ExpenseDetailScreen
 import com.example.upaymimoni.presentation.ui.auth.screens.ForgotPassScreen
 import com.example.upaymimoni.presentation.ui.auth.screens.LoginScreen
 import com.example.upaymimoni.presentation.ui.auth.screens.RegisterScreen
+import com.example.upaymimoni.presentation.ui.profile.screens.ProfileScreen
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
@@ -105,7 +107,7 @@ class MainActivity : ComponentActivity() {
                                         navController.navigate(NavigationRoutes.registerPage)
                                     },
                                     onNavigateToHomePage = {
-                                        navController.navigate("expense_detail/$TEST_EXPENSE_ID") {
+                                        navController.navigate(NavigationRoutes.profileStack) {
                                             popUpTo(NavigationRoutes.authStack) { inclusive = true }
                                         }
                                     },
@@ -123,7 +125,7 @@ class MainActivity : ComponentActivity() {
                                         navController.navigate(NavigationRoutes.loginPage)
                                     },
                                     onNavigateToHomePage = {
-                                        navController.navigate("expense_detail/$TEST_EXPENSE_ID") {
+                                        navController.navigate(NavigationRoutes.profileStack) {
                                             popUpTo(NavigationRoutes.authStack) { inclusive = true }
                                         }
                                     }
@@ -138,6 +140,35 @@ class MainActivity : ComponentActivity() {
                                         navController.navigate(NavigationRoutes.loginPage)
                                     }
                                 )
+                            }
+                        }
+
+                        navigation(
+                            startDestination = NavigationRoutes.profilePage,
+                            route = NavigationRoutes.profileStack
+                        ) {
+                            composable(
+                                route = NavigationRoutes.profilePage
+                            ) {
+                                ProfileScreen(
+                                    onNavigateToLogin = {
+                                        navController.navigate(NavigationRoutes.authStack) {
+                                            popUpTo(0)
+                                        }
+                                    },
+                                    onEditProfileClick = {
+                                        navController.navigate(NavigationRoutes.editProfilePage)
+                                    },
+                                    onNavigateToGroups = {
+                                        navController.navigate(NavigationRoutes.editProfilePage)
+                                    }
+                                )
+                            }
+
+                            composable(
+                                route = NavigationRoutes.editProfilePage,
+                            ) {
+
                             }
                         }
                     }

@@ -67,6 +67,10 @@ dependencies {
     implementation(libs.koin.androidx.compose) //getviewmodel needs this version
     implementation(libs.koin.androidx.navigation)
 
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+    implementation(libs.coil.svg)
+
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)

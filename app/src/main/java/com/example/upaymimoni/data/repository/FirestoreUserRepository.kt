@@ -1,5 +1,6 @@
 package com.example.upaymimoni.data.repository
 
+import android.util.Log
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.repository.UserRepository
 import com.google.firebase.firestore.FirebaseFirestore
@@ -32,9 +33,14 @@ class FirestoreUserRepository(
         if (user != null) {
             Result.success(user)
         } else {
+            Log.e(
+                "DatabaseImpl",
+                "Did not find user: $userId in the database."
+            )
             Result.failure(NoSuchElementException("User $userId not found"))
         }
     } catch (e: Exception) {
+        e.printStackTrace()
         Result.failure(e)
     }
 }

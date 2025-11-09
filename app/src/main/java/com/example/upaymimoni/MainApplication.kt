@@ -2,6 +2,7 @@ package com.example.upaymimoni
 
 import android.app.Application
 import com.example.upaymimoni.di.ApplicationModule
+import com.example.upaymimoni.di.ProfileModule
 import com.example.upaymimoni.di.authModule
 import com.example.upaymimoni.di.expenseAddModule
 import com.example.upaymimoni.di.expenseDetailModule
@@ -19,7 +20,8 @@ class MainApplication : Application() {
                 ApplicationModule,
                 expenseDetailModule,
                 expenseAddModule,
-                authModule
+                authModule,
+                ProfileModule
             ))
         }
     }

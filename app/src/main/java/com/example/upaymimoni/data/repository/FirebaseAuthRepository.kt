@@ -63,6 +63,10 @@ class FirebaseAuthRepository(
         AuthResult.Failure(mapExceptionToDomain(t))
     }
 
+    override suspend fun logoutUser() {
+        auth.signOut()
+    }
+
     private fun createNewUser(firebaseUser: FirebaseUser): User {
         return User(
             id = firebaseUser.uid,
