@@ -52,7 +52,7 @@ class AuthRegisterViewModel(
         if (_name.value.text.isEmpty()) {
             _errorState.value = _errorState.value.copy(
                 nameError = true,
-                nameMsg = "Please fill in your password."
+                nameMsg = "Please fill in your name."
             )
         }
     }
@@ -64,7 +64,7 @@ class AuthRegisterViewModel(
         if (_number.value.text.isEmpty()) {
             _errorState.value = _errorState.value.copy(
                 numberError = true,
-                numberMsg = "Please fill in your password."
+                numberMsg = "Please fill in your phone number."
             )
         }
     }

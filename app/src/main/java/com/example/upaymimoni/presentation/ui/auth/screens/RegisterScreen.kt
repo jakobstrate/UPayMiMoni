@@ -129,6 +129,9 @@ fun RegisterScreenContent(
                 placeHolder = stringResource(R.string.register_name_placeholder),
                 isError = error.nameError,
                 onValueChange = { onNameUpdate(it) },
+                onFocusLost = {
+                    onNameUpdate(name.copy(name.text.trim()))
+                }
             )
 
             ErrorDialogue(

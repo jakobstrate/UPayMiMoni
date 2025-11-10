@@ -21,6 +21,7 @@ import com.example.upaymimoni.presentation.ui.ExpenseDetailScreen
 import com.example.upaymimoni.presentation.ui.auth.screens.ForgotPassScreen
 import com.example.upaymimoni.presentation.ui.auth.screens.LoginScreen
 import com.example.upaymimoni.presentation.ui.auth.screens.RegisterScreen
+import com.example.upaymimoni.presentation.ui.profile.screens.EditProfileScreen
 import com.example.upaymimoni.presentation.ui.profile.screens.ProfileScreen
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import com.google.firebase.Firebase
@@ -159,6 +160,7 @@ class MainActivity : ComponentActivity() {
                                     onEditProfileClick = {
                                         navController.navigate(NavigationRoutes.editProfilePage)
                                     },
+                                    // TODO: Should navigate to groups page.
                                     onNavigateToGroups = {
                                         navController.navigate(NavigationRoutes.editProfilePage)
                                     }
@@ -168,7 +170,11 @@ class MainActivity : ComponentActivity() {
                             composable(
                                 route = NavigationRoutes.editProfilePage,
                             ) {
-
+                                EditProfileScreen(
+                                    onBackClick = {
+                                        navController.navigate(NavigationRoutes.profilePage)
+                                    }
+                                )
                             }
                         }
                     }

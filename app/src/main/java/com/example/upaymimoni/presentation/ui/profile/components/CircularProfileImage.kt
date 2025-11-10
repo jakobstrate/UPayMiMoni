@@ -1,10 +1,19 @@
 package com.example.upaymimoni.presentation.ui.profile.components
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,7 +29,9 @@ import coil3.request.crossfade
 @Composable
 fun CircularProfileImage(
     imageUrl: String?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showUploadButton: Boolean = false,
+    onUploadClick: (() -> Unit)? = null
 ) {
     val safeUrl = imageUrl?.takeIf { it.isNotBlank() }
         ?: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=fallback"
@@ -43,5 +54,26 @@ fun CircularProfileImage(
                 )
                 .clip(CircleShape)
         )
+
+        if (showUploadButton) {
+            FloatingActionButton(
+                onClick = { onUploadClick?.invoke() },
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                contentColor = MaterialTheme.colorScheme.onTertiary,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = -12.dp, y = -12.dp)
+                    .size(38.dp),
+                shape = CircleShape,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 4.dp
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Upload,
+                    contentDescription = "Upload Picture Icon",
+                )
+            }
+        }
     }
 }
