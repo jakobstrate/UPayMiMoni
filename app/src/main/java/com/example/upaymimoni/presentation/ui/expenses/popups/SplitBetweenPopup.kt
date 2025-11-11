@@ -31,10 +31,10 @@ import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
  */
 @Composable
 fun SplitBetweenPopup(options: List<String>,
-                      selected: Set<String>,
+                      selected: List<String>,
                       onToggleSelection: (String) -> Unit,
                       onClose: () -> Unit,
-                      onConfirm: (Set<String>) -> Unit){
+                      onConfirm: (List<String>) -> Unit){
     Dialog(onDismissRequest = onClose) {
         Surface(
             shape = MaterialTheme.shapes.medium,
@@ -113,7 +113,7 @@ fun PreviewSplitBetweenPopup() {
                 "niels",
                 "anders"
             ),
-            selected = setOf(
+            selected = listOf(
                 "Adam",
                 "crystal",
                 "metha",

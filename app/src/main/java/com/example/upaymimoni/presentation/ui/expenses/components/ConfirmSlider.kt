@@ -94,9 +94,6 @@ fun ConfirmSlider(
                     if (!confirmed) {
                         detectDragGestures(
                             onDrag = { change, dragAmount ->
-                                println("barSize:$barSize")
-                                println("handle:$handleSize")
-                                println("dragOffset:${dragOffset.value}")
                                 change.consume()
                                 scope.launch {
                                     dragOffset.snapTo(

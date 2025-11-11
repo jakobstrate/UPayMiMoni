@@ -5,8 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.upaymimoni.domain.model.Attachment
 import com.example.upaymimoni.domain.model.Expense
-import com.example.upaymimoni.data.repository.ExpenseRepository
 import com.example.upaymimoni.domain.model.AttachmentType
+import com.example.upaymimoni.domain.repository.ExpenseRepository
+import com.example.upaymimoni.domain.usecase.expense.AddExpenseUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +19,7 @@ data class AddExpenseState(
     val name: String = "",
     val amount: String = "",
     val paidByUserId: String = "",
-    val splitBetweenUserIds: Set<String> = emptySet(),
+    val splitBetweenUserIds: List<String> = emptyList(),
     val isSaving: Boolean = false,
     val error: String? = null,
     val attachment: Attachment? = null
@@ -29,9 +30,9 @@ data class AddExpenseState(
  * It exposes the immutable state (ViewState) to the UI.
  */
 class ExpenseAddViewModel(
-    private val expenseRepository: ExpenseRepository,
+    private val addExpenseUseCase: AddExpenseUseCase,
     private val groupId: String,
-    private val userId: String
+    userId: String
 ) : ViewModel() {
     //Basic expense state and manipulation
 
@@ -60,19 +61,18 @@ class ExpenseAddViewModel(
         //make object and send to repo
         viewModelScope.launch{
             state.value = current.copy(isSaving = true)
-
-            val expense = Expense(
-                id = UUID.randomUUID().toString(),
+            val result = addExpenseUseCase(
                 name = current.name,
                 amount = current.amount.toDouble(),
-                payerUserId = userId,
+                payerUserId = current.paidByUserId,
                 groupId = groupId,
-                attachment = current.attachment,
+                splitBetweenUserIds = current.splitBetweenUserIds,
+                attachment = current.attachment
             )
 
-            expenseRepository.addExpense(expense)
-
-            onSuccess()
+            if (result.isSuccess) {
+                onSuccess()
+            }
         }
     }
 
@@ -105,8 +105,8 @@ class ExpenseAddViewModel(
     val showSplitBetweenPopup: StateFlow<Boolean> = _showSplitBetweenPopup.asStateFlow()
 
     // Temp state for pending confirmation selections
-    private val _pendingSelectedUserIds = MutableStateFlow<Set<String>>(emptySet())
-    val pendingSelectedUserIds: StateFlow<Set<String>> = _pendingSelectedUserIds.asStateFlow()
+    private val _pendingSelectedUserIds = MutableStateFlow<List<String>>(emptyList())
+    val pendingSelectedUserIds: StateFlow<List<String>> = _pendingSelectedUserIds.asStateFlow()
 
     fun openSpltBetweenPopup() {
         // initialize with already saved state
@@ -133,7 +133,7 @@ class ExpenseAddViewModel(
     }
 
     // Function to update the paidBy user
-    fun saveConfirmedSplitBetweenUserIds(confirmedUsers: Set<String>) {
+    fun saveConfirmedSplitBetweenUserIds(confirmedUsers: List<String>) {
         state.update { currentState ->
             currentState.copy(
                 splitBetweenUserIds = confirmedUsers

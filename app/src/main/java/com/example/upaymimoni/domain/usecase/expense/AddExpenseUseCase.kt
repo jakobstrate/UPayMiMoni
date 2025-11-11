@@ -1,8 +1,9 @@
-package com.example.upaymimoni.domain.usecase
+package com.example.upaymimoni.domain.usecase.expense
 
 import com.example.upaymimoni.domain.model.Attachment
 import com.example.upaymimoni.domain.model.Expense
-import com.example.upaymimoni.data.repository.ExpenseRepository
+import com.example.upaymimoni.domain.repository.ExpenseRepository
+import java.util.UUID
 
 /**
  * A Use Case representing the business rule for adding an expense.
@@ -14,6 +15,7 @@ class AddExpenseUseCase(
         name: String,
         amount: Double,
         payerUserId: String,
+        splitBetweenUserIds: List<String>,
         groupId: String,
         attachment: Attachment?
     ): Result<Unit> {
@@ -26,12 +28,16 @@ class AddExpenseUseCase(
         }
 
         val newExpense = Expense(
+            id = UUID.randomUUID().toString(),
             name = name.trim(),
             amount = amount,
             payerUserId = payerUserId,
+            splitBetweenUserIds = splitBetweenUserIds,
             groupId = groupId,
             attachment = attachment
         )
+
+        //TODO, when groups are made, add expense to group on success
 
         return expenseRepository.addExpense(newExpense)
     }

@@ -2,8 +2,9 @@ package com.example.upaymimoni.presentation.ui.expenses.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.upaymimoni.data.repository.ExpenseRepository
 import com.example.upaymimoni.domain.model.Expense
+import com.example.upaymimoni.domain.repository.ExpenseRepository
+import com.example.upaymimoni.domain.usecase.expense.GetExpenseDetailUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -13,7 +14,7 @@ import kotlinx.coroutines.launch
  * It exposes the immutable state (ViewState) to the UI.
  */
 class ExpenseDetailViewModel(
-    private val expenseRepository: ExpenseRepository,
+    private val getExpenseDetailUseCase: GetExpenseDetailUseCase,
     private val expenseId: String
 ) : ViewModel() {
     private val _state = MutableStateFlow<Expense?>(null)
@@ -29,7 +30,11 @@ class ExpenseDetailViewModel(
      */
     private fun loadExpenseDetail() {
         viewModelScope.launch {
-            _state.value = expenseRepository.getExpenseById(expenseId)
+            val expense = getExpenseDetailUseCase(expenseId)
+            if (expense != null) {
+                _state.value = expense
+            }
+
         }
     }
 

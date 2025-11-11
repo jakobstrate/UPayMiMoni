@@ -189,7 +189,7 @@ fun ExpenseAddContent(
                 horizontalArrangement = Arrangement.Center){
                 ConfirmSlider(
                     sliderText = "Confirm",
-                    onConfirmed = { }
+                    onConfirmed = onSaveClick
                 )
             }
         },

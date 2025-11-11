@@ -1,15 +1,12 @@
-package com.example.upaymimoni.domain.usecase
+package com.example.upaymimoni.domain.usecase.expense
 
 import com.example.upaymimoni.domain.model.Expense
-import com.example.upaymimoni.data.repository.ExpenseRepository
+import com.example.upaymimoni.domain.repository.ExpenseRepository
 import kotlinx.coroutines.flow.Flow
 
-
 class GetExpenseDetailUseCase(private val expenseRepository: ExpenseRepository) {
-    operator fun invoke(expenseId: String): Expense? {
-        // The Use Case delegates the responsibility of fetching the data to the repository.
-        // It returns a Flow to enable reactive/real-time updates if the underlying data changes.
-        return expenseRepository.getExpenseById(expenseId)
+    suspend operator fun invoke(expenseId: String): Expense? {
+        return expenseRepository.getExpenseById(expenseId).getOrNull();
     }
 
     /**

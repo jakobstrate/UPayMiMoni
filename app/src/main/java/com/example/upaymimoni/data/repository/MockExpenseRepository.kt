@@ -3,41 +3,13 @@ package com.example.upaymimoni.data.repository
 import com.example.upaymimoni.domain.model.Attachment
 import com.example.upaymimoni.domain.model.AttachmentType
 import com.example.upaymimoni.domain.model.Expense
+import com.example.upaymimoni.domain.repository.ExpenseRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.util.UUID
+import kotlin.math.exp
 
-/**
- * Interface defining the contract for interacting with Expense data sources.
- */
-interface ExpenseRepository {
-    /**
-     * Adds a new expense to the data source.
-     * @param expense The Expense object to be saved.
-     * @return A flow emitting the result (Success or Error).
-     */
-    suspend fun addExpense(expense: Expense): Result<Unit>
-
-    /**
-     * Retrieves all expenses for a given group in real-time.
-     * @param groupId The ID of the group whose expenses to fetch.
-     * @return A flow emitting a list of Expenses.
-     */
-    fun getExpensesForGroup(groupId: String): Flow<List<Expense>>
-
-    /**
-     * Retrieves all expenses for a given user in a specific group.
-     * @param userId The ID of the user whose expenses to fetch.
-     * @param groupId The ID of the group whose expenses to fetch.
-     * @return A flow emitting a list of Expenses.
-     */
-    fun getExpensesOfUserForGroup(userId: String,groupId: String): Flow<List<Expense>>
-
-    /**
-     * retrieves a single expense by id
-     * @param id The id of the expense
-     */
-    fun getExpenseById(id: String) : Expense?
-}
 
 // Simple mock implementation for demonstration purposes (Koin would bind the interface to this)
 class MockExpenseRepository : ExpenseRepository {
@@ -69,10 +41,10 @@ class MockExpenseRepository : ExpenseRepository {
 
     override suspend fun addExpense(expense: Expense): Result<Unit> {
         // Simulate database latency
-        kotlinx.coroutines.delay(500)
+        delay(500)
 
         // Assign a mock ID
-        val expenseWithId = expense.copy(id = java.util.UUID.randomUUID().toString())
+        val expenseWithId = expense.copy(id = UUID.randomUUID().toString())
         mockExpenses.add(expenseWithId)
         println("Expense added: ${expenseWithId.name} to Group: ${expenseWithId.groupId}")
         return Result.success(Unit)
@@ -102,7 +74,11 @@ class MockExpenseRepository : ExpenseRepository {
         }
     }
 
-    override fun getExpenseById(id: String): Expense? {
-        return mockExpenses.find{it.id == id}
+    override suspend fun getExpenseById(id: String): Result<Expense> {
+        val expense = mockExpenses.find{it.id == id}
+        if (expense != null) {
+            return Result.success(expense)
+        }
+        return Result.failure(NoSuchElementException())
     }
 }

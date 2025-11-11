@@ -1,9 +1,11 @@
 package com.example.upaymimoni.di
 
-import com.example.upaymimoni.data.repository.ExpenseRepository
+import com.example.upaymimoni.data.repository.FirestoreExpenseRepository
 import com.example.upaymimoni.data.repository.MockExpenseRepository
-import com.example.upaymimoni.domain.usecase.GetExpenseDetailUseCase
+import com.example.upaymimoni.domain.repository.ExpenseRepository
+import com.example.upaymimoni.domain.usecase.expense.GetExpenseDetailUseCase
 import com.example.upaymimoni.presentation.ui.expenses.viewmodel.ExpenseDetailViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -12,17 +14,18 @@ import org.koin.dsl.module
  * This defines how the app creates and provides instances of Repositories, Use Cases, and ViewModels.
  */
 val expenseDetailModule = module {
-    // Data Layer: Repository
-    // The single() keyword creates a singleton instance of the repository.
+    // Data Layer
+    single { FirebaseFirestore.getInstance() }
+
     single<ExpenseRepository> {
-        MockExpenseRepository()
-        // Replace with: FirestoreExpenseRepository(get())
+        //MockExpenseRepository()
+        FirestoreExpenseRepository(get())
     }
 
-    single {
-        GetExpenseDetailUseCase(get())
-    }
-    // Presentation Layer: ViewModel
+    //Domain Layer
+    factory { GetExpenseDetailUseCase(get())}
+
+    // Presentation Layer
     // The viewModel() keyword is Koin's specific way to create a ViewModel instance.
     viewModel { (id: String) ->
         ExpenseDetailViewModel(get(), id)
