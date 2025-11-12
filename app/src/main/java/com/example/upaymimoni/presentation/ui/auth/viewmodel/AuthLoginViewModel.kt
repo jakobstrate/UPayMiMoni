@@ -3,6 +3,7 @@ package com.example.upaymimoni.presentation.ui.auth.viewmodel
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.upaymimoni.domain.model.AuthError
 import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.auth.GoogleLoginUseCase
@@ -10,8 +11,8 @@ import com.example.upaymimoni.domain.usecase.auth.LoginUseCase
 import com.example.upaymimoni.presentation.ui.auth.utils.AuthErrorState
 import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent
 import com.example.upaymimoni.presentation.ui.auth.utils.GoogleSignInClient
-import com.example.upaymimoni.presentation.ui.auth.utils.UiErrorType.*
-import com.example.upaymimoni.presentation.ui.auth.utils.UiMessageTranslation
+import com.example.upaymimoni.presentation.ui.utils.AuthErrorMapper
+import com.example.upaymimoni.presentation.ui.utils.FieldType
 import com.example.upaymimoni.presentation.ui.utils.TextFieldManipulator
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,8 +23,6 @@ import kotlinx.coroutines.launch
 class AuthLoginViewModel(
     private val loginUseCase: LoginUseCase,
     private val googleLoginUseCase: GoogleLoginUseCase,
-    private val uiMessageTranslation: UiMessageTranslation,
-    private val userSession: UserSession,
     private val googleSignInClient: GoogleSignInClient
 ) : ViewModel() {
     // Store TextFieldValue instead of strings, as we want the position to survive reconfigurations
@@ -42,82 +41,48 @@ class AuthLoginViewModel(
     private val _uiEvent = MutableSharedFlow<AuthUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private fun clearErrors() {
-        _errorState.value = AuthErrorState()
-    }
-
     fun updateEmail(newEmail: TextFieldValue) {
-        _email.value = TextFieldManipulator.clearWhiteSpaceFromField(newEmail)
-        if (_email.value.text.isEmpty()) {
-            _errorState.value = _errorState.value.copy(
-                emailError = true,
-                emailMsg = "Please fill in your email."
-            )
+        val cleaned = TextFieldManipulator.clearWhiteSpaceFromField(newEmail)
+        _email.value = cleaned
+
+        if (cleaned.text.isEmpty()) {
+            setFieldError(FieldType.EMAIL, "Please fill in your email.")
+        } else {
+            clearFieldError(FieldType.EMAIL)
         }
     }
 
     fun updatePassword(newPass: TextFieldValue) {
-        _pass.value = TextFieldManipulator.clearWhiteSpaceFromField(newPass)
+        _pass.value = newPass
         if (_pass.value.text.isEmpty()) {
-            _errorState.value = _errorState.value.copy(
-                passwordError = true,
-                passwordMsg = "Please fill in your password."
-            )
+            setFieldError(FieldType.PASSWORD, "Please fill in your password.")
+        } else {
+            clearFieldError(FieldType.PASSWORD)
         }
     }
 
     fun onSignInClick() = viewModelScope.launch {
         clearErrors()
         _loading.value = true
+
         val result = loginUseCase(_email.value.text, _pass.value.text)
         _loading.value = false
 
         when (result) {
-            is AuthResult.Success -> {
-                val user = result.data
-                println("Logged in as ${user.id}; Email: ${user.email}")
-                userSession.setCurrentUser(user)
-                _uiEvent.emit(AuthUiEvent.NavigateToHome)
-            }
-
-            is AuthResult.Failure -> {
-                val uiError = uiMessageTranslation.getUiExceptionMessage(result.error)
-                when (uiError.type) {
-                    EMAIL -> _errorState.value =
-                        _errorState.value.copy(emailError = true, emailMsg = uiError.message)
-
-                    PASSWORD -> _errorState.value =
-                        _errorState.value.copy(passwordError = true, passwordMsg = uiError.message)
-
-                    INPUT -> _errorState.value =
-                        _errorState.value.copy(
-                            emailError = true,
-                            passwordError = true,
-                            emailMsg = uiError.message,
-                            passwordMsg = uiError.message
-                        )
-
-                    GOOGLE -> _errorState.value =
-                        _errorState.value.copy(googleError = true, errorMsg = uiError.message)
-                    else -> _errorState.value = _errorState.value.copy()
-                }
-            }
+            is AuthResult.Success -> handleSuccessfulLogin()
+            is AuthResult.Failure -> handleAuthFailure(result.error)
         }
     }
 
     fun onGoogleSignIn() = viewModelScope.launch {
         clearErrors()
         _loading.value = true
-        val idToken = googleSignInClient.launchCredentialManager()
 
+        val idToken = googleSignInClient.launchCredentialManager()
         if (idToken.isNullOrBlank()) {
             _loading.value = false
-            val message =
-                "Failed to retrieve google account." +
-                        " Ensure you are logged in to your device and have an active internet connection"
-            _errorState.value = AuthErrorState(
-                googleError = true,
-                errorMsg = message
+            setGeneralError(
+                "Failed to retrieve google account. Ensure you are logged in to your device and have an active internet connection"
             )
             return@launch
         }
@@ -126,21 +91,66 @@ class AuthLoginViewModel(
         _loading.value = false
 
         when (result) {
-            is AuthResult.Success -> {
-                val user = result.data
-                println("Logged in as ${user.id}; Email: ${user.email}")
-                userSession.setCurrentUser(user)
-                _uiEvent.emit(AuthUiEvent.NavigateToHome)
-            }
-
-            is AuthResult.Failure -> {
-                val uiError = uiMessageTranslation.getUiExceptionMessage(result.error)
-                _errorState.value = AuthErrorState(
-                    googleError = true,
-                    errorMsg = uiError.message
-                )
-            }
+            is AuthResult.Success -> handleSuccessfulLogin()
+            is AuthResult.Failure -> handleAuthFailure(result.error)
         }
+
+    }
+
+    private suspend fun handleSuccessfulLogin() {
+        _uiEvent.emit(AuthUiEvent.NavigateToHome)
+    }
+
+    private fun handleAuthFailure(error: AuthError) {
+        val fieldError = AuthErrorMapper.toFieldError(error)
+        when (fieldError.field) {
+            FieldType.EMAIL -> setFieldError(FieldType.EMAIL, fieldError.message)
+            FieldType.PASSWORD -> setFieldError(FieldType.PASSWORD, fieldError.message)
+            FieldType.INPUT -> setFieldError(FieldType.INPUT, fieldError.message)
+            FieldType.NONE -> setGeneralError(fieldError.message)
+            else -> Unit
+        }
+    }
+
+    private fun clearErrors() {
+        _errorState.value = AuthErrorState()
+    }
+
+    private fun setFieldError(type: FieldType, message: String) {
+        _errorState.value = when (type) {
+            FieldType.EMAIL -> _errorState.value.copy(
+                emailError = true,
+                emailMsg = message
+            )
+
+            FieldType.PASSWORD -> _errorState.value.copy(
+                passwordError = true,
+                passwordMsg = message
+            )
+
+            FieldType.INPUT -> _errorState.value.copy(
+                emailError = true,
+                passwordError = true,
+                emailMsg = message,
+                passwordMsg = message
+            )
+            // We handle a state that we do not care about, by simply ignoring it. (Best practice)
+            else -> _errorState.value
+        }
+    }
+
+    private fun clearFieldError(type: FieldType) {
+        _errorState.value = when (type) {
+            FieldType.EMAIL -> _errorState.value.copy(emailError = false, emailMsg = null)
+            FieldType.PASSWORD -> _errorState.value.copy(passwordError = false, passwordMsg = null)
+            else -> _errorState.value
+        }
+    }
+
+    private fun setGeneralError(message: String) {
+        _errorState.value = _errorState.value.copy(
+            errorMsg = message
+        )
     }
 
 }

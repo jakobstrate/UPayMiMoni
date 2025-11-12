@@ -1,16 +1,19 @@
 package com.example.upaymimoni.di
 
 import com.example.upaymimoni.data.mappers.ErrorMapper
+import com.example.upaymimoni.data.mappers.FirebaseAuthErrorMapper
 import com.example.upaymimoni.data.mappers.FirebaseUpdateUserErrorMapper
 import com.example.upaymimoni.data.repository.DiceBearAvatarRepository
 import com.example.upaymimoni.data.repository.FirestoreUserRepository
 import com.example.upaymimoni.data.session.UserSessionImpl
+import com.example.upaymimoni.domain.model.AuthError
 import com.example.upaymimoni.domain.model.UpdateUserError
 import com.example.upaymimoni.domain.repository.AvatarRepository
 import com.example.upaymimoni.domain.repository.UserRepository
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.user.GetUserUseCase
 import com.google.firebase.firestore.FirebaseFirestore
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val ApplicationModule = module {
@@ -20,12 +23,13 @@ val ApplicationModule = module {
         UserSessionImpl()
     }
 
-    single <ErrorMapper<Exception, UpdateUserError>> { FirebaseUpdateUserErrorMapper() }
+    single <ErrorMapper<Exception, UpdateUserError>>(named("UpdateUserMapper")) { FirebaseUpdateUserErrorMapper() }
+    single <ErrorMapper<Exception, AuthError>>(named("AuthMapper")) { FirebaseAuthErrorMapper() }
 
     single <UserRepository> {
         FirestoreUserRepository(
             get(),
-            get()
+            get(named("UpdateUserMapper"))
         )
     }
 

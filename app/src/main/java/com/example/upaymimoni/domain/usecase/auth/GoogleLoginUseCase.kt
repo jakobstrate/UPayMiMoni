@@ -1,43 +1,39 @@
 package com.example.upaymimoni.domain.usecase.auth
 
-import com.example.upaymimoni.domain.model.AuthErrorType
-import com.example.upaymimoni.domain.model.AuthException
+import com.example.upaymimoni.domain.model.AuthError
 import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.repository.UserRepository
+import com.example.upaymimoni.domain.session.UserSession
 
 class GoogleLoginUseCase(
     private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userSession: UserSession,
 ) {
     suspend operator fun invoke(idToken: String): AuthResult<User> {
         val authResult = authRepository.loginUserWithGoogle(idToken)
+        if (authResult is AuthResult.Failure) return authResult
 
-        return when (authResult) {
-            is AuthResult.Success -> {
-                val user = authResult.data
+        val user = (authResult as AuthResult.Success).data
 
-                val existingUser = userRepository.getUser(user.id)
-
-                if (existingUser.isSuccess) {
-                    AuthResult.Success(user)
-                } else {
-                    val saveResult = userRepository.saveUser(user)
-                    if (saveResult.isSuccess) {
-                        AuthResult.Success(user)
-                    } else {
-                        AuthResult.Failure(AuthException(
-                            errorType = AuthErrorType.InternalDataSaveError,
-                            "There was an error saving the user to the database"
-                        ))
-                    }
-                }
-            }
-
-            is AuthResult.Failure -> {
-                AuthResult.Failure(authResult.error)
-            }
+        val existingUser = userRepository.getUser(user.id)
+        if (existingUser.isSuccess) {
+            userSession.setCurrentUser(user)
+            return AuthResult.Success(user)
         }
+
+        val saveResult = userRepository.saveUser(user)
+        if (saveResult.isSuccess) {
+            userSession.setCurrentUser(user)
+            return AuthResult.Success(user)
+        }
+
+        return AuthResult.Failure(
+            AuthError.Internal(
+                "There was an error saving the user to the database."
+            )
+        )
     }
 }

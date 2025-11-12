@@ -11,10 +11,10 @@ import org.koin.core.module.dsl.viewModel
 import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthLoginViewModel
 import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthRegisterViewModel
 import com.example.upaymimoni.presentation.ui.auth.utils.GoogleSignInClient
-import com.example.upaymimoni.presentation.ui.auth.utils.UiMessageTranslation
 import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthForgotPassViewModel
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val authModule = module {
@@ -22,15 +22,19 @@ val authModule = module {
 
     single { GoogleSignInClient(androidContext()) }
 
-    single<AuthRepository> { FirebaseAuthRepository(get(), get()) }
+    single<AuthRepository> {
+        FirebaseAuthRepository(
+            get(),
+            get(named("UpdateUserMapper")),
+            get(named("AuthMapper"))
+        )
+    }
 
-    single { UiMessageTranslation() }
+    factory { LoginUseCase(get(), get(), get()) }
 
-    factory { LoginUseCase(get(), get()) }
+    factory { RegisterUseCase(get(), get(), get(), get()) }
 
-    factory { RegisterUseCase(get(), get(), get()) }
-
-    factory { GoogleLoginUseCase(get(), get()) }
+    factory { GoogleLoginUseCase(get(), get(), get()) }
 
     factory { ResetPasswordUseCase(get()) }
 
@@ -41,22 +45,17 @@ val authModule = module {
             get(),
             get(),
             get(),
-            get(),
-            get()
         )
     }
 
     viewModel {
         AuthRegisterViewModel(
             get(),
-            get(),
-            get()
         )
     }
 
     viewModel {
         AuthForgotPassViewModel(
-            get(),
             get()
         )
     }

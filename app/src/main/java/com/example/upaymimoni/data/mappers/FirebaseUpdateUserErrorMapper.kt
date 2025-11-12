@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 
 class FirebaseUpdateUserErrorMapper : ErrorMapper<Exception, UpdateUserError> {
     override fun map(error: Exception): UpdateUserError {
+        error.printStackTrace()
         return when (error) {
             is FirebaseFirestoreException -> when (error.code) {
                 FirebaseFirestoreException.Code.PERMISSION_DENIED -> UpdateUserError.PermissionDenied

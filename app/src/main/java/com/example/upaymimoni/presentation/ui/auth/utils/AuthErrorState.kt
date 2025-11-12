@@ -13,6 +13,5 @@ data class AuthErrorState(
     val passwordError: Boolean = false,
     val passwordMsg: String? = null,
 
-    val googleError: Boolean = false,
     val errorMsg: String? = null,
 )

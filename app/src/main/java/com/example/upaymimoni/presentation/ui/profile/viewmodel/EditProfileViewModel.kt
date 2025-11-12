@@ -7,8 +7,8 @@ import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.model.UserUpdateResult
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.user.UpdateUserUseCase
-import com.example.upaymimoni.presentation.ui.profile.utils.FieldType
-import com.example.upaymimoni.presentation.ui.profile.utils.UpdateUserErrorMapper
+import com.example.upaymimoni.presentation.ui.utils.FieldType
+import com.example.upaymimoni.presentation.ui.utils.UpdateUserErrorMapper
 import com.example.upaymimoni.presentation.ui.utils.TextFieldManipulator
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

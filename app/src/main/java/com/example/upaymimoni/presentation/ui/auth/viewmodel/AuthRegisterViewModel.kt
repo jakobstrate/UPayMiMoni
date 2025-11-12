@@ -3,13 +3,13 @@ package com.example.upaymimoni.presentation.ui.auth.viewmodel
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.upaymimoni.domain.model.AuthError
 import com.example.upaymimoni.domain.model.AuthResult
-import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.auth.RegisterUseCase
 import com.example.upaymimoni.presentation.ui.auth.utils.AuthErrorState
 import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent
-import com.example.upaymimoni.presentation.ui.auth.utils.UiErrorType.*
-import com.example.upaymimoni.presentation.ui.auth.utils.UiMessageTranslation
+import com.example.upaymimoni.presentation.ui.utils.AuthErrorMapper
+import com.example.upaymimoni.presentation.ui.utils.FieldType
 import com.example.upaymimoni.presentation.ui.utils.TextFieldManipulator
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +19,6 @@ import kotlinx.coroutines.launch
 
 class AuthRegisterViewModel(
     private val registerUseCase: RegisterUseCase,
-    private val uiMessageTranslation: UiMessageTranslation,
-    private val userSession: UserSession
 ) : ViewModel() {
     private val _name = MutableStateFlow(TextFieldValue(""))
     val name: StateFlow<TextFieldValue> = _name
@@ -41,61 +39,49 @@ class AuthRegisterViewModel(
     private val _uiEvent = MutableSharedFlow<AuthUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private fun clearErrors() {
-        _errorState.value = AuthErrorState()
-    }
-
     fun updateName(newName: TextFieldValue) {
         _name.value = newName
-        _errorState.value = _errorState.value.copy(nameError = false, nameMsg = null)
 
         if (_name.value.text.isEmpty()) {
-            _errorState.value = _errorState.value.copy(
-                nameError = true,
-                nameMsg = "Please fill in your name."
-            )
+            setFieldError(FieldType.NAME, "Please fill in your name.")
+        } else {
+            clearFieldError(FieldType.NAME)
         }
     }
 
     fun updatePhone(newPhone: TextFieldValue) {
-        _number.value = TextFieldManipulator.removeAllNonNumerics(newPhone)
-        _errorState.value = _errorState.value.copy(numberError = false, numberMsg = null)
-
-        if (_number.value.text.isEmpty()) {
-            _errorState.value = _errorState.value.copy(
-                numberError = true,
-                numberMsg = "Please fill in your phone number."
-            )
+        val cleaned = TextFieldManipulator.removeAllNonNumerics(newPhone)
+        _number.value = cleaned
+        if (cleaned.text.isEmpty()) {
+            setFieldError(FieldType.PHONE, "Please fill in your phone number.")
+        } else {
+            clearFieldError(FieldType.PHONE)
         }
     }
 
     fun updateEmail(newEmail: TextFieldValue) {
-        _email.value = TextFieldManipulator.clearWhiteSpaceFromField(newEmail)
-        _errorState.value = _errorState.value.copy(emailError = false, emailMsg = null)
-
-        if (_email.value.text.isEmpty()) {
-            _errorState.value = _errorState.value.copy(
-                emailError = true,
-                emailMsg = "Please fill in your email."
-            )
+        val cleaned = TextFieldManipulator.clearWhiteSpaceFromField(newEmail)
+        _email.value = cleaned
+        if (cleaned.text.isEmpty()) {
+            setFieldError(FieldType.EMAIL, "Please fill in your email.")
+        } else {
+            clearFieldError(FieldType.EMAIL)
         }
     }
 
     fun updatePassword(newPass: TextFieldValue) {
-        _pass.value = TextFieldManipulator.clearWhiteSpaceFromField(newPass)
-        _errorState.value = _errorState.value.copy(passwordError = false, passwordMsg = null)
-
+        _pass.value = newPass
         if (_pass.value.text.isEmpty()) {
-            _errorState.value = _errorState.value.copy(
-                passwordError = true,
-                passwordMsg = "Please fill in your password."
-            )
+            setFieldError(FieldType.PASSWORD, "Please fill in your password.")
+        } else {
+            clearFieldError(FieldType.PASSWORD)
         }
     }
 
     fun onRegisterClick() = viewModelScope.launch {
         clearErrors()
         _loading.value = true
+
         val result = registerUseCase(
             _name.value.text,
             _number.value.text,
@@ -105,46 +91,82 @@ class AuthRegisterViewModel(
         _loading.value = false
 
         when (result) {
-            is AuthResult.Success -> {
-                val user = result.data
-                println("Registered and logged in as user ${user.id}; Email: ${user.email}")
-                userSession.setCurrentUser(user)
-                _uiEvent.emit(AuthUiEvent.NavigateToHome)
-            }
-
-            is AuthResult.Failure -> {
-                val uiError = uiMessageTranslation.getUiExceptionMessage(result.error)
-                when (uiError.type) {
-                    NAME -> _errorState.value =
-                        _errorState.value.copy(nameError = true, nameMsg = uiError.message)
-
-                    NUMBER -> _errorState.value =
-                        _errorState.value.copy(numberError = true, numberMsg = uiError.message)
-
-                    EMAIL -> _errorState.value =
-                        _errorState.value.copy(emailError = true, emailMsg = uiError.message)
-
-                    PASSWORD -> _errorState.value =
-                        _errorState.value.copy(passwordError = true, passwordMsg = uiError.message)
-
-                    INPUT -> _errorState.value =
-                        _errorState.value.copy(
-                            nameError = true,
-                            nameMsg = uiError.message,
-                            numberError = true,
-                            numberMsg = uiError.message,
-                            emailError = true,
-                            passwordError = true,
-                            emailMsg = uiError.message,
-                            passwordMsg = uiError.message
-                        )
-
-                    GOOGLE -> _errorState.value =
-                        _errorState.value.copy(googleError = true, errorMsg = uiError.message)
-
-                    else -> _errorState.value = _errorState.value.copy()
-                }
-            }
+            is AuthResult.Success -> handleSuccessfulRegister()
+            is AuthResult.Failure -> handleAuthFailure(result.error)
         }
+    }
+
+    private suspend fun handleSuccessfulRegister() {
+        _uiEvent.emit(AuthUiEvent.NavigateToHome)
+    }
+
+    private fun handleAuthFailure(error: AuthError) {
+        val fieldError = AuthErrorMapper.toFieldError(error)
+        when (fieldError.field) {
+            FieldType.NAME -> setFieldError(FieldType.NAME, fieldError.message)
+            FieldType.PHONE -> setFieldError(FieldType.PHONE, fieldError.message)
+            FieldType.EMAIL -> setFieldError(FieldType.EMAIL, fieldError.message)
+            FieldType.PASSWORD -> setFieldError(FieldType.PASSWORD, fieldError.message)
+            FieldType.INPUT -> setFieldError(FieldType.INPUT, fieldError.message)
+            FieldType.NONE -> setGeneralError(fieldError.message)
+            else -> Unit
+        }
+    }
+
+    private fun clearErrors() {
+        _errorState.value = AuthErrorState()
+    }
+
+    private fun setFieldError(type: FieldType, message: String) {
+        _errorState.value = when (type) {
+            FieldType.NAME -> _errorState.value.copy(
+                nameError = true,
+                nameMsg = message
+            )
+
+            FieldType.PHONE -> _errorState.value.copy(
+                numberError = true,
+                numberMsg = message
+            )
+
+            FieldType.EMAIL -> _errorState.value.copy(
+                emailError = true,
+                emailMsg = message
+            )
+
+            FieldType.PASSWORD -> _errorState.value.copy(
+                passwordError = true,
+                passwordMsg = message
+            )
+
+            FieldType.INPUT -> _errorState.value.copy(
+                nameError = true,
+                numberError = true,
+                emailError = true,
+                passwordError = true,
+                emailMsg = message,
+                passwordMsg = message,
+                nameMsg = message,
+                numberMsg = message,
+            )
+            // We handle a state that we do not care about, by simply ignoring it. (Best practice)
+            else -> _errorState.value
+        }
+    }
+
+    private fun clearFieldError(type: FieldType) {
+        _errorState.value = when (type) {
+            FieldType.NAME -> _errorState.value.copy(nameError = false, nameMsg = null)
+            FieldType.PHONE -> _errorState.value.copy(numberError = false, numberMsg = null)
+            FieldType.EMAIL -> _errorState.value.copy(emailError = false, emailMsg = null)
+            FieldType.PASSWORD -> _errorState.value.copy(passwordError = false, passwordMsg = null)
+            else -> _errorState.value
+        }
+    }
+
+    private fun setGeneralError(message: String) {
+        _errorState.value = _errorState.value.copy(
+            errorMsg = message
+        )
     }
 }

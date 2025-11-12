@@ -17,9 +17,10 @@ class UpdateUserUseCase(
         newEmail: String,
         newPhone: String
     ): UserUpdateResult {
-        if (newName.isBlank()) return UserUpdateResult.Failure(UpdateUserError.InvalidName)
-        if (newEmail.isBlank()) return UserUpdateResult.Failure(UpdateUserError.InvalidEmail)
-        if (newPhone.isBlank()) return UserUpdateResult.Failure(UpdateUserError.InvalidNumber)
+
+        validateInput(newName, newPhone, newEmail)?.let {
+            return it
+        }
 
         val authProfileResult = authRepository.updateUserProfile(newEmail, newName)
         if (authProfileResult is UserUpdateResult.Failure) {
@@ -40,5 +41,16 @@ class UpdateUserUseCase(
         val updatedUser = (databaseProfileResult as UserUpdateResult.Success).user
         userSession.setCurrentUser(updatedUser)
         return UserUpdateResult.Success(updatedUser)
+    }
+
+    private fun validateInput(
+        name: String,
+        number: String,
+        email: String,
+    ): UserUpdateResult.Failure? {
+        if (name.trim().isBlank()) return UserUpdateResult.Failure(UpdateUserError.InvalidName)
+        if (number.trim().isBlank()) return UserUpdateResult.Failure(UpdateUserError.InvalidNumber)
+        if (email.trim().isBlank()) return UserUpdateResult.Failure(UpdateUserError.InvalidEmail)
+        return null
     }
 }

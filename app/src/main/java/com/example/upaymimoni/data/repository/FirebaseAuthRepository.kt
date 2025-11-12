@@ -1,30 +1,22 @@
 package com.example.upaymimoni.data.repository
 
 import com.example.upaymimoni.data.mappers.ErrorMapper
-import com.example.upaymimoni.domain.model.AuthErrorType
-import com.example.upaymimoni.domain.model.AuthException
+import com.example.upaymimoni.domain.model.AuthError
 import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.model.UpdateUserError
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.model.UserUpdateResult
 import com.example.upaymimoni.domain.repository.AuthRepository
-import com.google.firebase.FirebaseNetworkException
-import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.userProfileChangeRequest
 import kotlinx.coroutines.tasks.await
-import java.lang.IllegalArgumentException
 
 class FirebaseAuthRepository(
     private val auth: FirebaseAuth,
-    private val updateErrorMapper: ErrorMapper<Exception, UpdateUserError>
+    private val updateErrorMapper: ErrorMapper<Exception, UpdateUserError>,
+    private val authErrorMapper: ErrorMapper<Exception, AuthError>
 ) : AuthRepository {
 
     override suspend fun loginUser(email: String, password: String): AuthResult<User> = try {
@@ -33,8 +25,9 @@ class FirebaseAuthRepository(
 
         AuthResult.Success(createNewUser(firebaseUser))
 
-    } catch (t: Throwable) {
-        AuthResult.Failure(mapExceptionToDomain(t))
+    } catch (e: Exception) {
+        val domainError = authErrorMapper.map(e)
+        AuthResult.Failure(domainError)
     }
 
     override suspend fun registerUser(email: String, password: String): AuthResult<User> = try {
@@ -43,8 +36,9 @@ class FirebaseAuthRepository(
 
         AuthResult.Success(createNewUser(firebaseUser))
 
-    } catch (t: Throwable) {
-        AuthResult.Failure(mapExceptionToDomain(t))
+    } catch (e: Exception) {
+        val domainError = authErrorMapper.map(e)
+        AuthResult.Failure(domainError)
     }
 
     override suspend fun loginUserWithGoogle(idToken: String): AuthResult<User> = try {
@@ -54,8 +48,9 @@ class FirebaseAuthRepository(
             result.user ?: throw Exception("Login With Google Auth returned null user")
 
         AuthResult.Success(createNewUser(firebaseUser))
-    } catch (t: Throwable) {
-        AuthResult.Failure(mapExceptionToDomain(t))
+    } catch (e: Exception) {
+        val domainError = authErrorMapper.map(e)
+        AuthResult.Failure(domainError)
     }
 
     override suspend fun sendResetPasswordEmail(email: String): AuthResult<Unit> = try {
@@ -64,9 +59,9 @@ class FirebaseAuthRepository(
         AuthResult.Success(
             Unit
         )
-    } catch (t: Throwable) {
-        t.printStackTrace()
-        AuthResult.Failure(mapExceptionToDomain(t))
+    } catch (e: Exception) {
+        val domainError = authErrorMapper.map(e)
+        AuthResult.Failure(domainError)
     }
 
     override suspend fun logoutUser() {
@@ -111,30 +106,6 @@ class FirebaseAuthRepository(
             phoneNumber = firebaseUser.phoneNumber,
             email = firebaseUser.email,
             groups = emptyList()
-        )
-    }
-
-    /**
-     * Method that maps Firebase Exceptions to our domain @see AuthException.
-     */
-    private fun mapExceptionToDomain(t: Throwable): AuthException = when (t) {
-        is FirebaseAuthInvalidUserException -> AuthException(AuthErrorType.InvalidUser, t.message)
-        is FirebaseNetworkException -> AuthException(AuthErrorType.NetworkFailure, t.message)
-        is FirebaseTooManyRequestsException -> AuthException(AuthErrorType.TooManyLogins, t.message)
-        is FirebaseAuthUserCollisionException -> AuthException(AuthErrorType.EmailInUse, t.message)
-        is FirebaseAuthWeakPasswordException -> AuthException(AuthErrorType.WeakPassword, t.reason)
-        is FirebaseAuthInvalidCredentialsException -> when (t.errorCode) {
-            "ERROR_WRONG_PASSWORD" -> AuthException(AuthErrorType.InvalidCredentials, t.message)
-            "ERROR_INVALID_EMAIL" -> AuthException(AuthErrorType.InvalidEmailFormat, t.message)
-            else -> AuthException(
-                AuthErrorType.Unknown,
-                t.message ?: "An Unknown or Unmapped Firebase Error Occurred"
-            )
-        }
-
-        else -> AuthException(
-            AuthErrorType.Unknown,
-            t.message ?: "An Unknown or Unmapped Firebase Error Occurred"
         )
     }
 }

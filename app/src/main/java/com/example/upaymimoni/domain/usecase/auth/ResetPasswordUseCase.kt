@@ -1,34 +1,22 @@
 package com.example.upaymimoni.domain.usecase.auth
 
-import com.example.upaymimoni.domain.model.AuthErrorType
-import com.example.upaymimoni.domain.model.AuthException
+import com.example.upaymimoni.domain.model.AuthError
 import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.repository.AuthRepository
 
 class ResetPasswordUseCase(
-    private val repo: AuthRepository
+    private val authRepo: AuthRepository
 ) {
     suspend operator fun invoke(email: String): AuthResult<Unit> {
-        val validationResult = validateInput(email)
-        if (validationResult is AuthResult.Failure) {
-            return AuthResult.Failure(validationResult.error)
+        validateInput(email)?.let {
+            return it
         }
 
-        return repo.sendResetPasswordEmail(email)
+        return authRepo.sendResetPasswordEmail(email)
     }
 
-    private fun validateInput(
-        email: String,
-    ): AuthResult<Unit> {
-        if (email.trim().isEmpty()) {
-            return AuthResult.Failure(
-                AuthException(
-                    errorType = AuthErrorType.EmptyEmail,
-                    errorMessage = "Email is required"
-                )
-            )
-        }
-
-        return AuthResult.Success(Unit)
+    private fun validateInput(email: String): AuthResult.Failure? {
+        if (email.trim().isBlank()) return AuthResult.Failure(AuthError.EmptyEmail)
+        return null
     }
 }

@@ -1,18 +1,19 @@
 package com.example.upaymimoni.domain.usecase.auth
 
 import android.util.Log
-import com.example.upaymimoni.domain.model.AuthErrorType
-import com.example.upaymimoni.domain.model.AuthException
+import com.example.upaymimoni.domain.model.AuthError
 import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.repository.AvatarRepository
 import com.example.upaymimoni.domain.repository.UserRepository
+import com.example.upaymimoni.domain.session.UserSession
 
 class RegisterUseCase(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
-    private val avatarRepository: AvatarRepository
+    private val avatarRepository: AvatarRepository,
+    private val userSession: UserSession
 ) {
     suspend operator fun invoke(
         name: String,
@@ -20,37 +21,26 @@ class RegisterUseCase(
         email: String,
         password: String
     ): AuthResult<User> {
-        val validationResult = validateInput(name, number, email, password)
-        if (validationResult is AuthResult.Failure) {
-            return AuthResult.Failure(validationResult.error)
+        validateInput(name, number, email, password)?.let {
+            return it
         }
 
         val authResult = authRepository.registerUser(email, password)
+        if (authResult is AuthResult.Failure) return authResult
 
-        return when (authResult) {
-            is AuthResult.Success -> {
-                val user = authResult.data
-                Log.d(
-                    "RegisterUseCase",
-                    "Attempting to save user to firestore. ${user.profilePictureUrl.isNullOrEmpty()}"
-                )
-                val saveUser = getFullUser(user, name, number)
-                val saveResult = userRepository.saveUser(saveUser)
-                if (saveResult.isFailure) {
-                    AuthResult.Failure(
-                        AuthException(
-                            errorType = AuthErrorType.InternalDataSaveError,
-                            "There was an error saving the user to the database"
-                        )
-                    )
-                } else {
-                    AuthResult.Success(saveUser)
-                }
-            }
+        val baseUser = (authResult as AuthResult.Success).data
 
-            is AuthResult.Failure -> {
-                AuthResult.Failure(authResult.error)
-            }
+        val completeUser = getFullUser(baseUser, name, number)
+
+        val saveResult = userRepository.saveUser(completeUser)
+
+        return if (saveResult.isSuccess) {
+            userSession.setCurrentUser(completeUser)
+            AuthResult.Success(completeUser)
+        } else {
+            AuthResult.Failure(
+                AuthError.Internal("There was an error saving the user to the database")
+            )
         }
     }
 
@@ -58,58 +48,30 @@ class RegisterUseCase(
         name: String,
         number: String,
         email: String,
-        password: String,
-    ): AuthResult<Unit> {
-        if (name.trim().isEmpty()) {
-            return AuthResult.Failure(
-                AuthException(
-                    errorType = AuthErrorType.EmptyName,
-                    errorMessage = "Name is required"
-                )
-            )
-        }
-
-        if (number.trim().isEmpty()) {
-            return AuthResult.Failure(
-                AuthException(
-                    errorType = AuthErrorType.EmptyNumber,
-                    errorMessage = "Number is required"
-                )
-            )
-        }
-
-        if (email.trim().isEmpty()) {
-            return AuthResult.Failure(
-                AuthException(
-                    errorType = AuthErrorType.EmptyEmail,
-                    errorMessage = "Email is required"
-                )
-            )
-        }
-
-        if (password.trim().isEmpty()) {
-            return AuthResult.Failure(
-                AuthException(
-                    errorType = AuthErrorType.EmptyPassword,
-                    errorMessage = "Password is required"
-                )
-            )
-        }
-
-        return AuthResult.Success(Unit)
+        password: String
+    ): AuthResult.Failure? {
+        if (name.trim().isBlank()) return AuthResult.Failure(AuthError.EmptyName)
+        if (number.trim().isBlank()) return AuthResult.Failure(AuthError.EmptyNumber)
+        if (email.trim().isBlank()) return AuthResult.Failure(AuthError.EmptyEmail)
+        if (password.trim().isBlank()) return AuthResult.Failure(AuthError.EmptyPassword)
+        return null
     }
 
-    private suspend fun getFullUser(user: User, name: String, number: String): User {
-        var updatedUser = user.copy(
-            displayName = name,
-            phoneNumber = number
+    private suspend fun getFullUser(
+        user: User,
+        name: String,
+        number: String
+    ): User {
+        val updatedUser = user.copy(
+            displayName = name.trim(),
+            phoneNumber = number.trim()
         )
-        if (user.profilePictureUrl.isNullOrEmpty()) {
-            Log.v("RegisterUseCase", "User ${user.id} does not have a profile picture.")
-            val avatarUrl = avatarRepository.getRandomAvatarUrl(user.id)
-            updatedUser = updatedUser.copy(profilePictureUrl = avatarUrl)
+
+        if (!updatedUser.profilePictureUrl.isNullOrEmpty()) {
+            return updatedUser
         }
 
-        return updatedUser
+        val avatarUrl = avatarRepository.getRandomAvatarUrl(user.id)
+        return updatedUser.copy(profilePictureUrl = avatarUrl)
     }
 }

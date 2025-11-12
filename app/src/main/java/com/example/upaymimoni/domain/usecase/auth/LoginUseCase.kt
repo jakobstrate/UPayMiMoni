@@ -1,74 +1,46 @@
 package com.example.upaymimoni.domain.usecase.auth
 
-import android.util.Log
-import com.example.upaymimoni.domain.model.AuthErrorType
-import com.example.upaymimoni.domain.model.AuthException
+import com.example.upaymimoni.domain.model.AuthError
 import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.repository.UserRepository
+import com.example.upaymimoni.domain.session.UserSession
 
 class LoginUseCase(
-    private val repo: AuthRepository,
+    private val authRepo: AuthRepository,
     private val userRepo: UserRepository,
+    private val userSession: UserSession,
 ) {
     suspend operator fun invoke(email: String, password: String): AuthResult<User> {
-        val validationResult = validateInput(email, password)
-        if (validationResult is AuthResult.Failure) {
-            return AuthResult.Failure(validationResult.error)
+        validateInput(email, password)?.let {
+            return it
         }
 
-        val authResult = repo.loginUser(email, password)
+        val authResult = authRepo.loginUser(email, password)
+        if (authResult is AuthResult.Failure) return authResult
 
-        return when (authResult) {
-            is AuthResult.Success -> {
-                val user = authResult.data
-                Log.d(
-                    "LoginUseCase",
-                    "Attempting to gather user information from database. ${user.id}"
-                )
-                val fetchResult = userRepo.getUser(user.id)
+        val user = (authResult as AuthResult.Success).data
+        val userResult = userRepo.getUser(user.id)
 
-                fetchResult.fold(
-                    onSuccess = { fetchedUser ->
-                        AuthResult.Success(fetchedUser)
-                    },
-                    onFailure = { throwable ->
-                        AuthResult.Failure(
-                            AuthException(
-                                errorType = AuthErrorType.InternalDataSaveError,
-                                errorMessage = throwable.message
-                            )
-                        )
-                    }
+        return userResult.fold(
+            onSuccess = { fetchedUser ->
+                userSession.setCurrentUser(fetchedUser)
+                AuthResult.Success(fetchedUser)
+            },
+            onFailure = { throwable ->
+                AuthResult.Failure(
+                    AuthError.Internal(
+                        throwable.message ?: "Failed to fetch user from the database."
+                    )
                 )
             }
-
-            is AuthResult.Failure -> {
-                AuthResult.Failure(authResult.error)
-            }
-        }
+        )
     }
 
-    private fun validateInput(email: String, password: String): AuthResult<Unit> {
-        if (email.trim().isEmpty()) {
-            return AuthResult.Failure(
-                AuthException(
-                    errorType = AuthErrorType.EmptyEmail,
-                    errorMessage = "Email is required"
-                )
-            )
-        }
-
-        if (password.trim().isEmpty()) {
-            return AuthResult.Failure(
-                AuthException(
-                    errorType = AuthErrorType.EmptyPassword,
-                    errorMessage = "Password is required"
-                )
-            )
-        }
-
-        return AuthResult.Success(Unit)
+    private fun validateInput(email: String, password: String): AuthResult.Failure? {
+        if (email.trim().isBlank()) return AuthResult.Failure(AuthError.EmptyEmail)
+        if (password.trim().isBlank()) return AuthResult.Failure(AuthError.EmptyPassword)
+        return null
     }
 }
