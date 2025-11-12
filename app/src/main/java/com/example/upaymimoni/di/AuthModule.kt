@@ -22,7 +22,7 @@ val authModule = module {
 
     single { GoogleSignInClient(androidContext()) }
 
-    single<AuthRepository> { FirebaseAuthRepository(get()) }
+    single<AuthRepository> { FirebaseAuthRepository(get(), get()) }
 
     single { UiMessageTranslation() }
 

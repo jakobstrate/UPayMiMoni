@@ -56,9 +56,9 @@ class MainActivity : ComponentActivity() {
 
                     NavHost(
                         navController = navController,
-                        //startDestination = NavigationRoutes.authStack
+                        startDestination = NavigationRoutes.authStack
                         //startDestination = "expense_add/$TEST_GROUP_ID/$TEST_USER_ID"
-                        startDestination = "expense_detail/$TEST_EXPENSE_ID"
+//                        startDestination = "expense_detail/$TEST_EXPENSE_ID"
                     ) {
                         // Expense Detail Screen Composable
                         composable(
@@ -173,7 +173,9 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 EditProfileScreen(
                                     onBackClick = {
-                                        navController.navigate(NavigationRoutes.profilePage)
+                                        navController.navigate(NavigationRoutes.profilePage) {
+                                            popUpTo(NavigationRoutes.editProfilePage) { inclusive = true }
+                                        }
                                     }
                                 )
                             }

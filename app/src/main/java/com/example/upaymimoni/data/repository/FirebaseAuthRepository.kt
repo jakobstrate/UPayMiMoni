@@ -1,9 +1,12 @@
 package com.example.upaymimoni.data.repository
 
+import com.example.upaymimoni.data.mappers.ErrorMapper
 import com.example.upaymimoni.domain.model.AuthErrorType
 import com.example.upaymimoni.domain.model.AuthException
 import com.example.upaymimoni.domain.model.AuthResult
+import com.example.upaymimoni.domain.model.UpdateUserError
 import com.example.upaymimoni.domain.model.User
+import com.example.upaymimoni.domain.model.UserUpdateResult
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
@@ -14,11 +17,14 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.auth.userProfileChangeRequest
 import kotlinx.coroutines.tasks.await
 import java.lang.IllegalArgumentException
 
 class FirebaseAuthRepository(
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val updateErrorMapper: ErrorMapper<Exception, UpdateUserError>
 ) : AuthRepository {
 
     override suspend fun loginUser(email: String, password: String): AuthResult<User> = try {
@@ -65,6 +71,36 @@ class FirebaseAuthRepository(
 
     override suspend fun logoutUser() {
         auth.signOut()
+    }
+
+    override suspend fun updateUserProfile(
+        newEmail: String,
+        newDisplayName: String
+    ): UserUpdateResult {
+        val user = auth.currentUser
+            ?: return UserUpdateResult.Failure(UpdateUserError.Unknown("No authenticated user found, this should never happen"))
+
+        return try {
+            if (user.email != newEmail) {
+                user.updateEmail(newEmail).await()
+            }
+
+            if (user.displayName != newDisplayName) {
+                val profileUpdate = userProfileChangeRequest {
+                    displayName = newDisplayName
+                }
+                user.updateProfile(profileUpdate).await()
+            }
+
+            val updatedUser = auth.currentUser
+                ?: return UserUpdateResult.Failure(UpdateUserError.Unknown("User was not found after update"))
+
+            UserUpdateResult.Success(createNewUser(updatedUser))
+
+        } catch (e: Exception) {
+            val domainError = updateErrorMapper.map(e)
+            UserUpdateResult.Failure(domainError)
+        }
     }
 
     private fun createNewUser(firebaseUser: FirebaseUser): User {

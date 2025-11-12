@@ -1,8 +1,11 @@
 package com.example.upaymimoni.di
 
+import com.example.upaymimoni.data.mappers.ErrorMapper
+import com.example.upaymimoni.data.mappers.FirebaseUpdateUserErrorMapper
 import com.example.upaymimoni.data.repository.DiceBearAvatarRepository
 import com.example.upaymimoni.data.repository.FirestoreUserRepository
 import com.example.upaymimoni.data.session.UserSessionImpl
+import com.example.upaymimoni.domain.model.UpdateUserError
 import com.example.upaymimoni.domain.repository.AvatarRepository
 import com.example.upaymimoni.domain.repository.UserRepository
 import com.example.upaymimoni.domain.session.UserSession
@@ -17,8 +20,13 @@ val ApplicationModule = module {
         UserSessionImpl()
     }
 
+    single <ErrorMapper<Exception, UpdateUserError>> { FirebaseUpdateUserErrorMapper() }
+
     single <UserRepository> {
-        FirestoreUserRepository(get())
+        FirestoreUserRepository(
+            get(),
+            get()
+        )
     }
 
     single <AvatarRepository> {

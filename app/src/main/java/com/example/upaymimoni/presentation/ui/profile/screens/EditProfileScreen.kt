@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -30,14 +32,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.presentation.ui.profile.components.CircularProfileImage
 import com.example.upaymimoni.presentation.ui.profile.components.EditProfileField
 import com.example.upaymimoni.presentation.ui.profile.viewmodel.EditProfileViewModel
+import com.example.upaymimoni.presentation.ui.profile.viewmodel.ErrorState
+import com.example.upaymimoni.presentation.ui.profile.viewmodel.SaveChangesEvents
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -51,22 +57,35 @@ fun EditProfileScreen(
     val name by editViewModel.newName.collectAsState()
     val email by editViewModel.newEmail.collectAsState()
     val phone by editViewModel.newPhone.collectAsState()
+    val error by editViewModel.errorState.collectAsState()
+
+    val saveEvent = editViewModel.saveEvent
 
 
     user?.let {
         LaunchedEffect(user) {
             editViewModel.initializeUser(it)
+
+            saveEvent.collect { event ->
+                when (event) {
+                    is SaveChangesEvents.NavigateToProfile -> {
+                        onBackClick()
+                    }
+                }
+            }
         }
 
         EditProfileContent(
             currentUser = it,
-            onBackClick = onBackClick,
             name = name,
             updateName = editViewModel::updateName,
             email = email,
             updateEmail = editViewModel::updateEmail,
             phone = phone,
             updatePhone = editViewModel::updatePhone,
+            onBackClick = onBackClick,
+            onSaveClick = editViewModel::onSaveClick,
+            errorState = error
         )
     }
 }
@@ -82,6 +101,8 @@ fun EditProfileContent(
     phone: TextFieldValue,
     updatePhone: (TextFieldValue) -> Unit,
     onBackClick: () -> Unit,
+    onSaveClick: () -> Unit,
+    errorState: ErrorState
 ) {
     Scaffold(
         topBar = {
@@ -132,7 +153,7 @@ fun EditProfileContent(
                     value = name,
                     label = "Name",
                     placeHolder = "Enter your name",
-                    isError = false,
+                    isError = errorState.nameError,
                     onValueChange = { updateName(it) },
                     trailingIcon = {
                         Icon(
@@ -149,7 +170,7 @@ fun EditProfileContent(
                     value = email,
                     label = "Email",
                     placeHolder = "Enter your email",
-                    isError = false,
+                    isError = errorState.emailError,
                     onValueChange = { updateEmail(it) },
                     trailingIcon = {
                         Icon(
@@ -163,7 +184,7 @@ fun EditProfileContent(
                     value = phone,
                     label = "Mobile",
                     placeHolder = "Enter your phone number",
-                    isError = false,
+                    isError = errorState.numberError,
                     onValueChange = { updatePhone(it) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     trailingIcon = {
@@ -175,10 +196,28 @@ fun EditProfileContent(
                 )
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = errorState.errorMsg ?: " ",
+                color = if (errorState.nameError || errorState.emailError || errorState.numberError) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    Color.Transparent
+                },
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 4.dp, end = 16.dp)
+                    .defaultMinSize(minHeight = 24.dp)
+                    .wrapContentHeight(align = Alignment.Top)
+                    .fillMaxWidth(),
+            )
+
             Spacer(modifier = Modifier.weight(1f))
 
             ElevatedButton(
-                onClick = {},
+                onClick = onSaveClick,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
@@ -211,13 +250,18 @@ private fun EditProfilePreview() {
                 email = "notabot@botters.com",
                 groups = emptyList()
             ),
-            onBackClick = {},
             name = TextFieldValue(""),
             updateName = {},
             email = TextFieldValue(""),
             updateEmail = {},
             phone = TextFieldValue(""),
             updatePhone = {},
+            onBackClick = {},
+            onSaveClick = {},
+            errorState = ErrorState(
+                emailError = true,
+                errorMsg = "Invalid Email"
+            )
         )
     }
 }
