@@ -64,7 +64,7 @@ class AuthForgotPassViewModel(
     }
 
     private fun handleAuthFailure(error: AuthError) {
-        val fieldError = AuthErrorMapper.toFieldError(error)
+        val fieldError = AuthErrorMapper.toForgotPasswordFieldError(error)
         when (fieldError.field) {
             FieldType.EMAIL -> setFieldError(FieldType.EMAIL, fieldError.message)
             FieldType.INPUT -> setFieldError(FieldType.INPUT, fieldError.message)
