@@ -16,10 +16,15 @@ import androidx.compose.ui.unit.sp
 import com.example.upaymimoni.presentation.ui.common.components.AppBottomNavBar
 import com.example.upaymimoni.presentation.ui.groups.components.ExpenseItem
 
-
+data class Expense(
+    val name: String,
+    val description: String,
+    val amount: Double,
+    val date: String
+)
 
 @Composable
-fun GroupsScreen(
+fun GroupScreen(
     onNavigateToGroups: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {}
 ) {
@@ -46,7 +51,6 @@ fun GroupsScreen(
                 .background(Color(0xFFF9FAFB))
                 .padding(paddingValues)
         ) {
-            // --- HEADER ---
             Text(
                 text = "Group 1",
                 fontSize = 22.sp,
@@ -109,6 +113,6 @@ fun GroupsScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewGroupsScreen() {
+fun PreviewGroupScreen() {
     GroupsScreen()
 }
