@@ -22,7 +22,8 @@ data class AddExpenseState(
     val splitBetweenUserIds: List<String> = emptyList(),
     val isSaving: Boolean = false,
     val error: String? = null,
-    val attachment: Attachment? = null
+    val attachment: Attachment? = null,
+    val isSliderConfirmed: Boolean = false
 )
 
 /**
@@ -54,10 +55,50 @@ class ExpenseAddViewModel(
 
     fun confirmExpense(onSuccess: () -> Unit) {
         val current = state.value
-        //validation
-        if (current.name.isBlank() || current.amount.isBlank()){
-            state.value = current.copy(error = "no name or amount on expense")
+        //validation - reset confirmed if error
+        if (current.name.isBlank()) {
+            state.value = current.copy(
+                error = "Please enter a title of the expense.",
+                isSliderConfirmed = false)
+            return
         }
+        if (current.amount.isBlank()) {
+            state.value = current.copy(
+                error = "Please enter an amount.",
+                isSliderConfirmed = false)
+            return
+        }
+        if (current.paidByUserId.isBlank()) {
+            state.value = current.copy(
+                error = "Please select who paid for the expense.",
+                isSliderConfirmed = false)
+            return
+        }
+        if (current.splitBetweenUserIds.isEmpty()) {
+            state.value = current.copy(
+                error = "Please select users to split the expense with.",
+                isSliderConfirmed = false)
+            return
+        }
+
+        // amount conversion to double
+        val amountDouble: Double
+        try {
+            amountDouble = current.amount.toDouble()
+
+            if (amountDouble <= 0.0) {
+                state.value = current.copy(
+                    error = "Amount must be a positive number.",
+                    isSliderConfirmed = false)
+                return
+            }
+        } catch (e: NumberFormatException) {
+            state.value = current.copy(
+                error = "Amount must be a valid number: ${e.message}",
+                isSliderConfirmed = false)
+            return
+        }
+
         //make object and send to repo
         viewModelScope.launch{
             state.value = current.copy(isSaving = true)
@@ -71,10 +112,24 @@ class ExpenseAddViewModel(
             )
 
             if (result.isSuccess) {
+                state.value = state.value.copy(isSaving = false)
                 onSuccess()
+            } else {
+                state.value = state.value.copy(isSaving = false)
+                state.value = state.value.copy(
+                    error = "Failed to add expense: ${result.exceptionOrNull()?.message}",
+                    isSliderConfirmed = false)
             }
         }
     }
+
+    //State for confirm slider
+    fun setSliderConfirmed(confirmed: Boolean) {
+        state.value = state.value.copy(isSliderConfirmed = confirmed)
+        println("SetSliderConfirmed : $confirmed")
+        println("SliderConfirmed : ${state.value.isSliderConfirmed}")
+    }
+
 
     //State for popups
 

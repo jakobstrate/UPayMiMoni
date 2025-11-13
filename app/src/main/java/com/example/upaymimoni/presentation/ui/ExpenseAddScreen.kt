@@ -86,7 +86,8 @@ fun ExpenseAddScreen(
         onBackClick = onBackClick,
         onOpenSplitBetweenPopup = viewModel::openSpltBetweenPopup,
         onOpenPaidByPopup = viewModel::openPaidByPopup,
-        onOpenAttachFilePopup = viewModel::openFileAttachmentChooser
+        onOpenAttachFilePopup = viewModel::openFileAttachmentChooser,
+        onSetSliderConfirmed = viewModel::setSliderConfirmed
     )
 
     // Popups Displayed on top
@@ -149,7 +150,8 @@ fun ExpenseAddContent(
     onBackClick: () -> Unit = {},
     onOpenSplitBetweenPopup: () -> Unit = {},
     onOpenPaidByPopup: () -> Unit = {},
-    onOpenAttachFilePopup: () -> Unit = {}
+    onOpenAttachFilePopup: () -> Unit = {},
+    onSetSliderConfirmed: (Boolean) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -188,12 +190,15 @@ fun ExpenseAddContent(
             )
         },
         bottomBar = {
+            println("Rerender confirm slider : ${state.isSliderConfirmed}")
             Row (
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center){
                 ConfirmSlider(
                     sliderText = "Confirm",
-                    onConfirmed = onSaveClick
+                    onConfirmed = onSaveClick,
+                    isConfirmed = state.isSliderConfirmed,
+                    onSetSliderConfirmed = { onSetSliderConfirmed(true) }
                 )
             }
         },
@@ -304,8 +309,10 @@ fun PreviewExpenseAddContent() {
                 name = "Coffee",
                 amount = "4.20",
                 isSaving = false,
+                isSliderConfirmed = false,
                 error = null
-            )
+            ),
+            onSetSliderConfirmed = {}
         )
     }
 }
@@ -319,10 +326,12 @@ fun PreviewBasicErrorNoNameExpenseAddContent() {
                 name = "",
                 amount = "4.20",
                 isSaving = true,
+                isSliderConfirmed = false,
                 error = "No expense title",
                 paidByUserId = "Adam Azulia",
                 splitBetweenUserIds = listOf("Mack, Nick")
-            )
+            ),
+            onSetSliderConfirmed = {}
         )
     }
 }
@@ -336,10 +345,12 @@ fun PreviewBasicErrorNoPaidByExpenseAddContent() {
                 name = "Coffee",
                 amount = "4.20",
                 isSaving = true,
+                isSliderConfirmed = false,
                 error = "No paid by and split between user selected",
                 paidByUserId = "",
                 splitBetweenUserIds = listOf()
-            )
+            ),
+            onSetSliderConfirmed = {}
         )
     }
 }
