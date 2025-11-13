@@ -29,10 +29,10 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
-//const val EMULATOR_HOST = "10.0.2.2"
+const val EMULATOR_HOST = "10.0.2.2"
 
 //const val EMULATOR_HOST = "10.126.69.219"
-const val EMULATOR_HOST = "192.168.1.241"
+//const val EMULATOR_HOST = "192.168.1.241"
 const val AUTH_EMULATOR_PORT = 9099
 const val FIRESTORE_EMULATOR_PORT = 8080
 
@@ -56,8 +56,8 @@ class MainActivity : ComponentActivity() {
 
                     NavHost(
                         navController = navController,
-                        startDestination = NavigationRoutes.authStack
-                        //startDestination = "expense_add/$TEST_GROUP_ID/$TEST_USER_ID"
+                        //startDestination = NavigationRoutes.authStack
+                        startDestination = "expense_add/$TEST_GROUP_ID/$TEST_USER_ID"
 //                        startDestination = "expense_detail/$TEST_EXPENSE_ID"
                     ) {
                         // Expense Detail Screen Composable

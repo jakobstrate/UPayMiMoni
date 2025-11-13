@@ -20,6 +20,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.upaymimoni.presentation.ui.expenses.components.AmountSelector
 import com.example.upaymimoni.presentation.ui.expenses.components.ConfirmSlider
+import com.example.upaymimoni.presentation.ui.expenses.components.ExpenseNameField
 import com.example.upaymimoni.presentation.ui.expenses.components.SelectionBar
 import com.example.upaymimoni.presentation.ui.expenses.popups.PaidByPopup
 import com.example.upaymimoni.presentation.ui.expenses.popups.SplitBetweenPopup
@@ -228,25 +232,14 @@ fun ExpenseAddBody(
     onOpenAttachFilePopup: () -> Unit
 ) {
 
-
+    val isNameError = state.error != null && state.name.isBlank()
+    val isPaidByError = state.error != null && state.paidByUserId.isBlank()
+    val isSplitBetweenError = state.error != null && state.splitBetweenUserIds.isEmpty()
     Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-
-        OutlinedTextField(
+        ExpenseNameField(
             value = state.name,
             onValueChange = onNameChange,
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                unfocusedTextColor = if (state.name.isBlank()) MaterialTheme.colorScheme.onPrimaryContainer
-                else MaterialTheme.colorScheme.onPrimary,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                cursorColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = Color.Transparent
-            ),
-            shape = RoundedCornerShape(50),
-            placeholder = { Text("Enter expense title") },
-
+            isError = isNameError
         )
 
         Spacer(Modifier.height(36.dp))
@@ -258,10 +251,12 @@ fun ExpenseAddBody(
 
         Spacer(Modifier.height(36.dp))
 
+        
         SelectionBar(
             "Paid By",
             state.paidByUserId,
-            onOpenPaidByPopup
+            onOpenPaidByPopup,
+            isError = isPaidByError
         )
 
         Spacer(Modifier.height(12.dp))
@@ -269,19 +264,25 @@ fun ExpenseAddBody(
         SelectionBar(
             "Split Between",
             state.splitBetweenUserIds.joinToString(separator = ", ", prefix = "", postfix = ""),
-            onOpenSplitBetweenPopup
+            onOpenSplitBetweenPopup,
+            isError = isSplitBetweenError
         )
 
         Spacer(Modifier.height(36.dp))
 
-        Button(
+        ElevatedButton(
             onClick = onOpenAttachFilePopup,
             shape = RoundedCornerShape(50.dp),
             contentPadding = PaddingValues(16.dp),
-            colors = ButtonDefaults.buttonColors(
+            elevation = ButtonDefaults.elevatedButtonElevation(
+                defaultElevation = 6.dp,
+                pressedElevation = 12.dp
+            ),
+            colors = ButtonDefaults.elevatedButtonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+
+            ),
         ) {
             Text("Attach file")
             Icon(Icons.Filled.Add,contentDescription = "Attach")
@@ -297,13 +298,47 @@ fun ExpenseAddBody(
 @Preview(showBackground = true)
 @Composable
 fun PreviewExpenseAddContent() {
-    UPayMiMoniTheme (darkTheme = false) {
+    UPayMiMoniTheme (darkTheme = true) {
         ExpenseAddContent(
             state = AddExpenseState(
                 name = "Coffee",
                 amount = "4.20",
                 isSaving = false,
                 error = null
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewBasicErrorNoNameExpenseAddContent() {
+    UPayMiMoniTheme (darkTheme = true) {
+        ExpenseAddContent(
+            state = AddExpenseState(
+                name = "",
+                amount = "4.20",
+                isSaving = true,
+                error = "No expense title",
+                paidByUserId = "Adam Azulia",
+                splitBetweenUserIds = listOf("Mack, Nick")
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewBasicErrorNoPaidByExpenseAddContent() {
+    UPayMiMoniTheme (darkTheme = true) {
+        ExpenseAddContent(
+            state = AddExpenseState(
+                name = "Coffee",
+                amount = "4.20",
+                isSaving = true,
+                error = "No paid by and split between user selected",
+                paidByUserId = "",
+                splitBetweenUserIds = listOf()
             )
         )
     }
