@@ -40,7 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.presentation.ui.profile.components.CircularProfileImage
-import com.example.upaymimoni.presentation.ui.profile.components.EditProfileField
+import com.example.upaymimoni.presentation.ui.common.components.EditProfileField
 import com.example.upaymimoni.presentation.ui.profile.viewmodel.EditProfileViewModel
 import com.example.upaymimoni.presentation.ui.profile.viewmodel.ErrorState
 import com.example.upaymimoni.presentation.ui.profile.viewmodel.SaveChangesEvents

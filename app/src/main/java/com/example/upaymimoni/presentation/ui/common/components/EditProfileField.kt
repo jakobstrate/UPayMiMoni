@@ -1,4 +1,4 @@
-package com.example.upaymimoni.presentation.ui.profile.components
+package com.example.upaymimoni.presentation.ui.common.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
