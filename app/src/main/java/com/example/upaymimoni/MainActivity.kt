@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.upaymimoni.presentation.ui.ExpenseAddScreen
 import com.example.upaymimoni.presentation.ui.ExpenseDetailScreen
 import com.example.upaymimoni.presentation.ui.auth.screens.ForgotPassScreen
+import com.example.upaymimoni.presentation.ui.auth.screens.InitialLoadingScreen
 import com.example.upaymimoni.presentation.ui.auth.screens.LoginScreen
 import com.example.upaymimoni.presentation.ui.auth.screens.RegisterScreen
 import com.example.upaymimoni.presentation.ui.profile.screens.EditProfileScreen
@@ -56,10 +56,30 @@ class MainActivity : ComponentActivity() {
 
                     NavHost(
                         navController = navController,
-                        //startDestination = NavigationRoutes.authStack
-                        startDestination = "expense_add/$TEST_GROUP_ID/$TEST_USER_ID"
+                        startDestination = NavigationRoutes.initialLoading
+//                        startDestination = "expense_add/$TEST_GROUP_ID/$TEST_USER_ID"
 //                        startDestination = "expense_detail/$TEST_EXPENSE_ID"
                     ) {
+                        composable(
+                            route = NavigationRoutes.initialLoading
+                        ) {
+                            InitialLoadingScreen(
+                                onAuthenticated = {
+                                    navController.navigate(NavigationRoutes.profileStack) {
+                                        popUpTo(NavigationRoutes.initialLoading) {
+                                            inclusive = true
+                                        }
+                                    }
+                                },
+                                onUnauthenticated = {
+                                    navController.navigate(NavigationRoutes.authStack) {
+                                        popUpTo(NavigationRoutes.initialLoading) {
+                                            inclusive = true
+                                        }
+                                    }
+                                }
+                            )
+                        }
                         // Expense Detail Screen Composable
                         composable(
                             "expense_detail/{expenseId}",
@@ -174,7 +194,9 @@ class MainActivity : ComponentActivity() {
                                 EditProfileScreen(
                                     onBackClick = {
                                         navController.navigate(NavigationRoutes.profilePage) {
-                                            popUpTo(NavigationRoutes.editProfilePage) { inclusive = true }
+                                            popUpTo(NavigationRoutes.editProfilePage) {
+                                                inclusive = true
+                                            }
                                         }
                                     }
                                 )

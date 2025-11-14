@@ -51,12 +51,7 @@ fun ProfileScreen(
 
     val uiEvent = profileViewModel.uiEvent
 
-    LaunchedEffect(user) {
-        if (user == null) {
-            onNavigateToLogin()
-            return@LaunchedEffect
-        }
-
+    LaunchedEffect(Unit) {
         uiEvent.collect { event ->
             when (event) {
                 is LogoutEvents.NavigateToLogin -> {
@@ -113,10 +108,12 @@ fun ProfileScreenContent(
                 }
             )
         },
-        bottomBar = { AppBottomNavBar(
-            onGroupsClick = onNavigateToGroups,
-            isProfileSelected = true
-        ) }
+        bottomBar = {
+            AppBottomNavBar(
+                onGroupsClick = onNavigateToGroups,
+                isProfileSelected = true
+            )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier

@@ -66,6 +66,9 @@ fun EditProfileScreen(
         LaunchedEffect(user) {
             editViewModel.initializeUser(it)
 
+        }
+
+        LaunchedEffect(Unit) {
             saveEvent.collect { event ->
                 when (event) {
                     is SaveChangesEvents.NavigateToProfile -> {
@@ -74,6 +77,7 @@ fun EditProfileScreen(
                 }
             }
         }
+
 
         EditProfileContent(
             currentUser = it,

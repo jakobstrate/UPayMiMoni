@@ -10,4 +10,5 @@ object NavigationRoutes {
     const val profileStack = "ProfileStack"
     const val profilePage = "ProfilePage"
     const val editProfilePage = "EditProfilePage"
+    const val initialLoading = "InitialLoadingPage"
 }

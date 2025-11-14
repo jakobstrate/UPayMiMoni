@@ -26,7 +26,6 @@ class ProfileViewModel(
 
     fun onLogoutClick() = viewModelScope.launch {
         logoutUseCase()
-        userSession.clearUser()
         _uiEvent.emit(LogoutEvents.NavigateToLogin)
     }
 }
