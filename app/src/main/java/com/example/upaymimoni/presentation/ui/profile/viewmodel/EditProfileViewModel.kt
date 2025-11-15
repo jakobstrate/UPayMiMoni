@@ -4,7 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.upaymimoni.domain.model.User
-import com.example.upaymimoni.domain.model.UserUpdateResult
+import com.example.upaymimoni.domain.model.result.UserUpdateResult
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.user.UpdateUserUseCase
 import com.example.upaymimoni.presentation.ui.utils.FieldType

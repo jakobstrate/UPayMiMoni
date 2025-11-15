@@ -2,10 +2,10 @@ package com.example.upaymimoni.data.repository
 
 import com.example.upaymimoni.data.mappers.ErrorMapper
 import com.example.upaymimoni.domain.model.AuthError
-import com.example.upaymimoni.domain.model.AuthResult
+import com.example.upaymimoni.domain.model.result.AuthResult
 import com.example.upaymimoni.domain.model.UpdateUserError
 import com.example.upaymimoni.domain.model.User
-import com.example.upaymimoni.domain.model.UserUpdateResult
+import com.example.upaymimoni.domain.model.result.UserUpdateResult
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser

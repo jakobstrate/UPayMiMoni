@@ -1,7 +1,7 @@
 package com.example.upaymimoni.domain.repository
 
 import com.example.upaymimoni.domain.model.User
-import com.example.upaymimoni.domain.model.UserUpdateResult
+import com.example.upaymimoni.domain.model.result.UserUpdateResult
 
 interface UserRepository {
     suspend fun saveUser(user: User): Result<Unit>

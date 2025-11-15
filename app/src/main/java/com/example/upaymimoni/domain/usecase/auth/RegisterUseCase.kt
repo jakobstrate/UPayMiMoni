@@ -2,18 +2,20 @@ package com.example.upaymimoni.domain.usecase.auth
 
 import android.util.Log
 import com.example.upaymimoni.domain.model.AuthError
-import com.example.upaymimoni.domain.model.AuthResult
+import com.example.upaymimoni.domain.model.result.AuthResult
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.repository.AvatarRepository
 import com.example.upaymimoni.domain.repository.UserRepository
+import com.example.upaymimoni.domain.service.TokenManager
 import com.example.upaymimoni.domain.session.UserSession
 
 class RegisterUseCase(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
     private val avatarRepository: AvatarRepository,
-    private val userSession: UserSession
+    private val userSession: UserSession,
+    private val tokenManager: TokenManager
 ) {
     suspend operator fun invoke(
         name: String,
@@ -36,6 +38,7 @@ class RegisterUseCase(
 
         return if (saveResult.isSuccess) {
             userSession.setCurrentUser(completeUser)
+            tokenManager.fetchAndSaveToken(completeUser.id)
             AuthResult.Success(completeUser)
         } else {
             AuthResult.Failure(

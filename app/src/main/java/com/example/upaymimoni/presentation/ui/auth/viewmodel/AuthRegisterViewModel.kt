@@ -4,7 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.upaymimoni.domain.model.AuthError
-import com.example.upaymimoni.domain.model.AuthResult
+import com.example.upaymimoni.domain.model.result.AuthResult
 import com.example.upaymimoni.domain.usecase.auth.RegisterUseCase
 import com.example.upaymimoni.presentation.ui.auth.utils.AuthErrorState
 import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent

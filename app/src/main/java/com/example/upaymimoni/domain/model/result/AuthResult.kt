@@ -1,4 +1,6 @@
-package com.example.upaymimoni.domain.model
+package com.example.upaymimoni.domain.model.result
+
+import com.example.upaymimoni.domain.model.AuthError
 
 /**
  * Generic Result wrapper so that we can return anything + an AuthError

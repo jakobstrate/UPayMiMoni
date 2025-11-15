@@ -15,35 +15,20 @@ import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthRegisterViewMod
 import com.example.upaymimoni.presentation.ui.auth.utils.GoogleSignInClient
 import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthForgotPassViewModel
 import com.example.upaymimoni.presentation.ui.auth.viewmodel.InitialLoadingViewModel
-import com.google.firebase.auth.FirebaseAuth
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val authModule = module {
-    single { FirebaseAuth.getInstance() }
 
     single { GoogleSignInClient(androidContext()) }
 
-    single<AuthRepository> {
-        FirebaseAuthRepository(
-            get(),
-            get(named("UpdateUserMapper")),
-            get(named("AuthMapper"))
-        )
-    }
 
-    single<AuthStateProvider> {
-        FirebaseAuthStateProvider(
-            get()
-        )
-    }
+    factory { LoginUseCase(get(), get(), get(), get()) }
 
-    factory { LoginUseCase(get(), get(), get()) }
+    factory { RegisterUseCase(get(), get(), get(), get(), get()) }
 
-    factory { RegisterUseCase(get(), get(), get(), get()) }
-
-    factory { GoogleLoginUseCase(get(), get(), get()) }
+    factory { GoogleLoginUseCase(get(), get(), get(), get()) }
 
     factory { ResetPasswordUseCase(get()) }
 

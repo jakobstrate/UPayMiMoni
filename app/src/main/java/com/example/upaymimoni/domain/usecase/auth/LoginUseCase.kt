@@ -1,16 +1,18 @@
 package com.example.upaymimoni.domain.usecase.auth
 
 import com.example.upaymimoni.domain.model.AuthError
-import com.example.upaymimoni.domain.model.AuthResult
+import com.example.upaymimoni.domain.model.result.AuthResult
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.repository.UserRepository
+import com.example.upaymimoni.domain.service.TokenManager
 import com.example.upaymimoni.domain.session.UserSession
 
 class LoginUseCase(
     private val authRepo: AuthRepository,
     private val userRepo: UserRepository,
     private val userSession: UserSession,
+    private val tokenManager: TokenManager
 ) {
     suspend operator fun invoke(email: String, password: String): AuthResult<User> {
         validateInput(email, password)?.let {
@@ -26,6 +28,7 @@ class LoginUseCase(
         return userResult.fold(
             onSuccess = { fetchedUser ->
                 userSession.setCurrentUser(fetchedUser)
+                tokenManager.fetchAndSaveToken(fetchedUser.id)
                 AuthResult.Success(fetchedUser)
             },
             onFailure = { throwable ->

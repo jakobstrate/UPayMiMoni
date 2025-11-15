@@ -1,7 +1,7 @@
 package com.example.upaymimoni.domain.usecase.user
 
 import com.example.upaymimoni.domain.model.UpdateUserError
-import com.example.upaymimoni.domain.model.UserUpdateResult
+import com.example.upaymimoni.domain.model.result.UserUpdateResult
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.repository.UserRepository
 import com.example.upaymimoni.domain.session.UserSession

@@ -1,16 +1,18 @@
 package com.example.upaymimoni.domain.usecase.auth
 
 import com.example.upaymimoni.domain.model.AuthError
-import com.example.upaymimoni.domain.model.AuthResult
+import com.example.upaymimoni.domain.model.result.AuthResult
 import com.example.upaymimoni.domain.model.User
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.repository.UserRepository
+import com.example.upaymimoni.domain.service.TokenManager
 import com.example.upaymimoni.domain.session.UserSession
 
 class GoogleLoginUseCase(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
     private val userSession: UserSession,
+    private val tokenManager: TokenManager
 ) {
     suspend operator fun invoke(idToken: String): AuthResult<User> {
         val authResult = authRepository.loginUserWithGoogle(idToken)
@@ -27,6 +29,7 @@ class GoogleLoginUseCase(
         val saveResult = userRepository.saveUser(user)
         if (saveResult.isSuccess) {
             userSession.setCurrentUser(user)
+            tokenManager.fetchAndSaveToken(user.id)
             return AuthResult.Success(user)
         }
 

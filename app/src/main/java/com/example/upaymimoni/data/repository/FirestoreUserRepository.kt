@@ -4,7 +4,7 @@ import android.util.Log
 import com.example.upaymimoni.data.mappers.ErrorMapper
 import com.example.upaymimoni.domain.model.UpdateUserError
 import com.example.upaymimoni.domain.model.User
-import com.example.upaymimoni.domain.model.UserUpdateResult
+import com.example.upaymimoni.domain.model.result.UserUpdateResult
 import com.example.upaymimoni.domain.repository.UserRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject

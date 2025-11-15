@@ -1,8 +1,8 @@
 package com.example.upaymimoni.domain.repository
 
-import com.example.upaymimoni.domain.model.AuthResult
+import com.example.upaymimoni.domain.model.result.AuthResult
 import com.example.upaymimoni.domain.model.User
-import com.example.upaymimoni.domain.model.UserUpdateResult
+import com.example.upaymimoni.domain.model.result.UserUpdateResult
 
 interface AuthRepository {
     suspend fun loginUser(email: String, password: String): AuthResult<User>
