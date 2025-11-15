@@ -129,6 +129,6 @@ docker logs upaymimoni-backend
 
 ### 7.4 Android API Configuration
 Update the API in client in the app to point towards the server.
-This file is found at `app/src/main/java/com/example/upaymimoni/di/ApiModule.kt
+This file is found at `app/src/main/java/com/example/upaymimoni/di/ApiModule.kt`
 
 - Change baseUrl to where the server is running.
