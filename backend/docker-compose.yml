@@ -1,0 +1,16 @@
+version: "3.0"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: upaymimoni-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config/serviceAccountKey.json:/app/config/serviceAccountKey.json:ro
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: "/app/config/serviceAccountKey.json"
+    restart:
+      unless-stopped

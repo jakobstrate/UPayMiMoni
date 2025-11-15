@@ -82,3 +82,53 @@ steps:
 5. download the generated google-services.json.
 6. place it in the android project at: `app/src/google-services.json`.
 7. sync gradle.
+
+## 7. Go Backend Setup (For push notifications)
+
+The backend service is responsible for sending Firebase Cloud Messagees (FCM) using your Firebase Service Account credentials.
+
+**Prerequisites**
+
+You must have Docker and Docker Compose installed.
+This can be verified by running:
+
+```bash
+docker -v
+docker-compose -v
+```
+
+### 7.1 Get Firebase Service Account Credentials
+1. Go to the Firebase Console and select your project.
+2. Navigate to Porject Settings -> Service account tab.
+3. Click Generate new private key and download the resulting JSON file.
+4. Create a directory named config at `backend/config`
+
+```bash
+mkdir -p backend/config
+```
+
+5. Rename the downloaded file to `serviceAccountKey.json` and place it inside the newly created config folder.
+**DO NOT PUSH THIS FILE TO GITHUB, IT IS IN .GITIGNORE BUT PLEASE ENSURE THAT YOU DO NOT PUSH IT**
+
+### 7.2 Spin Up the Backend
+
+There is a docker-compose file at  `backend/docker-compose.yml` configured to host on port 3000, and load the private key.
+Run the service with:
+
+```bash
+docker compose up --build -d
+```
+
+### 7.3
+
+Verify the server started correctly with:
+
+```bash
+docker logs upaymimoni-backend
+```
+
+### 7.4 Android API Configuration
+Update the API in client in the app to point towards the server.
+This file is found at `app/src/main/java/com/example/upaymimoni/di/ApiModule.kt
+
+- Change baseUrl to where the server is running.
