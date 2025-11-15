@@ -7,12 +7,19 @@ import com.example.upaymimoni.domain.model.AuthError
 import com.example.upaymimoni.domain.model.AuthResult
 import com.example.upaymimoni.domain.usecase.auth.ResetPasswordUseCase
 import com.example.upaymimoni.presentation.ui.auth.utils.AuthErrorState
+import com.example.upaymimoni.presentation.ui.auth.utils.AuthUiEvent
 import com.example.upaymimoni.presentation.ui.utils.AuthErrorMapper
 import com.example.upaymimoni.presentation.ui.utils.FieldType
 import com.example.upaymimoni.presentation.ui.utils.TextFieldManipulator
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+
+sealed class ForgotPassEvents {
+    data class ShowSnackbar(val message: String) : ForgotPassEvents()
+}
 
 class AuthForgotPassViewModel(
     private val passwordUseCase: ResetPasswordUseCase,
@@ -26,6 +33,9 @@ class AuthForgotPassViewModel(
 
     private val _showPopUp = MutableStateFlow(false)
     val showPopUp: StateFlow<Boolean> = _showPopUp
+
+    private val _events = MutableSharedFlow<ForgotPassEvents>()
+    val events = _events.asSharedFlow()
 
     fun updateEmail(newEmail: TextFieldValue) {
         val cleaned = TextFieldManipulator.clearWhiteSpaceFromField(newEmail)
@@ -68,6 +78,7 @@ class AuthForgotPassViewModel(
         when (fieldError.field) {
             FieldType.EMAIL -> setFieldError(FieldType.EMAIL, fieldError.message)
             FieldType.INPUT -> setFieldError(FieldType.INPUT, fieldError.message)
+            FieldType.NONE -> setGeneralError(fieldError.message)
             else -> Unit
         }
     }
@@ -84,6 +95,14 @@ class AuthForgotPassViewModel(
             )
             else -> _errorState.value
         }
+    }
+
+    private fun setGeneralError(message: String) {
+        viewModelScope.launch {
+            _events.emit(ForgotPassEvents.ShowSnackbar(message))
+        }
+
+        _errorState.value = _errorState.value.copy(errorMsg = null)
     }
 
     private fun clearFieldError(type: FieldType) {

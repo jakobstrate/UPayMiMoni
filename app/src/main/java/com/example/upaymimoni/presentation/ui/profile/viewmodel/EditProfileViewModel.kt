@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 
 sealed class SaveChangesEvents {
     data object NavigateToProfile : SaveChangesEvents()
+    data class ShowSnackbar(val message: String) : SaveChangesEvents()
 }
 
 data class ErrorState(
@@ -89,6 +90,7 @@ class EditProfileViewModel(
                     FieldType.NAME -> _errorState.value = _errorState.value.copy(nameError = true, errorMsg = fieldError.message)
                     FieldType.EMAIL -> _errorState.value = _errorState.value.copy(emailError = true, errorMsg = fieldError.message)
                     FieldType.PHONE -> _errorState.value = _errorState.value.copy(numberError = true, errorMsg = fieldError.message)
+                    FieldType.NONE -> _saveEvent.emit(SaveChangesEvents.ShowSnackbar(fieldError.message))
                     else -> _errorState.value = _errorState.value.copy(errorMsg = fieldError.message)
                 }
             }

@@ -19,11 +19,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,9 +42,11 @@ import com.example.upaymimoni.presentation.ui.auth.components.ErrorDialogue
 import com.example.upaymimoni.presentation.ui.auth.components.UserInputField
 import com.example.upaymimoni.presentation.ui.auth.utils.AuthErrorState
 import com.example.upaymimoni.presentation.ui.auth.viewmodel.AuthForgotPassViewModel
+import com.example.upaymimoni.presentation.ui.auth.viewmodel.ForgotPassEvents
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPassScreen(
     forgotPassViewModel: AuthForgotPassViewModel = koinViewModel(),
@@ -52,31 +58,18 @@ fun ForgotPassScreen(
 
     val showPopUp by forgotPassViewModel.showPopUp.collectAsState()
 
-    ForgotPassScreenContent(
-        onBackClick = onBackClick,
-        email = email,
-        onEmailUpdate = forgotPassViewModel::updateEmail,
-        loading = loading,
-        onSubmitClick = forgotPassViewModel::onSendResetEmailClick,
-        error = error,
-        showPopUp = showPopUp,
-        removePopUp = forgotPassViewModel::removePopUp
-    )
-}
+    val events = forgotPassViewModel.events
+    val snackBarHostState = remember { SnackbarHostState() }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ForgotPassScreenContent(
-    onBackClick: () -> Unit,
-    email: TextFieldValue,
-    onEmailUpdate: (TextFieldValue) -> Unit,
-    loading: Boolean,
-    onSubmitClick: () -> Unit,
-    error: AuthErrorState,
-    showPopUp: Boolean,
-    removePopUp: () -> Unit
-) {
+    LaunchedEffect(Unit) {
+        events.collect { events ->
+            when (events) {
+                is ForgotPassEvents.ShowSnackbar -> snackBarHostState.showSnackbar(events.message)
+            }
+        }
+    }
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -99,75 +92,100 @@ fun ForgotPassScreenContent(
             )
         }
     ) { paddingValues ->
-        Column(
+        ForgotPassScreenContent(
+            onBackClick = onBackClick,
+            email = email,
+            onEmailUpdate = forgotPassViewModel::updateEmail,
+            loading = loading,
+            onSubmitClick = forgotPassViewModel::onSendResetEmailClick,
+            error = error,
+            showPopUp = showPopUp,
+            removePopUp = forgotPassViewModel::removePopUp,
+            modifier = Modifier.padding(paddingValues)
+        )
+    }
+
+}
+
+@Composable
+fun ForgotPassScreenContent(
+    onBackClick: () -> Unit,
+    email: TextFieldValue,
+    onEmailUpdate: (TextFieldValue) -> Unit,
+    loading: Boolean,
+    onSubmitClick: () -> Unit,
+    error: AuthErrorState,
+    showPopUp: Boolean,
+    removePopUp: () -> Unit,
+    modifier: Modifier
+) {
+    Column(
+        modifier = modifier
+            .padding(vertical = 48.dp, horizontal = 24.dp)
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.LockReset,
+            contentDescription = "Reset Password Icon",
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
-                .padding(paddingValues)
-                .padding(vertical = 48.dp, horizontal = 24.dp)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = Icons.Default.LockReset,
-                contentDescription = "Reset Password Icon",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .aspectRatio(1f)
+                .fillMaxWidth(0.5f)
+                .aspectRatio(1f)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(R.string.reset_pass_title),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = stringResource(R.string.reset_pass_desc),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.secondary,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        UserInputField(
+            value = email,
+            label = stringResource(R.string.auth_email_label),
+            placeHolder = stringResource(R.string.auth_email_placeholder),
+            isError = error.emailError,
+            onValueChange = onEmailUpdate,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+        )
+
+        ErrorDialogue(
+            active = error.emailError,
+            message = error.emailMsg
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        AuthButton(
+            text = stringResource(R.string.reset_pass_submit_button),
+            onClick = onSubmitClick,
+            enabled = !loading,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(42.dp)
+        )
+
+        if (showPopUp) {
+            ResetEmailPopUp(
+                email = email.text,
+                onDismiss = {
+                    removePopUp()
+                    onBackClick()
+                }
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = stringResource(R.string.reset_pass_title),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = stringResource(R.string.reset_pass_desc),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.secondary,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            UserInputField(
-                value = email,
-                label = stringResource(R.string.auth_email_label),
-                placeHolder = stringResource(R.string.auth_email_placeholder),
-                isError = error.emailError,
-                onValueChange = onEmailUpdate,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-            )
-
-            ErrorDialogue(
-                active = error.emailError,
-                message = error.emailMsg
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            AuthButton(
-                text = stringResource(R.string.reset_pass_submit_button),
-                onClick = onSubmitClick,
-                enabled = !loading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(42.dp)
-            )
-
-            if (showPopUp) {
-                ResetEmailPopUp(
-                    email = email.text,
-                    onDismiss = {
-                        removePopUp()
-                        onBackClick()
-                    }
-                )
-            }
         }
     }
 }
@@ -215,7 +233,8 @@ private fun ForgotPassScreenPreview(
                 errorMsg = "Please fill in the required fields."
             ),
             showPopUp = true,
-            removePopUp = {}
+            removePopUp = {},
+            modifier = Modifier.padding()
         )
     }
 }

@@ -148,9 +148,11 @@ class AuthLoginViewModel(
     }
 
     private fun setGeneralError(message: String) {
-        _errorState.value = _errorState.value.copy(
-            errorMsg = message
-        )
+        viewModelScope.launch {
+            _uiEvent.emit(AuthUiEvent.ShowSnackbar(message))
+        }
+
+        _errorState.value = _errorState.value.copy(errorMsg = null)
     }
 
 }

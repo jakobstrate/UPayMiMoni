@@ -1,6 +1,7 @@
 package com.example.upaymimoni.data.mappers
 
 import com.example.upaymimoni.domain.model.AuthError
+import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -23,6 +24,7 @@ class FirebaseAuthErrorMapper : ErrorMapper<Exception, AuthError> {
                 "ERROR_INVALID_EMAIL" -> AuthError.InvalidEmailFormat
                 else -> AuthError.Unknown(error.message)
             }
+            is FirebaseException -> AuthError.NetworkFailure
 
             else -> AuthError.Unknown(error.message)
         }

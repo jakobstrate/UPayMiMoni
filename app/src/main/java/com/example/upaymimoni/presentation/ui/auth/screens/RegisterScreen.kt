@@ -11,12 +11,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -52,29 +56,35 @@ fun RegisterScreen(
 
     val uiEvent = authViewModel.uiEvent
 
+    val snackBarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(Unit) {
         uiEvent.collect { event ->
             when (event) {
                 is AuthUiEvent.NavigateToHome -> onNavigateToHomePage()
+                is AuthUiEvent.ShowSnackbar -> snackBarHostState.showSnackbar(event.message)
             }
         }
     }
 
-    RegisterScreenContent(
-        name,
-        phone,
-        email,
-        pass,
-        error,
-        loading,
-        authViewModel::updateName,
-        authViewModel::updatePhone,
-        authViewModel::updateEmail,
-        authViewModel::updatePassword,
-        authViewModel::onRegisterClick,
-        onNavigateToLogin
-    )
-
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
+    ) {
+        RegisterScreenContent(
+            name,
+            phone,
+            email,
+            pass,
+            error,
+            loading,
+            authViewModel::updateName,
+            authViewModel::updatePhone,
+            authViewModel::updateEmail,
+            authViewModel::updatePassword,
+            authViewModel::onRegisterClick,
+            onNavigateToLogin
+        )
+    }
 }
 
 @Composable

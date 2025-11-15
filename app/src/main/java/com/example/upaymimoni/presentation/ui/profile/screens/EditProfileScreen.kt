@@ -24,12 +24,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,6 +50,7 @@ import com.example.upaymimoni.presentation.ui.profile.viewmodel.SaveChangesEvent
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
     editViewModel: EditProfileViewModel = koinViewModel(),
@@ -61,6 +65,8 @@ fun EditProfileScreen(
 
     val saveEvent = editViewModel.saveEvent
 
+    val snackBarHostState = remember { SnackbarHostState() }
+
 
     user?.let {
         LaunchedEffect(user) {
@@ -74,27 +80,55 @@ fun EditProfileScreen(
                     is SaveChangesEvents.NavigateToProfile -> {
                         onBackClick()
                     }
+
+                    is SaveChangesEvents.ShowSnackbar -> {
+                        snackBarHostState.showSnackbar(event.message)
+                    }
                 }
             }
         }
 
-
-        EditProfileContent(
-            currentUser = it,
-            name = name,
-            updateName = editViewModel::updateName,
-            email = email,
-            updateEmail = editViewModel::updateEmail,
-            phone = phone,
-            updatePhone = editViewModel::updatePhone,
-            onBackClick = onBackClick,
-            onSaveClick = editViewModel::onSaveClick,
-            errorState = error
-        )
+        Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "Edit Profile",
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = onBackClick
+                        ) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        titleContentColor = MaterialTheme.colorScheme.onTertiary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onTertiary
+                    ),
+                )
+            }
+        ) { paddingValues ->
+            EditProfileContent(
+                currentUser = it,
+                name = name,
+                updateName = editViewModel::updateName,
+                email = email,
+                updateEmail = editViewModel::updateEmail,
+                phone = phone,
+                updatePhone = editViewModel::updatePhone,
+                onSaveClick = editViewModel::onSaveClick,
+                errorState = error,
+                modifier = Modifier.padding(paddingValues)
+            )
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileContent(
     currentUser: User,
@@ -104,37 +138,12 @@ fun EditProfileContent(
     updateEmail: (TextFieldValue) -> Unit,
     phone: TextFieldValue,
     updatePhone: (TextFieldValue) -> Unit,
-    onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
-    errorState: ErrorState
+    errorState: ErrorState,
+    modifier: Modifier
 ) {
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Edit Profile",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBackClick
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    titleContentColor = MaterialTheme.colorScheme.onTertiary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onTertiary
-                ),
-            )
-        }
-    ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .padding(paddingValues)
+            modifier = modifier
                 .padding(vertical = 48.dp, horizontal = 24.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -239,7 +248,6 @@ fun EditProfileContent(
             }
         }
     }
-}
 
 @Preview(showBackground = true)
 @Composable
@@ -260,12 +268,12 @@ private fun EditProfilePreview() {
             updateEmail = {},
             phone = TextFieldValue(""),
             updatePhone = {},
-            onBackClick = {},
             onSaveClick = {},
             errorState = ErrorState(
                 emailError = true,
                 errorMsg = "Invalid Email"
-            )
+            ),
+            modifier = Modifier.padding()
         )
     }
 }
