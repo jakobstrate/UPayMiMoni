@@ -65,8 +65,8 @@ class MainActivity : ComponentActivity() {
 
                     NavHost(
                         navController = navController,
-                        startDestination = NavigationRoutes.initialLoading
-//                        startDestination = "expense_add/$TEST_GROUP_ID/$TEST_USER_ID"
+//                        startDestination = NavigationRoutes.initialLoading
+                        startDestination = "expense_add/$TEST_GROUP_ID/$TEST_USER_ID"
 //                        startDestination = "expense_detail/$TEST_EXPENSE_ID"
                     ) {
                         composable(

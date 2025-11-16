@@ -15,7 +15,7 @@ interface AttachmentStorageRepository {
      * @param onStatusUpdate Callback for reporting upload progress/status.
      * @return Result containing the URL and filename upon successful upload.
      */
-    suspend fun uploadReceipt(
+    suspend fun uploadAttachment(
         userId: String,
         fileUri: Uri,
         onStatusUpdate: (String) -> Unit

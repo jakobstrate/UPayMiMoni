@@ -6,6 +6,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.upaymimoni.domain.usecase.expense.AddExpenseUseCase
+import com.example.upaymimoni.domain.usecase.expense.AddExpenseWithAttachmentUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +30,7 @@ data class AddExpenseState(
  * It exposes the immutable state (ViewState) to the UI.
  */
 class ExpenseAddViewModel(
-    private val addExpenseUseCase: AddExpenseUseCase,
+    private val addExpenseUseCase: AddExpenseWithAttachmentUseCase,
     private val groupId: String,
     userId: String
 ) : ViewModel() {
@@ -97,57 +98,27 @@ class ExpenseAddViewModel(
         //make object and send to repo
         viewModelScope.launch{
             state.value = current.copy(isSaving = true)
-            //upload attachment
-            //val context =
-            //    koinContext.get<Context>()
 
-            var receiptUrl: String? = null
-            var receiptFilename: String? = null
+            try {
+                addExpenseUseCase(
+                    name = current.name,
+                    amount = current.amount.toDouble(),
+                    payerUserId = current.paidByUserId,
+                    groupId = groupId,
+                    splitBetweenUserIds = current.splitBetweenUserIds,
+                    attachmentUri = current.attachmentUri,
+                    onStatusUpdate = ::updateAttachmentStatus,
+                )
 
-            if (current.attachmentUri != null) {
-                updateAttachmentStatus("Uploading file...")
-                try {
-                    /*val result = uploadReceiptAndSaveExpense(
-                        context = context,
-                        userId = "test_user_id",
-                        fileUri = current.attachmentUri,
-                        expenseName = current.name,
-                        onStatusUpdate = ::updateAttachmentStatus,
-                        onLoadingChange = { isUploading ->
-                            state.value = current.copy(isSaving = isUploading)
-                        }
-                    )*/
-                    //receiptUrl = result.first
-                    //receiptFilename = result.second
-                    updateAttachmentStatus("File uploaded successfully.")
-
-                } catch (e: Exception) {
-                    Log.e("ExpenseAddViewModel", "File upload failed", e)
-                    updateAttachmentStatus("Upload failed: ${e.message}")
-                    state.value = current.copy(isSaving = false, error = "Failed to upload receipt.")
-                    return@launch // EXIT on failure
-                }
-            }
-
-
-            val result = addExpenseUseCase(
-                name = current.name,
-                amount = current.amount.toDouble(),
-                payerUserId = current.paidByUserId,
-                groupId = groupId,
-                splitBetweenUserIds = current.splitBetweenUserIds,
-                attachmentUrl = current.attachmentUri.toString()
-            )
-
-            if (result.isSuccess) {
-                state.value = state.value.copy(isSaving = false)
+                state.value = state.value.copy(isSaving = false, attachmentUri = null)
                 onSuccess()
-            } else {
+            }catch (e: Exception) {
                 state.value = state.value.copy(isSaving = false)
                 state.value = state.value.copy(
-                    error = "Failed to add expense: ${result.exceptionOrNull()?.message}",
+                    error = "Failed to add expense: ${e.message}",
                     isSliderConfirmed = false)
             }
+
         }
     }
 

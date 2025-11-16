@@ -20,5 +20,6 @@ data class Expense(
     val groupId: String = "",
     val splitBetweenUserIds: List<String> = emptyList(),
     val attachmentUrl: String? = "",
+    val attachmentFilename: String? = "",
     val createdAt: Long = System.currentTimeMillis()
 )
