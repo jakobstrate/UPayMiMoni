@@ -9,7 +9,7 @@ package com.example.upaymimoni.domain.model
  * @property payerUserId The ID of the user who paid the expense.
  * @property groupId The ID of the group the expense is added to.
  * @property splitBetweenUserIds The ID's of users that should share expense burden.
- * @property attachment Optional attachment.
+ * @property attachmentUrl Optional attachment Url.
  * @property createdAt Timestamp for sorting.
  */
 data class Expense(
@@ -19,6 +19,6 @@ data class Expense(
     val payerUserId: String = "",
     val groupId: String = "",
     val splitBetweenUserIds: List<String> = emptyList(),
-    val attachment: Attachment? = null,
+    val attachmentUrl: String? = "",
     val createdAt: Long = System.currentTimeMillis()
 )

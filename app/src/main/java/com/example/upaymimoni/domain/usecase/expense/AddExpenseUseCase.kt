@@ -17,7 +17,7 @@ class AddExpenseUseCase(
         payerUserId: String,
         splitBetweenUserIds: List<String>,
         groupId: String,
-        attachment: Attachment?
+        attachmentUrl: String? = ""
     ): Result<Unit> {
         if (name.isBlank() || amount <= 0 || payerUserId.isBlank() || groupId.isBlank()) {
             return Result.failure(IllegalArgumentException(
@@ -34,7 +34,7 @@ class AddExpenseUseCase(
             payerUserId = payerUserId,
             splitBetweenUserIds = splitBetweenUserIds,
             groupId = groupId,
-            attachment = attachment
+            attachmentUrl = attachmentUrl
         )
 
         //TODO, when groups are made, add expense to group on success

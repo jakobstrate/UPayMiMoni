@@ -1,14 +1,13 @@
 package com.example.upaymimoni.data.repository
 
-import com.example.upaymimoni.domain.model.Attachment
-import com.example.upaymimoni.domain.model.AttachmentType
+import android.net.Uri
+import coil3.toUri
 import com.example.upaymimoni.domain.model.Expense
 import com.example.upaymimoni.domain.repository.ExpenseRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.util.UUID
-import kotlin.math.exp
 
 
 // Simple mock implementation for demonstration purposes (Koin would bind the interface to this)
@@ -19,15 +18,14 @@ class MockExpenseRepository : ExpenseRepository {
     init {
         val mockUserId = "mock-user-123"
         val mockGroupId = "weshare-trip-001"
-        val mockAttachment: Attachment = Attachment(
-            "1","://attachments/receipt.pdf", AttachmentType.RECEIPT)
+        val mockAttachment = "http//example.test.test/atachment"
         mockExpenses.add(Expense(
             id = "mock1",
             name = "Flight Tickets",
             amount = 550.00,
             payerUserId = mockUserId,
             groupId = mockGroupId,
-            attachment = mockAttachment
+            attachmentUrl = mockAttachment
         ))
         mockExpenses.add(Expense(
             id = "mock2",
@@ -35,7 +33,7 @@ class MockExpenseRepository : ExpenseRepository {
             amount = 75.50,
             payerUserId = mockUserId,
             groupId = mockGroupId,
-            attachment = null
+            attachmentUrl = null
         ))
     }
 

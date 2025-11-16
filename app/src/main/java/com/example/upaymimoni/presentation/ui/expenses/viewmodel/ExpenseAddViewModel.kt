@@ -1,19 +1,16 @@
 package com.example.upaymimoni.presentation.ui.expenses.viewmodel
 
 import android.net.Uri
+import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.upaymimoni.domain.model.Attachment
-import com.example.upaymimoni.domain.model.Expense
-import com.example.upaymimoni.domain.model.AttachmentType
-import com.example.upaymimoni.domain.repository.ExpenseRepository
 import com.example.upaymimoni.domain.usecase.expense.AddExpenseUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 data class AddExpenseState(
     val name: String = "",
@@ -22,7 +19,8 @@ data class AddExpenseState(
     val splitBetweenUserIds: List<String> = emptyList(),
     val isSaving: Boolean = false,
     val error: String? = null,
-    val attachment: Attachment? = null,
+    val attachmentUri: Uri? = null,
+    val attachmentStatus: String = "", // should be "Uploading file" when uploading, so i know it is
     val isSliderConfirmed: Boolean = false
 )
 
@@ -49,9 +47,6 @@ class ExpenseAddViewModel(
         state.value = state.value.copy(amount = newAmount)
     }
 
-    fun addAttachment(newAttachment: Attachment) {
-        state.value = state.value.copy(attachment = newAttachment)
-    }
 
     fun confirmExpense(onSuccess: () -> Unit) {
         val current = state.value
@@ -102,13 +97,46 @@ class ExpenseAddViewModel(
         //make object and send to repo
         viewModelScope.launch{
             state.value = current.copy(isSaving = true)
+            //upload attachment
+            //val context =
+            //    koinContext.get<Context>()
+
+            var receiptUrl: String? = null
+            var receiptFilename: String? = null
+
+            if (current.attachmentUri != null) {
+                updateAttachmentStatus("Uploading file...")
+                try {
+                    /*val result = uploadReceiptAndSaveExpense(
+                        context = context,
+                        userId = "test_user_id",
+                        fileUri = current.attachmentUri,
+                        expenseName = current.name,
+                        onStatusUpdate = ::updateAttachmentStatus,
+                        onLoadingChange = { isUploading ->
+                            state.value = current.copy(isSaving = isUploading)
+                        }
+                    )*/
+                    //receiptUrl = result.first
+                    //receiptFilename = result.second
+                    updateAttachmentStatus("File uploaded successfully.")
+
+                } catch (e: Exception) {
+                    Log.e("ExpenseAddViewModel", "File upload failed", e)
+                    updateAttachmentStatus("Upload failed: ${e.message}")
+                    state.value = current.copy(isSaving = false, error = "Failed to upload receipt.")
+                    return@launch // EXIT on failure
+                }
+            }
+
+
             val result = addExpenseUseCase(
                 name = current.name,
                 amount = current.amount.toDouble(),
                 payerUserId = current.paidByUserId,
                 groupId = groupId,
                 splitBetweenUserIds = current.splitBetweenUserIds,
-                attachment = current.attachment
+                attachmentUrl = current.attachmentUri.toString()
             )
 
             if (result.isSuccess) {
@@ -198,23 +226,24 @@ class ExpenseAddViewModel(
 
     //File attachment
 
-    private val _showFileAttachmentChooser = MutableStateFlow(false)
-    val showFileAttachmentChooser: StateFlow<Boolean> = _showFileAttachmentChooser.asStateFlow()
 
-    fun openFileAttachmentChooser() {
-        _showFileAttachmentChooser.value = true
+    //remove attachement
+    fun removeAttachment() {
+        state.value = state.value.copy(
+            attachmentUri = null,
+            attachmentStatus = "Ready",
+            error = null
+        )
     }
 
-    fun fileChooserLaunched() {
-        _showFileAttachmentChooser.value = false
+    //set an attachment Uri
+    fun setAttachmentUri(uri: Uri?) {
+        state.value = state.value.copy(attachmentUri = uri)
     }
 
-    //TODO final implementation and check type of file
-    fun onAttachmentSelected(uri: Uri?) {
-        if (uri != null) {
-            val newAttachment = Attachment(attachmentUrl = uri.toString(), type = AttachmentType.RECEIPT)
-            state.update { it.copy(attachment = newAttachment) }
-        }
+    // update status, which is just status of attachment uploaded
+    fun updateAttachmentStatus(status: String) {
+        state.value = state.value.copy(attachmentStatus = status)
     }
 
 

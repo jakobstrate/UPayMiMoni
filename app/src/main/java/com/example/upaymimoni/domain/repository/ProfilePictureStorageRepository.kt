@@ -4,6 +4,6 @@ import android.net.Uri
 import com.example.upaymimoni.domain.model.result.UploadResult
 
 
-interface StorageRepository {
+interface ProfilePictureStorageRepository {
     suspend fun uploadUserProfilePicture(userId: String, uri: Uri): UploadResult<String>
 }

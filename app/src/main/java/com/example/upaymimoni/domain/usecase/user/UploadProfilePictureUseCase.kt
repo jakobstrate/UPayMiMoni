@@ -4,12 +4,12 @@ import android.net.Uri
 import com.example.upaymimoni.domain.model.UpdateUserError
 import com.example.upaymimoni.domain.model.result.UploadResult
 import com.example.upaymimoni.domain.model.result.UserUpdateResult
-import com.example.upaymimoni.domain.repository.StorageRepository
+import com.example.upaymimoni.domain.repository.ProfilePictureStorageRepository
 import com.example.upaymimoni.domain.repository.UserRepository
 import com.example.upaymimoni.domain.session.UserSession
 
 class UploadProfilePictureUseCase(
-    private val storageRepository: StorageRepository,
+    private val storageRepository: ProfilePictureStorageRepository,
     private val userRepository: UserRepository,
     private val userSession: UserSession
 ) {

@@ -37,9 +37,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -195,7 +192,7 @@ fun ExpenseDetailCard(expense: Expense) {
             )
 
             // 3. Attachment Status
-            val hasAttachment = expense.attachment != null
+            val hasAttachment = expense.attachmentUrl != null
             DetailRow(
                 icon = if (hasAttachment) Icons.Default.CheckCircle else Icons.Default.AttachFile,
                 label = "Receipt/Invoice",
@@ -269,7 +266,7 @@ fun PreviewExpenseDetailContent() {
                 id = "1",
                 payerUserId = "2",
                 groupId = "3",
-                attachment = null,
+                attachmentUrl = null,
             ),
             onBackClick = {}
         )
