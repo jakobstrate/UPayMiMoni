@@ -52,17 +52,22 @@ class FirestoreUserRepository(
         userId: String,
         newDisplayName: String,
         newEmail: String,
-        newPhone: String
+        newPhone: String,
+        newProfilePictureUrl: String?
     ): UserUpdateResult {
         return try {
             val userRef = usersCollection.document(userId)
 
-            val updates = mapOf(
+            val updates = mutableMapOf<String, Any>(
                 "displayName" to newDisplayName,
                 "email" to newEmail,
                 "phoneNumber" to newPhone
             )
 
+            newProfilePictureUrl?.let {
+                updates["profilePictureUrl"] = it
+            }
+
             userRef.update(updates).await()
 
             val snapshot = userRef.get().await()
@@ -74,32 +79,6 @@ class FirestoreUserRepository(
                 UserUpdateResult.Failure(UpdateUserError.Unknown("Failed to parse user"))
             }
 
-        } catch (e: Exception) {
-            UserUpdateResult.Failure(errorMapper.map(e))
-        }
-    }
-
-    override suspend fun updateUserProfilePicture(
-        userId: String,
-        newProfilePictureUrl: String
-    ): UserUpdateResult {
-        return try {
-            val userRef = usersCollection.document(userId)
-
-            val updates = mapOf(
-                "profilePictureUrl" to newProfilePictureUrl
-            )
-
-            userRef.update(updates).await()
-
-            val snapshot = userRef.get().await()
-            val updatedUser = snapshot.toObject<User>()
-
-            if (updatedUser != null) {
-                UserUpdateResult.Success(updatedUser)
-            } else {
-                UserUpdateResult.Failure(UpdateUserError.Unknown("Failed to parse user"))
-            }
         } catch (e: Exception) {
             UserUpdateResult.Failure(errorMapper.map(e))
         }

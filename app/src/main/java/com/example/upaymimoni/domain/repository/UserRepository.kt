@@ -10,11 +10,7 @@ interface UserRepository {
         userId: String,
         newDisplayName: String,
         newEmail: String,
-        newPhone: String
-    ): UserUpdateResult
-
-    suspend fun updateUserProfilePicture(
-        userId: String,
-        newProfilePictureUrl: String
+        newPhone: String,
+        newProfilePictureUrl: String? = null
     ): UserUpdateResult
 }

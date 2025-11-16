@@ -1,6 +1,7 @@
 package com.example.upaymimoni.presentation.ui.profile.components
 
 import android.graphics.drawable.Icon
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -29,21 +30,22 @@ import coil3.request.crossfade
 @Composable
 fun CircularProfileImage(
     imageUrl: String?,
+    tempUri: Uri? = null,
     modifier: Modifier = Modifier,
     showUploadButton: Boolean = false,
+    isUploadEnabled: Boolean = true,
     onUploadClick: (() -> Unit)? = null
 ) {
-    val safeUrl = imageUrl?.takeIf { it.isNotBlank() }
-        ?: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=fallback"
+
+    val model = tempUri ?: imageUrl?.takeIf { it.isNotBlank() }
+    ?: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=fallback"
+
     Box(
         modifier = modifier,
         contentAlignment = Alignment.BottomEnd
     ) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(safeUrl)
-                .crossfade(true)
-                .build(),
+            model = if (model is Uri) model else model.toString(),
             contentDescription = "Profile Picture",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -57,7 +59,11 @@ fun CircularProfileImage(
 
         if (showUploadButton) {
             FloatingActionButton(
-                onClick = { onUploadClick?.invoke() },
+                onClick = {
+                    if (isUploadEnabled) {
+                        onUploadClick?.invoke()
+                    }
+                },
                 containerColor = MaterialTheme.colorScheme.tertiary,
                 contentColor = MaterialTheme.colorScheme.onTertiary,
                 modifier = Modifier

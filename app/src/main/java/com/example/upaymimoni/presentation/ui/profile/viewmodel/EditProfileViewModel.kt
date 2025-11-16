@@ -1,6 +1,7 @@
 package com.example.upaymimoni.presentation.ui.profile.viewmodel
 
 import android.net.Uri
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,7 @@ import com.example.upaymimoni.domain.model.result.UserUpdateResult
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.user.UpdateUserUseCase
 import com.example.upaymimoni.domain.usecase.user.UploadProfilePictureUseCase
+import com.example.upaymimoni.presentation.ui.profile.viewmodel.SaveChangesEvents.*
 import com.example.upaymimoni.presentation.ui.utils.FieldType
 import com.example.upaymimoni.presentation.ui.utils.UpdateUserErrorMapper
 import com.example.upaymimoni.presentation.ui.utils.TextFieldManipulator
@@ -55,8 +57,14 @@ class EditProfileViewModel(
     private val _saveEvent = MutableSharedFlow<SaveChangesEvents>()
     val saveEvent = _saveEvent.asSharedFlow()
 
-    private val _uploadState = MutableStateFlow<UploadResult<String>?>(null)
-    val uploadState: StateFlow<UploadResult<String>?> = _uploadState.asStateFlow()
+    private val _pendingImageUri = MutableStateFlow<Uri?>(null)
+    val pendingImageUri: StateFlow<Uri?> = _pendingImageUri
+
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading.asStateFlow()
+
+    private val _uploadProgress = MutableStateFlow<Double?>(null)
+    val uploadProgress: StateFlow<Double?> = _uploadProgress.asStateFlow()
 
     fun initializeUser(user: User) {
         _newName.value = TextFieldValue(user.displayName ?: "")
@@ -79,11 +87,19 @@ class EditProfileViewModel(
     fun onSaveClick() = viewModelScope.launch {
         val user = currentUser.value ?: return@launch
 
+        _loading.value = true
+        _errorState.value = ErrorState()
+
+        val uploadImageUrl = uploadImage(user)
+
+        _uploadProgress.value = null
+
         val result = updateUserUseCase(
             userId = user.id,
             newName = _newName.value.text.trim(),
             newEmail = _newEmail.value.text.trim(),
-            newPhone = _newPhone.value.text.trim()
+            newPhone = _newPhone.value.text.trim(),
+            newImageUrl = uploadImageUrl
         )
 
         when (result) {
@@ -95,29 +111,40 @@ class EditProfileViewModel(
                 val fieldError = UpdateUserErrorMapper.toFieldError(result.error)
 
                 when (fieldError.field) {
-                    FieldType.NAME -> _errorState.value = _errorState.value.copy(nameError = true, errorMsg = fieldError.message)
-                    FieldType.EMAIL -> _errorState.value = _errorState.value.copy(emailError = true, errorMsg = fieldError.message)
-                    FieldType.PHONE -> _errorState.value = _errorState.value.copy(numberError = true, errorMsg = fieldError.message)
+                    FieldType.NAME -> _errorState.value =
+                        _errorState.value.copy(nameError = true, errorMsg = fieldError.message)
+
+                    FieldType.EMAIL -> _errorState.value =
+                        _errorState.value.copy(emailError = true, errorMsg = fieldError.message)
+
+                    FieldType.PHONE -> _errorState.value =
+                        _errorState.value.copy(numberError = true, errorMsg = fieldError.message)
+
                     FieldType.NONE -> _saveEvent.emit(SaveChangesEvents.ShowSnackbar(fieldError.message))
-                    else -> _errorState.value = _errorState.value.copy(errorMsg = fieldError.message)
+                    else -> _errorState.value =
+                        _errorState.value.copy(errorMsg = fieldError.message)
                 }
             }
         }
+
+        _loading.value = false
     }
 
-    fun onImageSelected(uri: Uri) = viewModelScope.launch {
-        _uploadState.value = null
-        val result = uploadProfilePictureUseCase(currentUser.value?.id ?: return@launch, uri)
+    fun onImageSelected(uri: Uri) {
+        _pendingImageUri.value = uri
+    }
 
-        _uploadState.value = when (result) {
-            is UserUpdateResult.Success -> {
-                _saveEvent.emit(SaveChangesEvents.ShowSnackbar("Profile picture updated"))
-                UploadResult.Success(result.user.profilePictureUrl ?: "")
-            }
+    private suspend fun uploadImage(user: User): String? {
+        val uri = _pendingImageUri.value ?: return null
+        val result = uploadProfilePictureUseCase(user.id, uri) { progress ->
+            _uploadProgress.value = progress / 100.0
+        }
 
-            is UserUpdateResult.Failure -> {
-                _saveEvent.emit(SaveChangesEvents.ShowSnackbar("Profile picture upload failed!"))
-                UploadResult.Failure(Exception("Upload failed"))
+        return when (result) {
+            is UploadResult.Success -> result.data
+            is UploadResult.Failure -> {
+                _saveEvent.emit(ShowSnackbar("Failed to upload profile picture"))
+                null
             }
         }
     }

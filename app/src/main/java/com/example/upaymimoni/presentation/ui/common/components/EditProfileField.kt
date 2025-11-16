@@ -27,6 +27,7 @@ fun EditProfileField(
     trailingIcon: (@Composable (() -> Unit))? = null,
     onValueChange: (TextFieldValue) -> Unit,
     onFocusLost: () -> Unit = {},
+    isEnabled: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 
 ) {
@@ -35,6 +36,7 @@ fun EditProfileField(
 
     OutlinedTextField(
         value = value,
+        enabled = isEnabled,
         onValueChange = onValueChange,
         label = { Text(label) },
         placeholder = { Text(placeHolder) },

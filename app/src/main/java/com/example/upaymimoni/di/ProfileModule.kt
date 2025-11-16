@@ -9,7 +9,7 @@ import org.koin.core.module.dsl.viewModel
 
 val ProfileModule = module {
     factory { UpdateUserUseCase(get(), get(), get()) }
-    factory { UploadProfilePictureUseCase(get(), get(), get()) }
+    factory { UploadProfilePictureUseCase(get()) }
 
     viewModel {
         ProfileViewModel(get(), get())

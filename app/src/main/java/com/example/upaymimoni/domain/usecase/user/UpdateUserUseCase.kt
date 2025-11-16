@@ -15,7 +15,8 @@ class UpdateUserUseCase(
         userId: String,
         newName: String,
         newEmail: String,
-        newPhone: String
+        newPhone: String,
+        newImageUrl: String? = null
     ): UserUpdateResult {
 
         validateInput(newName, newPhone, newEmail)?.let {
@@ -31,7 +32,8 @@ class UpdateUserUseCase(
             userId = userId,
             newDisplayName = newName,
             newEmail = newEmail,
-            newPhone = newPhone
+            newPhone = newPhone,
+            newProfilePictureUrl = newImageUrl
         )
 
         if (databaseProfileResult is UserUpdateResult.Failure) {
