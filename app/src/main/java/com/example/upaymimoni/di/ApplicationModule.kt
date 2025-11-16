@@ -5,6 +5,7 @@ import com.example.upaymimoni.data.mappers.FirebaseAuthErrorMapper
 import com.example.upaymimoni.data.mappers.FirebaseUpdateUserErrorMapper
 import com.example.upaymimoni.data.repository.DiceBearAvatarRepository
 import com.example.upaymimoni.data.repository.FirebaseAuthRepository
+import com.example.upaymimoni.data.repository.FirebaseStorageRepository
 import com.example.upaymimoni.data.repository.FirestoreFcmTokenRepository
 import com.example.upaymimoni.data.repository.FirestoreUserRepository
 import com.example.upaymimoni.data.service.DeviceIdService
@@ -16,6 +17,7 @@ import com.example.upaymimoni.domain.model.UpdateUserError
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.repository.AvatarRepository
 import com.example.upaymimoni.domain.repository.FcmTokenRepository
+import com.example.upaymimoni.domain.repository.StorageRepository
 import com.example.upaymimoni.domain.repository.UserRepository
 import com.example.upaymimoni.domain.service.TokenManager
 import com.example.upaymimoni.domain.session.UserSession
@@ -24,6 +26,7 @@ import com.example.upaymimoni.domain.usecase.user.GetUserUseCase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.storage.FirebaseStorage
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -33,6 +36,7 @@ val ApplicationModule = module {
     single { FirebaseAuth.getInstance() }
     single { FirebaseFirestore.getInstance() }
     single { FirebaseMessaging.getInstance() }
+    single { FirebaseStorage.getInstance() }
     single { DeviceIdService(androidContext()) }
 
     single<FcmTokenRepository> {
@@ -58,6 +62,12 @@ val ApplicationModule = module {
         FirestoreUserRepository(
             get(),
             get(named("UpdateUserMapper"))
+        )
+    }
+
+    single<StorageRepository> {
+        FirebaseStorageRepository(
+            get()
         )
     }
 

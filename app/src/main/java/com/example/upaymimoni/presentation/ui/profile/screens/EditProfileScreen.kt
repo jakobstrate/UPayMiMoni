@@ -1,5 +1,8 @@
 package com.example.upaymimoni.presentation.ui.profile.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -67,6 +70,12 @@ fun EditProfileScreen(
 
     val snackBarHostState = remember { SnackbarHostState() }
 
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { editViewModel.onImageSelected(it) }
+    }
+
 
     user?.let {
         LaunchedEffect(user) {
@@ -115,6 +124,7 @@ fun EditProfileScreen(
         ) { paddingValues ->
             EditProfileContent(
                 currentUser = it,
+                onUploadClick = { imagePickerLauncher.launch("image/*") },
                 name = name,
                 updateName = editViewModel::updateName,
                 email = email,
@@ -132,6 +142,7 @@ fun EditProfileScreen(
 @Composable
 fun EditProfileContent(
     currentUser: User,
+    onUploadClick: () -> Unit,
     name: TextFieldValue,
     updateName: (TextFieldValue) -> Unit,
     email: TextFieldValue,
@@ -142,112 +153,112 @@ fun EditProfileContent(
     errorState: ErrorState,
     modifier: Modifier
 ) {
+    Column(
+        modifier = modifier
+            .padding(vertical = 48.dp, horizontal = 24.dp)
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProfileImage(
+            imageUrl = currentUser.profilePictureUrl,
+            modifier = Modifier
+                .fillMaxWidth(0.65f)
+                .aspectRatio(1f),
+            showUploadButton = true,
+            onUploadClick = onUploadClick
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         Column(
-            modifier = modifier
-                .padding(vertical = 48.dp, horizontal = 24.dp)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            CircularProfileImage(
-                imageUrl = currentUser.profilePictureUrl,
-                modifier = Modifier
-                    .fillMaxWidth(0.65f)
-                    .aspectRatio(1f),
-                showUploadButton = true,
-                onUploadClick = {}
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                EditProfileField(
-                    value = name,
-                    label = "Name",
-                    placeHolder = "Enter your name",
-                    isError = errorState.nameError,
-                    onValueChange = { updateName(it) },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Name Icon"
-                        )
-                    },
-                    onFocusLost = {
-                        updateName(name.copy(text = name.text.trim()))
-                    }
-                )
-
-                EditProfileField(
-                    value = email,
-                    label = "Email",
-                    placeHolder = "Enter your email",
-                    isError = errorState.emailError,
-                    onValueChange = { updateEmail(it) },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Email,
-                            contentDescription = "Email Icon"
-                        )
-                    }
-                )
-
-                EditProfileField(
-                    value = phone,
-                    label = "Mobile",
-                    placeHolder = "Enter your phone number",
-                    isError = errorState.numberError,
-                    onValueChange = { updatePhone(it) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Phone,
-                            contentDescription = "Phone Icon"
-                        )
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = errorState.errorMsg ?: " ",
-                color = if (errorState.nameError || errorState.emailError || errorState.numberError) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    Color.Transparent
+            EditProfileField(
+                value = name,
+                label = "Name",
+                placeHolder = "Enter your name",
+                isError = errorState.nameError,
+                onValueChange = { updateName(it) },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Name Icon"
+                    )
                 },
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(start = 16.dp, top = 4.dp, end = 16.dp)
-                    .defaultMinSize(minHeight = 24.dp)
-                    .wrapContentHeight(align = Alignment.Top)
-                    .fillMaxWidth(),
+                onFocusLost = {
+                    updateName(name.copy(text = name.text.trim()))
+                }
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            EditProfileField(
+                value = email,
+                label = "Email",
+                placeHolder = "Enter your email",
+                isError = errorState.emailError,
+                onValueChange = { updateEmail(it) },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Email,
+                        contentDescription = "Email Icon"
+                    )
+                }
+            )
 
-            ElevatedButton(
-                onClick = onSaveClick,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 4.dp
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 32.dp)
-            ) {
-                Text(
-                    text = "Save Changes"
-                )
-            }
+            EditProfileField(
+                value = phone,
+                label = "Mobile",
+                placeHolder = "Enter your phone number",
+                isError = errorState.numberError,
+                onValueChange = { updatePhone(it) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Phone,
+                        contentDescription = "Phone Icon"
+                    )
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = errorState.errorMsg ?: " ",
+            color = if (errorState.nameError || errorState.emailError || errorState.numberError) {
+                MaterialTheme.colorScheme.error
+            } else {
+                Color.Transparent
+            },
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(start = 16.dp, top = 4.dp, end = 16.dp)
+                .defaultMinSize(minHeight = 24.dp)
+                .wrapContentHeight(align = Alignment.Top)
+                .fillMaxWidth(),
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        ElevatedButton(
+            onClick = onSaveClick,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 4.dp
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp)
+        ) {
+            Text(
+                text = "Save Changes"
+            )
         }
     }
+}
 
 @Preview(showBackground = true)
 @Composable
@@ -262,6 +273,7 @@ private fun EditProfilePreview() {
                 email = "notabot@botters.com",
                 groups = emptyList()
             ),
+            onUploadClick = {},
             name = TextFieldValue(""),
             updateName = {},
             email = TextFieldValue(""),

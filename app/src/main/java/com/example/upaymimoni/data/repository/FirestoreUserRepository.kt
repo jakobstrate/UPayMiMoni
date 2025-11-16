@@ -78,4 +78,30 @@ class FirestoreUserRepository(
             UserUpdateResult.Failure(errorMapper.map(e))
         }
     }
+
+    override suspend fun updateUserProfilePicture(
+        userId: String,
+        newProfilePictureUrl: String
+    ): UserUpdateResult {
+        return try {
+            val userRef = usersCollection.document(userId)
+
+            val updates = mapOf(
+                "profilePictureUrl" to newProfilePictureUrl
+            )
+
+            userRef.update(updates).await()
+
+            val snapshot = userRef.get().await()
+            val updatedUser = snapshot.toObject<User>()
+
+            if (updatedUser != null) {
+                UserUpdateResult.Success(updatedUser)
+            } else {
+                UserUpdateResult.Failure(UpdateUserError.Unknown("Failed to parse user"))
+            }
+        } catch (e: Exception) {
+            UserUpdateResult.Failure(errorMapper.map(e))
+        }
+    }
 }

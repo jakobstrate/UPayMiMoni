@@ -33,6 +33,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
 
 const val EMULATOR_HOST = "10.0.2.2"
 
@@ -40,6 +41,8 @@ const val EMULATOR_HOST = "10.0.2.2"
 //const val EMULATOR_HOST = "192.168.1.241"
 const val AUTH_EMULATOR_PORT = 9099
 const val FIRESTORE_EMULATOR_PORT = 8080
+
+const val FIREBASE_STORAGE_PORT = 9199
 
 class MainActivity : ComponentActivity() {
     @ExperimentalMaterial3Api
@@ -223,6 +226,7 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         Firebase.auth.useEmulator(EMULATOR_HOST, AUTH_EMULATOR_PORT)
         Firebase.firestore.useEmulator(EMULATOR_HOST, FIRESTORE_EMULATOR_PORT)
+        FirebaseStorage.getInstance().useEmulator(EMULATOR_HOST, FIREBASE_STORAGE_PORT)
     }
 
     private fun requestNotificationPermission() {

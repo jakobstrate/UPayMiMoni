@@ -12,4 +12,9 @@ interface UserRepository {
         newEmail: String,
         newPhone: String
     ): UserUpdateResult
+
+    suspend fun updateUserProfilePicture(
+        userId: String,
+        newProfilePictureUrl: String
+    ): UserUpdateResult
 }
