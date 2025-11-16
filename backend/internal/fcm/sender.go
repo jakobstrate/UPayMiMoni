@@ -43,11 +43,11 @@ func NewClient(ctx context.Context) (FCMSender, error) {
 
 func (c *Client) SendMessage(ctx context.Context, token, title, body string) error {
 	message := &messaging.Message{
-		Notification: &messaging.Notification{
-			Title: title,
-			Body: body,
-		},
 		Token: token,
+		Data: map[string]string{
+			"title": title,
+			"body": body,
+		},
 	}
 
 	response, err := c.fcmClient.Send(ctx, message)

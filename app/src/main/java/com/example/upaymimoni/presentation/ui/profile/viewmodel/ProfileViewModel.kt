@@ -3,8 +3,10 @@ package com.example.upaymimoni.presentation.ui.profile.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.upaymimoni.domain.model.User
+import com.example.upaymimoni.domain.model.factory.NotificationFactory
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.usecase.auth.LogoutUseCase
+import com.example.upaymimoni.domain.usecase.notification.SendNotificationToUserUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
