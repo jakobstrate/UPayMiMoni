@@ -36,7 +36,7 @@ class InitialLoadingViewModel(
     }
 
     private suspend fun checkAuthState() {
-        val isAuthenticated = authStateProvider.isAuthenticated()
+        val isAuthenticated = authStateProvider.isSessionValid()
 
         if (!isAuthenticated) {
             Log.d("AutoAuth", "User is not authenticated at startup.")

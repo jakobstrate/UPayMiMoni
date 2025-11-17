@@ -28,11 +28,14 @@ class FirestoreUserRepository(
     }
 
     override suspend fun getUser(userId: String): Result<User> = try {
+        println("Before Access")
         val snapshot = usersCollection
             .document(userId)
             .get()
             .await()
         val user = snapshot.toObject<User>()
+
+        println("After Access")
 
         if (user != null) {
             Result.success(user)

@@ -21,13 +21,13 @@ class GoogleLoginUseCase(
         val user = (authResult as AuthResult.Success).data
 
         val existingUser = userRepository.getUser(user.id)
-        if (existingUser.isSuccess) {
-            userSession.setCurrentUser(user)
-            return AuthResult.Success(user)
+        existingUser.onSuccess {
+            userSession.setCurrentUser(it)
+            return AuthResult.Success(it)
         }
 
         val saveResult = userRepository.saveUser(user)
-        if (saveResult.isSuccess) {
+        saveResult.onSuccess {
             userSession.setCurrentUser(user)
             tokenManager.fetchAndSaveToken(user.id)
             return AuthResult.Success(user)
