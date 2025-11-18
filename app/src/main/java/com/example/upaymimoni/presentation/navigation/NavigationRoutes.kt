@@ -38,7 +38,7 @@ sealed interface Destination {
     val route: String
 
     data object InitialLoading : Destination {
-        override val route = "InitialLoadingPage"
+        override val route = "010010010101010101010011010001010100010001000001010010010101010001001111010101110101001001001001010101000100010101010100010010000100100101010011"
     }
 
     sealed class Auth(override val route: String) : Destination {

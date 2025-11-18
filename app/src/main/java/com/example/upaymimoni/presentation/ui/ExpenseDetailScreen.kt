@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,10 +65,14 @@ fun ExpenseDetailScreen(
 ) {
     // Collect the state containing the detailed expense data
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
 
     ExpenseDetailContent(
         state = state,
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
+        onViewAttachmentClick = {
+            viewModel.openAttachmentUrl(context, state?.attachmentUrl!!)
+        }
     )
 
 }
@@ -77,8 +82,8 @@ fun ExpenseDetailScreen(
 fun ExpenseDetailContent(
     state: Expense?,
     onBackClick: () -> Unit,
+    onViewAttachmentClick: () -> Unit
 ) {
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -94,7 +99,7 @@ fun ExpenseDetailContent(
                     navigationIconContentColor = MaterialTheme.colorScheme.onTertiary
                 ),
                 actions = {
-                    IconButton(onClick = TODO()) {
+                    IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.Filled.Edit,
                             contentDescription = "EditExpense",
@@ -116,16 +121,21 @@ fun ExpenseDetailContent(
             contentAlignment = Alignment.TopCenter
         ) {
             when {
-                state != null -> ExpenseDetailCard(state!!)
+                state != null -> ExpenseDetailCard(
+                    state,
+                    onViewAttachmentClick = onViewAttachmentClick,
+                )
                 else -> NoDataMessage()
             }
         }
     }
 }
 
-// --- Lo-Fi Detail Card (The core of the screen) ---
 @Composable
-fun ExpenseDetailCard(expense: Expense) {
+fun ExpenseDetailCard(
+    expense: Expense,
+    onViewAttachmentClick: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
@@ -138,7 +148,7 @@ fun ExpenseDetailCard(expense: Expense) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.Start
         ) {
-            // Header: Name and Amount
+            // Name and Amount
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -156,7 +166,7 @@ fun ExpenseDetailCard(expense: Expense) {
                     text = "$${String.format("%.2f", expense.amount)}",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = MaterialTheme.colorScheme.error // Red for expense amount
+                    color = MaterialTheme.colorScheme.error
                 )
             }
             HorizontalDivider(
@@ -165,7 +175,7 @@ fun ExpenseDetailCard(expense: Expense) {
                 color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.35f)
             )
 
-            // 2. Metadata: Date, Group, Payer
+            // Date, Group, Payer
             DetailRow(
                 icon = Icons.Filled.Groups,
                 label = "Group ID",
@@ -191,7 +201,7 @@ fun ExpenseDetailCard(expense: Expense) {
                 color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.35f)
             )
 
-            // 3. Attachment Status
+            // Attachment Status
             val hasAttachment = expense.attachmentUrl != null
             DetailRow(
                 icon = if (hasAttachment) Icons.Default.CheckCircle else Icons.Default.AttachFile,
@@ -201,7 +211,7 @@ fun ExpenseDetailCard(expense: Expense) {
             )
             if (hasAttachment) {
                 Spacer(Modifier.height(8.dp))
-                Button(onClick = { /* TODO: Implement PDF Viewer/Link Opener */ },
+                Button(onClick = onViewAttachmentClick,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
@@ -268,7 +278,27 @@ fun PreviewExpenseDetailContent() {
                 groupId = "3",
                 attachmentUrl = null,
             ),
-            onBackClick = {}
+            onBackClick = {},
+            onViewAttachmentClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewExpenseDetailContentHasAttachment() {
+    UPayMiMoniTheme(darkTheme = false) {
+        ExpenseDetailContent(
+            state = Expense(
+                name = "Coffee",
+                amount = 4.20,
+                id = "1",
+                payerUserId = "2",
+                groupId = "3",
+                attachmentUrl = "test.com",
+            ),
+            onBackClick = {},
+            onViewAttachmentClick = {}
         )
     }
 }

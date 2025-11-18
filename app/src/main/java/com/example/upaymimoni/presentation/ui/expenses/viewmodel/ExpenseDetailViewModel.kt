@@ -1,5 +1,9 @@
 package com.example.upaymimoni.presentation.ui.expenses.viewmodel
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.upaymimoni.domain.model.Expense
@@ -35,6 +39,23 @@ class ExpenseDetailViewModel(
                 _state.value = expense
             }
 
+        }
+    }
+
+    /**
+     * function to open the attachment URL using an Android Intent.
+     * This launches the device's default app for the file type.
+     */
+    fun openAttachmentUrl(context: Context, url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(url)
+
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(Intent.createChooser(intent, "Open Attachment with..."))
+        } catch (e: Exception) {
+            Log.e("ExpenseDetailScreen", "Failed to open attachment URL: $url", e)
         }
     }
 
