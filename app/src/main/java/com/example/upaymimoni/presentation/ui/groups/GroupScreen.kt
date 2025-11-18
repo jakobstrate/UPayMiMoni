@@ -15,13 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.upaymimoni.presentation.ui.common.components.AppBottomNavBar
 import com.example.upaymimoni.presentation.ui.groups.components.ExpenseItem
+import com.example.upaymimoni.domain.model.Expense
 
-data class Expense(
-    val name: String,
-    val description: String,
-    val amount: Double,
-    val date: String
-)
+
 
 @Composable
 fun GroupScreen(
@@ -30,8 +26,8 @@ fun GroupScreen(
 ) {
 
     val expenses = listOf(
-        Expense("Alice", "Dinner at Sushi Bar", 28.50, "Nov 12"),
-        Expense("You", "Groceries", 43.20, "Nov 10"),
+        Expense("Alice", "Dinner at Sushi Bar", 28.50, "1", "1",listOf("1","2"),"what","what",System.currentTimeMillis()),
+        Expense("You", "Groceries", 43.20, "1","Nov 10"),
         Expense("Bob", "Gas money", 15.00, "Nov 9"),
         Expense("You", "Movie tickets", 22.00, "Nov 7")
     )
@@ -114,5 +110,5 @@ fun GroupScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewGroupScreen() {
-    GroupsScreen()
+    GroupScreen()
 }

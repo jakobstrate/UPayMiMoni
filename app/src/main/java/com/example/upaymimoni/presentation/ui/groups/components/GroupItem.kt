@@ -16,10 +16,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.upaymimoni.domain.model.Expense
+import com.example.upaymimoni.domain.model.Group
+
+
 
 @Composable
-fun ExpenseItem(expense: Expense) {
+fun GroupItem(group: Group) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,21 +37,22 @@ fun ExpenseItem(expense: Expense) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(expense.id, fontWeight = FontWeight.SemiBold)
+                Text(group.groupName, fontWeight = FontWeight.SemiBold)
                 Text(
-                    text = expense.name,
+                    text = group.id,
                     color = Color.Gray,
                     fontSize = 14.sp
                 )
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = if (expense.name == "You") "- DKK ${"%.2f".format(expense.amount)}"
-                    else "+ DKK ${"%.2f".format(expense.amount)}",
-                    fontWeight = FontWeight.Bold,
-                    color = if (expense.name == "You") Color(0xFFD32F2F) else Color(0xFF2E7D32)
-                )
-                Text(expense.createdAt.toString(), color = Color.Gray, fontSize = 12.sp)
+                Text("Placeholder")
+//                Text(
+//                    text = if (group.name == "You") "- DKK ${"%.2f".format(group.amount)}"
+//                    else "+ DKK ${"%.2f".format(group.amount)}",
+//                    fontWeight = FontWeight.Bold,
+//                    color = if (group.name == "You") Color(0xFFD32F2F) else Color(0xFF2E7D32)
+//                )
+//                Text(group.date, color = Color.Gray, fontSize = 12.sp)
             }
         }
     }
