@@ -7,6 +7,8 @@ import androidx.navigation.navigation
 import com.example.upaymimoni.presentation.navigation.Destination
 import com.example.upaymimoni.presentation.ui.groups.GroupScreen
 import com.example.upaymimoni.presentation.ui.groups.GroupsScreen
+import com.example.upaymimoni.presentation.ui.groups.EditGroupScreen
+
 
 fun NavGraphBuilder.groupNavigationGraph(navController: NavHostController) {
     navigation(
@@ -22,7 +24,11 @@ fun NavGraphBuilder.groupNavigationGraph(navController: NavHostController) {
         }
 
         composable(route = Destination.Group.Instance.route) {
-            GroupScreen()
+            GroupScreen(
+                onNavigateToEditGroup = {
+                    navController.navigate(Destination.Group.Edit.route)
+                }
+            )
         }
     }
 }

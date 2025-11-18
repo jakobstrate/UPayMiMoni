@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,7 +24,8 @@ import com.example.upaymimoni.domain.model.Expense
 @Composable
 fun GroupScreen(
     onNavigateToGroups: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToEditGroup: () -> Unit = {},
 ) {
 
     val expenses = listOf(
@@ -47,6 +50,34 @@ fun GroupScreen(
                 .background(Color(0xFFF9FAFB))
                 .padding(paddingValues)
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                IconButton(onClick = { var menuExpanded = true }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "More options"
+                    )
+                }
+
+                var menuExpanded = false
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Edit Group") },
+                        onClick = {
+                            menuExpanded = false
+                            onNavigateToEditGroup()
+                        }
+                    )
+                }
+            }
+
             Text(
                 text = "Group 1",
                 fontSize = 22.sp,

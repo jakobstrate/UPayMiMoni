@@ -24,7 +24,8 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroupSettingsScreen(
+fun EditGroupScreen(
+    onBack: () -> Unit = {},
     members: List<String>,
     onBackClick: () -> Unit,
     onSave: (String) -> Unit
@@ -154,7 +155,7 @@ fun GroupSettingsScreenPreview() {
     )
 
     UPayMiMoniTheme (darkTheme = false) {
-        GroupSettingsScreen(
+        EditGroupScreen(
             members = sampleMembers,
             onBackClick = {},
             onSave = {}
