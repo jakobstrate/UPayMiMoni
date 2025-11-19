@@ -60,8 +60,12 @@ sealed interface Destination {
 
         // Might need to change this to one that accepts arguments, look at Expense and Expense.Detail/Add
         data object Instance : Group("GroupInstance")
-        data object Edit : Group("GroupEdit")
 
+        data object Edit : Group("GroupEdit/{groupId}") {
+            fun createRoute(groupId: String) = "GroupEdit/$groupId"
+
+            const val ARG_GROUP_ID = "groupId"
+        }
     }
 
     sealed class Expense(override val route: String) : Destination {

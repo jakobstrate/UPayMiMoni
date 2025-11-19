@@ -7,6 +7,7 @@ import com.example.upaymimoni.di.ProfileModule
 import com.example.upaymimoni.di.authModule
 import com.example.upaymimoni.di.expenseAddModule
 import com.example.upaymimoni.di.expenseDetailModule
+import com.example.upaymimoni.di.groupEditModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -24,6 +25,7 @@ class MainApplication : Application() {
                 authModule,
                 ProfileModule,
                 ApiModule,
+                groupEditModule,
             ))
         }
     }
