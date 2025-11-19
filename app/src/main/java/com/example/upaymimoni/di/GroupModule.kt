@@ -7,6 +7,7 @@ import com.example.upaymimoni.data.repository.FirestoreExpenseRepository
 import com.example.upaymimoni.data.repository.MockExpenseRepository
 import com.example.upaymimoni.domain.repository.ExpenseRepository
 import com.example.upaymimoni.domain.usecase.expense.GetExpenseDetailUseCase
+import com.example.upaymimoni.domain.usecase.user.UploadProfilePictureUseCase
 import com.example.upaymimoni.presentation.ui.expenses.viewmodel.ExpenseDetailViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import org.koin.core.module.dsl.viewModel
@@ -27,6 +28,7 @@ val groupDetailModule = module {
 
     //Domain Layer
     factory { GetExpenseDetailUseCase(get())}
+    factory { UploadProfilePictureUseCase(get()) }
 
     // Presentation Layer
     // The viewModel() keyword is Koin's specific way to create a ViewModel instance.

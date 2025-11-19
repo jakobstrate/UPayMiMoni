@@ -1,19 +1,19 @@
-package com.example.upaymimoni.domain.usecase.user
+package com.example.upaymimoni.domain.usecase.groups
 
 import android.net.Uri
 import com.example.upaymimoni.domain.model.result.UploadResult
 import com.example.upaymimoni.domain.repository.PictureStorageRepository
 import com.example.upaymimoni.domain.repository.ProgressCallback
 
-class UploadProfilePictureUseCase(
-    private val storageRepository: PictureStorageRepository,
+class UploadGroupPictureUseCase(
+    private val storageRepository: PictureStorageRepository
 ) {
     suspend operator fun invoke(
-        userId: String,
+        groupId: String,
         uri: Uri,
         onProgressUpdate: ProgressCallback? = null
-    ): UploadResult<String> {
-        val uploadResult = storageRepository.uploadUserProfilePicture(userId, uri, onProgressUpdate)
+    ) : UploadResult<String> {
+        val uploadResult = storageRepository.uploadGroupPicture(groupId, uri, onProgressUpdate)
 
         if (uploadResult is UploadResult.Failure) {
             return uploadResult

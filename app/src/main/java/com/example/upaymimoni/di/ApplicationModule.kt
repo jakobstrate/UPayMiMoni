@@ -5,7 +5,7 @@ import com.example.upaymimoni.data.mappers.FirebaseAuthErrorMapper
 import com.example.upaymimoni.data.mappers.FirebaseUpdateUserErrorMapper
 import com.example.upaymimoni.data.repository.DiceBearAvatarRepository
 import com.example.upaymimoni.data.repository.FirebaseAuthRepository
-import com.example.upaymimoni.data.repository.FirebaseProfilePictureProfilePictureStorageRepository
+import com.example.upaymimoni.data.repository.FirebasePictureStorageRepository
 import com.example.upaymimoni.data.repository.FirestoreFcmTokenRepository
 import com.example.upaymimoni.data.repository.FirestoreUserRepository
 import com.example.upaymimoni.data.service.DeviceIdService
@@ -17,7 +17,7 @@ import com.example.upaymimoni.domain.model.UpdateUserError
 import com.example.upaymimoni.domain.repository.AuthRepository
 import com.example.upaymimoni.domain.repository.AvatarRepository
 import com.example.upaymimoni.domain.repository.FcmTokenRepository
-import com.example.upaymimoni.domain.repository.ProfilePictureStorageRepository
+import com.example.upaymimoni.domain.repository.PictureStorageRepository
 import com.example.upaymimoni.domain.repository.UserRepository
 import com.example.upaymimoni.domain.service.TokenManager
 import com.example.upaymimoni.domain.session.UserSession
@@ -65,8 +65,8 @@ val ApplicationModule = module {
         )
     }
 
-    single<ProfilePictureStorageRepository> {
-        FirebaseProfilePictureProfilePictureStorageRepository(
+    single<PictureStorageRepository> {
+        FirebasePictureStorageRepository(
             get()
         )
     }
