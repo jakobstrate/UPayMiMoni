@@ -5,5 +5,6 @@ data class Group(
     var groupName: String = "",
     var groupImage: String? = null,
     var members: List<String>? = emptyList(),
-    var expenses: List<String>? = emptyList()
+    var expenses: List<String>? = emptyList(),
+    val isSettled: Boolean = false
 )
