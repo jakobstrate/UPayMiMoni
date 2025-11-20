@@ -34,4 +34,10 @@ interface ExpenseRepository {
      * @param id The id of the expense
      */
     suspend fun getExpenseById(id: String) : Result<Expense>
+    /**
+     * Removes an expense document from the data source by its ID.
+     * @param expenseId The unique ID of the expense to be removed.
+     * @return A Result object indicating success or failure.
+     */
+    suspend fun removeExpense(expenseId: String): Result<Unit>
 }

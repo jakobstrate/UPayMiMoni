@@ -5,8 +5,8 @@ import com.example.upaymimoni.domain.repository.ExpenseRepository
 import kotlinx.coroutines.flow.Flow
 
 class GetExpenseDetailUseCase(private val expenseRepository: ExpenseRepository) {
-    suspend operator fun invoke(expenseId: String): Expense? {
-        return expenseRepository.getExpenseById(expenseId).getOrNull();
+    suspend operator fun invoke(expenseId: String): Result<Expense> {
+        return expenseRepository.getExpenseById(expenseId);
     }
 
     /**

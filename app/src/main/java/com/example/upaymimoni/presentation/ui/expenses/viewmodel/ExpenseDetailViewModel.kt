@@ -9,9 +9,20 @@ import androidx.lifecycle.viewModelScope
 import com.example.upaymimoni.domain.model.Expense
 import com.example.upaymimoni.domain.repository.ExpenseRepository
 import com.example.upaymimoni.domain.usecase.expense.GetExpenseDetailUseCase
+import com.example.upaymimoni.domain.usecase.expense.RemoveExpenseUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+
+data class ExpenseDetailState(
+    val expense: Expense? = null,
+    val isLoading: Boolean = true,
+    val isDeleting: Boolean = false,
+    val error: String? = null
+)
 
 /**
  * Koin ViewModel: Manages UI state and business logic execution.
@@ -19,10 +30,11 @@ import kotlinx.coroutines.launch
  */
 class ExpenseDetailViewModel(
     private val getExpenseDetailUseCase: GetExpenseDetailUseCase,
+    private val removeExpenseUseCase: RemoveExpenseUseCase,
     private val expenseId: String
 ) : ViewModel() {
-    private val _state = MutableStateFlow<Expense?>(null)
-    val state: StateFlow<Expense?> = _state
+    private val _state = MutableStateFlow(ExpenseDetailState())
+    val state: StateFlow<ExpenseDetailState> = _state.asStateFlow()
 
     init {
         // Start collecting expenses when the ViewModel is created
@@ -34,11 +46,45 @@ class ExpenseDetailViewModel(
      */
     private fun loadExpenseDetail() {
         viewModelScope.launch {
-            val expense = getExpenseDetailUseCase(expenseId)
-            if (expense != null) {
-                _state.value = expense
-            }
+            _state.update { it.copy(isLoading = true, error = null) }
 
+            val result = getExpenseDetailUseCase(expenseId)
+
+            result.onSuccess { expense ->
+                _state.update { it.copy(expense = expense, isLoading = false) }
+            }.onFailure { e ->
+                Log.e("ExpenseDetail", "Failed to load expense $expenseId", e)
+                _state.update { it.copy(isLoading = false, error = "Failed to load expense: ${e.message}") }
+            }
+        }
+    }
+
+    /**
+     * Deletes the current expense and calls a success callback.
+     */
+    fun deleteExpense(onSuccess: () -> Unit) {
+        val expense = _state.value.expense
+        if (expense == null) {
+            _state.update { it.copy(error = "Cannot delete: Expense is null.") }
+            return
+        }
+
+        viewModelScope.launch {
+            _state.update { it.copy(isDeleting = true, error = null) }
+
+            val result = removeExpenseUseCase(expense.id)
+
+            result.onSuccess {
+                onSuccess()
+            }.onFailure { e ->
+                Log.e("ExpenseDetail", "Failed to delete expense ${expense.id}", e)
+                _state.update {
+                    it.copy(
+                        isDeleting = false,
+                        error = "Deletion failed: ${e.message}"
+                    )
+                }
+            }
         }
     }
 
@@ -57,6 +103,20 @@ class ExpenseDetailViewModel(
         } catch (e: Exception) {
             Log.e("ExpenseDetailScreen", "Failed to open attachment URL: $url", e)
         }
+    }
+
+    //popups
+
+    private val _showDeleteConfirmation = MutableStateFlow(false)
+    val showDeleteConfirmation: StateFlow<Boolean> = _showDeleteConfirmation.asStateFlow()
+
+    fun openShowDeleteConfirmation() {
+        _showDeleteConfirmation.value = true
+        println("TEST")
+    }
+
+    fun closeShowDeleteConfirmation() {
+        _showDeleteConfirmation.value = false
     }
 
 }

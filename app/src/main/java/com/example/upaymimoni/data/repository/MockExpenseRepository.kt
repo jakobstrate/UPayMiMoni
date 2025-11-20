@@ -79,4 +79,8 @@ class MockExpenseRepository : ExpenseRepository {
         }
         return Result.failure(NoSuchElementException())
     }
+
+    override suspend fun removeExpense(expenseId: String): Result<Unit> {
+        TODO("Not yet implemented")
+    }
 }

@@ -33,6 +33,9 @@ val groupDetailModule = module {
     // Presentation Layer
     // The viewModel() keyword is Koin's specific way to create a ViewModel instance.
     viewModel { (id: String) ->
-        ExpenseDetailViewModel(get(), id)
+        ExpenseDetailViewModel(
+            get(), TODO(),
+            expenseId = TODO()
+        )
     }
 }

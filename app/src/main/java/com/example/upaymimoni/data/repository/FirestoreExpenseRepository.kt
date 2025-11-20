@@ -64,4 +64,17 @@ class FirestoreExpenseRepository (
         Log.e("FirestoreError", "Error fetching expense $id", e)
         Result.failure(e)
     }
+
+    override suspend fun removeExpense(expenseId: String): Result<Unit> = try{
+        expensesCollection
+            .document(expenseId)
+            .delete()
+            .await()
+
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Log.e("FireStoreError", "Error deleting expense: $expenseId", e)
+        Result.failure(e)
+    }
+
 }

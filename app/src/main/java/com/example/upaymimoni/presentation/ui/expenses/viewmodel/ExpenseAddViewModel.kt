@@ -125,8 +125,6 @@ class ExpenseAddViewModel(
     //State for confirm slider
     fun setSliderConfirmed(confirmed: Boolean) {
         state.value = state.value.copy(isSliderConfirmed = confirmed)
-        println("SetSliderConfirmed : $confirmed")
-        println("SliderConfirmed : ${state.value.isSliderConfirmed}")
     }
 
 

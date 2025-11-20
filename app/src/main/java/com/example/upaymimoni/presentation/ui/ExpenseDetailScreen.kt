@@ -18,18 +18,22 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,6 +41,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,6 +53,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.upaymimoni.domain.model.Expense
+import com.example.upaymimoni.presentation.ui.expenses.popups.PaidByPopup
+import com.example.upaymimoni.presentation.ui.expenses.viewmodel.AddExpenseState
+import com.example.upaymimoni.presentation.ui.expenses.viewmodel.ExpenseDetailState
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import com.example.upaymimoni.presentation.ui.expenses.viewmodel.ExpenseDetailViewModel
 import java.util.Locale.getDefault
@@ -66,23 +75,51 @@ fun ExpenseDetailScreen(
     // Collect the state containing the detailed expense data
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsState()
 
     ExpenseDetailContent(
         state = state,
         onBackClick = onBackClick,
         onViewAttachmentClick = {
-            viewModel.openAttachmentUrl(context, state?.attachmentUrl!!)
-        }
+            viewModel.openAttachmentUrl(context, state.expense?.attachmentUrl!!)
+        },
+        onDeleteExpenseClick = viewModel::openShowDeleteConfirmation
     )
+
+    // Delete Confirmation Dialog
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { viewModel.closeShowDeleteConfirmation() },
+            title = { Text("Confirm Deletion") },
+            text = { Text("Are you sure you want to permanently delete this expense? This action cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteExpense(onBackClick)
+                        viewModel.closeShowDeleteConfirmation()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { viewModel.closeShowDeleteConfirmation() }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseDetailContent(
-    state: Expense?,
+    state: ExpenseDetailState,
     onBackClick: () -> Unit,
-    onViewAttachmentClick: () -> Unit
+    onViewAttachmentClick: () -> Unit,
+    onDeleteExpenseClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -99,12 +136,14 @@ fun ExpenseDetailContent(
                     navigationIconContentColor = MaterialTheme.colorScheme.onTertiary
                 ),
                 actions = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = "EditExpense",
-                            tint = MaterialTheme.colorScheme.onTertiary
-                        )
+                    if (state.expense != null && !state.isDeleting) {
+                        IconButton(onClick = onDeleteExpenseClick) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Delete Expense",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     }
                 },
 
@@ -121,8 +160,9 @@ fun ExpenseDetailContent(
             contentAlignment = Alignment.TopCenter
         ) {
             when {
-                state != null -> ExpenseDetailCard(
-                    state,
+                state.isLoading -> CircularProgressIndicator()
+                state.expense != null -> ExpenseDetailCard(
+                    state.expense,
                     onViewAttachmentClick = onViewAttachmentClick,
                 )
                 else -> NoDataMessage()
@@ -268,18 +308,25 @@ fun NoDataMessage() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewExpenseDetailContent() {
+    val expense = Expense(
+        name = "Coffee",
+        amount = 4.20,
+        id = "1",
+        payerUserId = "2",
+        groupId = "3",
+        attachmentUrl = null,
+    )
     UPayMiMoniTheme(darkTheme = false) {
         ExpenseDetailContent(
-            state = Expense(
-                name = "Coffee",
-                amount = 4.20,
-                id = "1",
-                payerUserId = "2",
-                groupId = "3",
-                attachmentUrl = null,
+            state = ExpenseDetailState(
+                expense = expense,
+                isLoading = false,
+                isDeleting = false,
+                error = null
             ),
             onBackClick = {},
-            onViewAttachmentClick = {}
+            onViewAttachmentClick = {},
+            onDeleteExpenseClick = {  }
         )
     }
 }
@@ -287,18 +334,53 @@ fun PreviewExpenseDetailContent() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewExpenseDetailContentHasAttachment() {
+    val expense = Expense(
+        name = "Coffee",
+        amount = 4.20,
+        id = "1",
+        payerUserId = "2",
+        groupId = "3",
+        attachmentUrl = "test.com",
+    )
     UPayMiMoniTheme(darkTheme = false) {
         ExpenseDetailContent(
-            state = Expense(
-                name = "Coffee",
-                amount = 4.20,
-                id = "1",
-                payerUserId = "2",
-                groupId = "3",
-                attachmentUrl = "test.com",
+            state = ExpenseDetailState(
+                expense = expense,
+                isLoading = false,
+                isDeleting = false,
+                error = null
             ),
             onBackClick = {},
-            onViewAttachmentClick = {}
+            onViewAttachmentClick = {},
+            onDeleteExpenseClick = {  }
         )
     }
 }
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewExpenseDetailContentHasAttachmentIsDeleting() {
+    val expense = Expense(
+        name = "Coffee",
+        amount = 4.20,
+        id = "1",
+        payerUserId = "2",
+        groupId = "3",
+        attachmentUrl = "test.com",
+    )
+    UPayMiMoniTheme(darkTheme = false) {
+        ExpenseDetailContent(
+            state = ExpenseDetailState(
+                expense = expense,
+                isLoading = false,
+                isDeleting = true,
+                error = null
+            ),
+            onBackClick = {},
+            onViewAttachmentClick = {},
+            onDeleteExpenseClick = { }
+        )
+    }
+}
+
