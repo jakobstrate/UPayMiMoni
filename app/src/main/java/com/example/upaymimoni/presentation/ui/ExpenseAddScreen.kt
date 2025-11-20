@@ -154,21 +154,10 @@ fun ExpenseAddScreen(
     )
 
     // Popups Displayed on top
-    //TODO use actual values
     //paidby popup
     if (showPaidByPopup) {
         PaidByPopup(
-            options = listOf(
-                "Adam",
-                "Mack",
-                "Nick",
-                "Muhammad",
-                "nickie",
-                "crystal",
-                "metha",
-                "niels",
-                "anders"
-            ),
+            options = state.uiData?.userOptions ?: null!!,
             selected = state.paidByUserId,
             onSelect = { selectedUser ->
                 viewModel.updatePaidByUserId(selectedUser) // Update selection
@@ -181,17 +170,7 @@ fun ExpenseAddScreen(
     //split between popup
     if (showSplitBetweenPopup) {
         SplitBetweenPopup(
-            options = listOf(
-                "Adam",
-                "Mack",
-                "Nick",
-                "Muhammad",
-                "nickie",
-                "crystal",
-                "metha",
-                "niels",
-                "anders"
-            ),
+            options = state.uiData?.userOptions ?: null!!,
             selected = pendingSelectedUserIds,
             onToggleSelection = viewModel::toggleUserSelection, // update selection
             onClose = viewModel::closeSpltBetweenPopup,
@@ -240,7 +219,8 @@ fun ExpenseAddContent(
                         text = "Add Expense")
                     Text(
                         fontSize = 16.sp,
-                        text = "Group")
+                        text = state.uiData?.groupName ?: "Group"
+                    )
                 }  },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -331,16 +311,22 @@ fun ExpenseAddBody(
         
         SelectionBar(
             "Paid By",
-            state.paidByUserId,
+            state.uiData?.userOptions?.find{ it.id == state.paidByUserId }?.name ?: "Unknown",
             onOpenPaidByPopup,
             isError = isPaidByError
         )
 
         Spacer(Modifier.height(12.dp))
 
+        val splitUsersLabel = state.splitBetweenUserIds
+        .mapNotNull { userId ->
+            // Direct O(1) lookup on the map
+            state.uiData?.userIdToNameMap[userId]
+        }
+        .joinToString(separator = ", ")
         SelectionBar(
             "Split Between",
-            state.splitBetweenUserIds.joinToString(separator = ", ", prefix = "", postfix = ""),
+            splitUsersLabel,
             onOpenSplitBetweenPopup,
             isError = isSplitBetweenError
         )
@@ -404,7 +390,7 @@ fun AttachmentDisplay(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.padding(bottom = 4.dp).fillMaxWidth(0.9f)
             ) {
-                val fileName = getFileName(LocalContext.current, uri)
+                val fileName = getFileName(context, uri)
 
                 Text(
                     text = fileName,

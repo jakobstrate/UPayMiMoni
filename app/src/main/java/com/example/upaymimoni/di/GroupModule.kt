@@ -35,7 +35,9 @@ val groupDetailModule = module {
     viewModel { (id: String) ->
         ExpenseDetailViewModel(
             get(), TODO(),
-            expenseId = TODO()
+            expenseId = TODO(),
+            getUserUseCase = TODO(),
+            getGroupUseCase = TODO()
         )
     }
 }

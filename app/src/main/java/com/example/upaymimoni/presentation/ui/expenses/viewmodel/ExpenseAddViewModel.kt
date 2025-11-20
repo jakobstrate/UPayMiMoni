@@ -8,17 +8,37 @@ import androidx.lifecycle.viewModelScope
 import com.example.upaymimoni.domain.model.Expense
 import com.example.upaymimoni.domain.usecase.expense.AddExpenseUseCase
 import com.example.upaymimoni.domain.usecase.expense.AddExpenseWithAttachmentUseCase
+import com.example.upaymimoni.domain.usecase.expense.GetExpenseAddUIDataUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+
+/**
+ * single user mapping name to id for lists.
+ */
+data class UserUIData(
+    val id: String,
+    val name: String
+)
+
+
+data class ExpenseAddUIData(
+    val groupId: String,
+    val groupName: String,
+    val userOptions: List<UserUIData>,
+    val userIdToNameMap: Map<String, String>
+)
+
 data class AddExpenseState(
+    val uiData: ExpenseAddUIData? = null,
     val name: String = "",
     val amount: String = "",
     val paidByUserId: String = "",
     val splitBetweenUserIds: List<String> = emptyList(),
+    val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val error: String? = null,
     val attachmentUri: Uri? = null,
@@ -32,21 +52,56 @@ data class AddExpenseState(
  */
 class ExpenseAddViewModel(
     private val addExpenseUseCase: AddExpenseWithAttachmentUseCase,
+    private val getExpenseAddUIDataUseCase: GetExpenseAddUIDataUseCase,
     private val groupId: String,
     userId: String
 ) : ViewModel() {
+
     //Basic expense state and manipulation
 
     //make state and initialize paid by to userId from args
-    val state = MutableStateFlow(AddExpenseState(paidByUserId = userId))
+    private val _state = MutableStateFlow(AddExpenseState(paidByUserId = userId))
+    val state: StateFlow<AddExpenseState> = _state.asStateFlow()
+
+
+    init {
+        loadUIData()
+    }
+
+    private fun loadUIData() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, error = null) }
+
+            val result = getExpenseAddUIDataUseCase(groupId)
+
+            result.onSuccess { uiData ->
+
+                _state.update {
+                    it.copy(
+                        uiData = uiData,
+                        isLoading = false,
+                    )
+                }
+
+            }.onFailure { e ->
+                Log.e("ExpenseAdd", "Failed to load ui data of group $groupId", e)
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Failed to load group/user list: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
 
 
     fun onNameChange(newName: String) {
-        state.value = state.value.copy(name = newName)
+        _state.value = state.value.copy(name = newName)
     }
 
     fun onAmountChange(newAmount: String) {
-        state.value = state.value.copy(amount = newAmount)
+        _state.value = state.value.copy(amount = newAmount)
     }
 
 
@@ -54,25 +109,25 @@ class ExpenseAddViewModel(
         val current = state.value
         //validation - reset confirmed if error
         if (current.name.isBlank()) {
-            state.value = current.copy(
+            _state.value = current.copy(
                 error = "Please enter a title of the expense.",
                 isSliderConfirmed = false)
             return
         }
         if (current.amount.isBlank()) {
-            state.value = current.copy(
+            _state.value = current.copy(
                 error = "Please enter an amount.",
                 isSliderConfirmed = false)
             return
         }
         if (current.paidByUserId.isBlank()) {
-            state.value = current.copy(
+            _state.value = current.copy(
                 error = "Please select who paid for the expense.",
                 isSliderConfirmed = false)
             return
         }
         if (current.splitBetweenUserIds.isEmpty()) {
-            state.value = current.copy(
+            _state.value = current.copy(
                 error = "Please select users to split the expense with.",
                 isSliderConfirmed = false)
             return
@@ -84,13 +139,13 @@ class ExpenseAddViewModel(
             amountDouble = current.amount.toDouble()
 
             if (amountDouble <= 0.0) {
-                state.value = current.copy(
+                _state.value = current.copy(
                     error = "Amount must be a positive number.",
                     isSliderConfirmed = false)
                 return
             }
         } catch (e: NumberFormatException) {
-            state.value = current.copy(
+            _state.value = current.copy(
                 error = "Amount must be a valid number: ${e.message}",
                 isSliderConfirmed = false)
             return
@@ -98,7 +153,7 @@ class ExpenseAddViewModel(
 
         //make object and send to repo
         viewModelScope.launch{
-            state.value = current.copy(isSaving = true)
+            _state.value = current.copy(isSaving = true)
 
             try {
                 addExpenseUseCase(
@@ -113,11 +168,11 @@ class ExpenseAddViewModel(
                     onStatusUpdate = ::updateAttachmentStatus,
                 )
 
-                state.value = state.value.copy(isSaving = false, attachmentUri = null)
+                _state.value = state.value.copy(isSaving = false, attachmentUri = null)
                 onSuccess()
             }catch (e: Exception) {
-                state.value = state.value.copy(isSaving = false)
-                state.value = state.value.copy(
+                _state.value = state.value.copy(isSaving = false)
+                _state.value = state.value.copy(
                     error = "Failed to add expense: ${e.message}",
                     isSliderConfirmed = false)
             }
@@ -127,7 +182,7 @@ class ExpenseAddViewModel(
 
     //State for confirm slider
     fun setSliderConfirmed(confirmed: Boolean) {
-        state.value = state.value.copy(isSliderConfirmed = confirmed)
+        _state.value = state.value.copy(isSliderConfirmed = confirmed)
     }
 
 
@@ -147,7 +202,7 @@ class ExpenseAddViewModel(
 
     // Function to update the paidBy user
     fun updatePaidByUserId(selectedUserId: String) {
-        state.update { currentState ->
+        _state.update { currentState ->
             currentState.copy(
                 paidByUserId = selectedUserId
             )
@@ -189,7 +244,7 @@ class ExpenseAddViewModel(
 
     // Function to update the paidBy user
     fun saveConfirmedSplitBetweenUserIds(confirmedUsers: List<String>) {
-        state.update { currentState ->
+        _state.update { currentState ->
             currentState.copy(
                 splitBetweenUserIds = confirmedUsers
             )
@@ -201,7 +256,7 @@ class ExpenseAddViewModel(
 
     //remove attachement
     fun removeAttachment() {
-        state.value = state.value.copy(
+        _state.value = state.value.copy(
             attachmentUri = null,
             attachmentStatus = "Ready",
             error = null
@@ -210,12 +265,12 @@ class ExpenseAddViewModel(
 
     //set an attachment Uri
     fun setAttachmentUri(uri: Uri?) {
-        state.value = state.value.copy(attachmentUri = uri)
+        _state.value = state.value.copy(attachmentUri = uri)
     }
 
     // update status, which is just status of attachment uploaded
     fun updateAttachmentStatus(status: String) {
-        state.value = state.value.copy(attachmentStatus = status)
+        _state.value = state.value.copy(attachmentStatus = status)
     }
 
 

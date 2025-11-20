@@ -56,6 +56,7 @@ import com.example.upaymimoni.domain.model.Expense
 import com.example.upaymimoni.presentation.ui.expenses.popups.PaidByPopup
 import com.example.upaymimoni.presentation.ui.expenses.viewmodel.AddExpenseState
 import com.example.upaymimoni.presentation.ui.expenses.viewmodel.ExpenseDetailState
+import com.example.upaymimoni.presentation.ui.expenses.viewmodel.ExpenseDetailUIData
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 import com.example.upaymimoni.presentation.ui.expenses.viewmodel.ExpenseDetailViewModel
 import java.util.Locale.getDefault
@@ -162,7 +163,7 @@ fun ExpenseDetailContent(
             when {
                 state.isLoading -> CircularProgressIndicator()
                 state.expense != null -> ExpenseDetailCard(
-                    state.expense,
+                    state.expenseUI!!,
                     onViewAttachmentClick = onViewAttachmentClick,
                 )
                 else -> NoDataMessage()
@@ -173,7 +174,7 @@ fun ExpenseDetailContent(
 
 @Composable
 fun ExpenseDetailCard(
-    expense: Expense,
+    expense: ExpenseDetailUIData,
     onViewAttachmentClick: () -> Unit
 ) {
     Card(
@@ -197,7 +198,7 @@ fun ExpenseDetailCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = expense.name,
+                    text = expense.expenseName,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.primary
@@ -218,14 +219,14 @@ fun ExpenseDetailCard(
             // Date, Group, Payer
             DetailRow(
                 icon = Icons.Filled.Groups,
-                label = "Group ID",
-                value = expense.groupId,
+                label = "Group Name",
+                value = expense.groupName,
                 tint = Color(0xFF6A1B9A)
             )
             DetailRow(
                 icon = Icons.Filled.Person,
-                label = "Paid By (User ID)",
-                value = expense.payerUserId,
+                label = "Paid By",
+                value = expense.payerUserName,
                 tint = MaterialTheme.colorScheme.tertiary
             )
             DetailRow(
@@ -316,10 +317,19 @@ fun PreviewExpenseDetailContent() {
         groupId = "3",
         attachmentUrl = null,
     )
+    val expenseUI = ExpenseDetailUIData(
+        expenseName = "Coffee",
+        amount = 4.20,
+        payerUserName = "Adam",
+        groupName = "Group 1",
+        attachmentUrl = null,
+        createdAt = 1763651065478,
+    )
     UPayMiMoniTheme(darkTheme = false) {
         ExpenseDetailContent(
             state = ExpenseDetailState(
                 expense = expense,
+                expenseUI = expenseUI,
                 isLoading = false,
                 isDeleting = false,
                 error = null
@@ -340,11 +350,20 @@ fun PreviewExpenseDetailContentHasAttachment() {
         id = "1",
         payerUserId = "2",
         groupId = "3",
-        attachmentUrl = "test.com",
+        attachmentUrl = "null",
+    )
+    val expenseUI = ExpenseDetailUIData(
+        expenseName = "Coffee",
+        amount = 4.20,
+        payerUserName = "Adam",
+        groupName = "Group 1",
+        attachmentUrl = "null",
+        createdAt = 1763651065478,
     )
     UPayMiMoniTheme(darkTheme = false) {
         ExpenseDetailContent(
             state = ExpenseDetailState(
+                expenseUI = expenseUI,
                 expense = expense,
                 isLoading = false,
                 isDeleting = false,
@@ -367,15 +386,24 @@ fun PreviewExpenseDetailContentHasAttachmentIsDeleting() {
         id = "1",
         payerUserId = "2",
         groupId = "3",
-        attachmentUrl = "test.com",
+        attachmentUrl = "null",
+    )
+    val expenseUI = ExpenseDetailUIData(
+        expenseName = "Coffee",
+        amount = 4.20,
+        payerUserName = "Adam",
+        groupName = "Group 1",
+        attachmentUrl = "null",
+        createdAt = 1763651065478,
     )
     UPayMiMoniTheme(darkTheme = false) {
         ExpenseDetailContent(
             state = ExpenseDetailState(
-                expense = expense,
                 isLoading = false,
                 isDeleting = true,
-                error = null
+                error = null,
+                expenseUI = expenseUI,
+                expense = expense
             ),
             onBackClick = {},
             onViewAttachmentClick = {},

@@ -10,6 +10,10 @@ import com.example.upaymimoni.domain.model.Expense
 import com.example.upaymimoni.domain.repository.ExpenseRepository
 import com.example.upaymimoni.domain.usecase.expense.GetExpenseDetailUseCase
 import com.example.upaymimoni.domain.usecase.expense.RemoveExpenseUseCase
+import com.example.upaymimoni.domain.usecase.groups.GetGroupUseCase
+import com.example.upaymimoni.domain.usecase.user.GetUserUseCase
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,9 +23,19 @@ import kotlinx.coroutines.launch
 
 data class ExpenseDetailState(
     val expense: Expense? = null,
+    val expenseUI: ExpenseDetailUIData? = null,
     val isLoading: Boolean = true,
     val isDeleting: Boolean = false,
     val error: String? = null
+)
+
+data class ExpenseDetailUIData(
+    val payerUserName: String,
+    val groupName: String,
+    val expenseName: String,
+    val amount: Double,
+    val attachmentUrl: String?,
+    val createdAt: Long
 )
 
 /**
@@ -31,6 +45,8 @@ data class ExpenseDetailState(
 class ExpenseDetailViewModel(
     private val getExpenseDetailUseCase: GetExpenseDetailUseCase,
     private val removeExpenseUseCase: RemoveExpenseUseCase,
+    private val getUserUseCase: GetUserUseCase,
+    private val getGroupUseCase: GetGroupUseCase,
     private val expenseId: String
 ) : ViewModel() {
     private val _state = MutableStateFlow(ExpenseDetailState())
@@ -39,10 +55,11 @@ class ExpenseDetailViewModel(
     init {
         // Start collecting expenses when the ViewModel is created
         loadExpenseDetail()
+
     }
 
     /**
-     * function for loading single expense
+     * function for loading single expense and ui data
      */
     private fun loadExpenseDetail() {
         viewModelScope.launch {
@@ -51,11 +68,48 @@ class ExpenseDetailViewModel(
             val result = getExpenseDetailUseCase(expenseId)
 
             result.onSuccess { expense ->
+                val uiData = loadExpenseUIData(expense)
+
+                _state.update { currentState ->
+                    currentState.copy(
+                        expense = expense,
+                        expenseUI = uiData,
+                        isLoading = false
+                    )
+                }
                 _state.update { it.copy(expense = expense, isLoading = false) }
             }.onFailure { e ->
                 Log.e("ExpenseDetail", "Failed to load expense $expenseId", e)
                 _state.update { it.copy(isLoading = false, error = "Failed to load expense: ${e.message}") }
             }
+        }
+    }
+
+    /**
+     * function for loading single expense ui data like group name and username
+     */
+    private suspend fun loadExpenseUIData(expense: Expense) : ExpenseDetailUIData {
+        return coroutineScope {
+            val userAsynced = async { getUserUseCase(expense.payerUserId) }
+            val groupAsynced = async { getGroupUseCase(expense.groupId) }
+
+            val userResult = userAsynced.await()
+            val groupResult = groupAsynced.await()
+
+            val payerUserName = userResult.getOrNull()?.displayName
+                ?: "Unknown User (ID: ${expense.payerUserId})"
+
+            val groupName = groupResult.getOrNull()?.groupName
+                ?: "Unknown Group (ID: ${expense.groupId})"
+
+            ExpenseDetailUIData(
+                payerUserName = payerUserName,
+                groupName = groupName,
+                expenseName = expense.name,
+                amount = expense.amount,
+                attachmentUrl = expense.attachmentUrl,
+                createdAt = expense.createdAt,
+            )
         }
     }
 

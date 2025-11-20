@@ -22,13 +22,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.upaymimoni.presentation.ui.expenses.viewmodel.UserUIData
 import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
 
 /**
  * Popup for showing and selecting, who paid for expense
  */
 @Composable
-fun PaidByPopup(options: List<String>,
+fun PaidByPopup(options: List<UserUIData>,
                 selected: String,
                 onSelect: (String) -> Unit,
                 onClose: () -> Unit) {
@@ -47,21 +48,23 @@ fun PaidByPopup(options: List<String>,
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f))
                 LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
-                    items(options) { item ->
+                    items(options, key = {it.id}) { item ->
                         // elements of each item
+                        val isSelected = item.id == selected
+
                         Row (modifier =
                             Modifier.padding(horizontal = 18.dp)
                                 .clickable {
-                                    onSelect(item) // Updates state and calls onDismiss via screen logic
+                                    onSelect(item.id) // Updates state and calls onDismiss via screen logic
                                 },
                             verticalAlignment = Alignment.CenterVertically){
                             Text(
-                                text = item,
-                                fontWeight = if (item == selected) FontWeight.Bold
+                                text = item.name,
+                                fontWeight = if (isSelected) FontWeight.Bold
                                 else FontWeight.Normal,
                                 modifier = Modifier.weight(1f).padding(vertical = 18.dp)
                             )
-                            if (item == selected) Icon(Icons.Filled.CheckBox,
+                            if (isSelected) Icon(Icons.Filled.CheckBox,
                                 contentDescription = "Check",
                                 tint = MaterialTheme.colorScheme.primary)
                         }
@@ -77,19 +80,28 @@ fun PaidByPopup(options: List<String>,
 @Preview(showBackground = true)
 @Composable
 fun PreviewPaidByPopup() {
+    val users = listOf<UserUIData>(
+        UserUIData(
+            id = "dGIMqTw20gdGKSqn1tKzpbHn95Us",
+            name = "adam"
+        ),
+        UserUIData(
+            id = "dGIMqTw20gdGKSqg3tKzpbHn95Us",
+            name = "Crystal"
+        ),
+        UserUIData(
+            id = "dGIfhsdsdfKSqn1tKzpbHn95Us",
+            name = "Metha"
+        ),
+        UserUIData(
+            id = "dGI234234tKzpbHn95Us",
+            name = "Nick"
+        ),
+    )
+
     UPayMiMoniTheme (darkTheme = false) {
         PaidByPopup (
-            options = listOf(
-                "Adam",
-                "Mack",
-                "Nick",
-                "Muhammad",
-                "nickie",
-                "crystal",
-                "metha",
-                "niels",
-                "anders"
-            ),
+            options = users,
             selected = "crystal",
             onSelect = {},
             onClose = {},
