@@ -20,4 +20,9 @@ interface AttachmentStorageRepository {
         fileUri: Uri,
         onStatusUpdate: (String) -> Unit
     ): Result<AttachmentUploadResult>
+
+    /**
+     * Deletes an uploaded attachment
+     */
+    suspend fun deleteAttachment(filename: String): Result<Unit>
 }

@@ -6,4 +6,5 @@ interface GroupRepository {
     suspend fun saveGroup(group: Group): Result<Unit>
     suspend fun getGroup(groupId: String): Result<Group>
 
+    suspend fun addExpenseToGroup(groupId: String, expenseId: String): Result<Unit>
 }

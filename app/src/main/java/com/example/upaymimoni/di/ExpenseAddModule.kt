@@ -2,9 +2,11 @@ package com.example.upaymimoni.di
 
 import com.example.upaymimoni.data.repository.FirebaseAttachmentStorageRepository
 import com.example.upaymimoni.data.repository.FirestoreExpenseRepository
+import com.example.upaymimoni.data.repository.FirestoreGroupRepository
 import com.example.upaymimoni.domain.repository.ExpenseRepository
 import com.example.upaymimoni.data.repository.MockExpenseRepository
 import com.example.upaymimoni.domain.repository.AttachmentStorageRepository
+import com.example.upaymimoni.domain.repository.GroupRepository
 import com.example.upaymimoni.domain.usecase.expense.AddExpenseUseCase
 import com.example.upaymimoni.domain.usecase.expense.AddExpenseWithAttachmentUseCase
 import com.example.upaymimoni.presentation.ui.expenses.viewmodel.ExpenseAddViewModel
@@ -27,15 +29,19 @@ val expenseAddModule = module {
         //MockExpenseRepository()
         FirestoreExpenseRepository(get())
     }
+    single<GroupRepository> {
+        //MockExpenseRepository()
+        FirestoreGroupRepository(get())
+    }
     single<AttachmentStorageRepository> {
         FirebaseAttachmentStorageRepository(androidApplication(), get())
     }
 
     //Domain Layer
-    factory { AddExpenseUseCase(get())}
+    factory { AddExpenseUseCase(get(),get())}
 
     factory {
-        AddExpenseWithAttachmentUseCase(get(), get())
+        AddExpenseWithAttachmentUseCase(get(), get(),get())
     }
 
     // Presentation Layer

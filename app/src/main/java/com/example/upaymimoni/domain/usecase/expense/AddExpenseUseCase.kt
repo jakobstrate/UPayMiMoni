@@ -3,13 +3,15 @@ package com.example.upaymimoni.domain.usecase.expense
 import com.example.upaymimoni.domain.model.Attachment
 import com.example.upaymimoni.domain.model.Expense
 import com.example.upaymimoni.domain.repository.ExpenseRepository
+import com.example.upaymimoni.domain.repository.GroupRepository
 import java.util.UUID
 
 /**
  * A Use Case representing the business rule for adding an expense.
  */
 class AddExpenseUseCase(
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    private val groupRepository: GroupRepository
 ) {
     suspend operator fun invoke(
         name: String,
@@ -36,6 +38,8 @@ class AddExpenseUseCase(
             groupId = groupId,
             attachmentUrl = attachmentUrl
         )
+
+
 
         //TODO, when groups are made, add expense to group on success
 

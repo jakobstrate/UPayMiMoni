@@ -43,7 +43,9 @@ class FirebaseAttachmentStorageRepository(
         val fileName = getFileName(fileUri)
         val uniqueFileName = "${System.currentTimeMillis()}_$fileName"
 
-        val ref = storage.reference.child("attachments/$userId/$uniqueFileName")
+        val storagePath = "attachments/$userId/$uniqueFileName"
+
+        val ref = storage.reference.child(storagePath)
 
         return try {
             onStatusUpdate("Starting upload...")
@@ -54,9 +56,20 @@ class FirebaseAttachmentStorageRepository(
 
             onStatusUpdate("Upload complete. Finalizing...")
 
-            Result.success(AttachmentUploadResult(downloadUrl,fileName))
+            Result.success(AttachmentUploadResult(downloadUrl,storagePath))
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteAttachment(filename: String): Result<Unit> {
+        val ref = storage.reference.child(filename)
+
+        return try {
+            ref.delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Failed to delete attachment at $filename: ${e.message}", e))
         }
     }
 }

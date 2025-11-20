@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.upaymimoni.domain.model.Expense
 import com.example.upaymimoni.domain.usecase.expense.AddExpenseUseCase
 import com.example.upaymimoni.domain.usecase.expense.AddExpenseWithAttachmentUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -101,11 +102,13 @@ class ExpenseAddViewModel(
 
             try {
                 addExpenseUseCase(
-                    name = current.name,
-                    amount = current.amount.toDouble(),
-                    payerUserId = current.paidByUserId,
-                    groupId = groupId,
-                    splitBetweenUserIds = current.splitBetweenUserIds,
+                    expense = Expense(
+                        name = current.name,
+                        amount = current.amount.toDouble(),
+                        payerUserId = current.paidByUserId,
+                        groupId = groupId,
+                        splitBetweenUserIds = current.splitBetweenUserIds,
+                    ),
                     attachmentUri = current.attachmentUri,
                     onStatusUpdate = ::updateAttachmentStatus,
                 )
