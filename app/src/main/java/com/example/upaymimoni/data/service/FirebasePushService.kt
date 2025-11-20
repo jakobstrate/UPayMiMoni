@@ -60,7 +60,7 @@ class FirebasePushService : FirebaseMessagingService() {
         val channelName = "General Notifications"
 
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.app_logo)
+            .setSmallIcon(R.mipmap.ic_launcher_round)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
