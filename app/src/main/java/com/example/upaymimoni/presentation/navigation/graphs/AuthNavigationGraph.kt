@@ -20,7 +20,7 @@ fun NavGraphBuilder.authNavigationGraph(navController: NavHostController) {
                     navController.navigate(Destination.Auth.Register.route)
                 },
                 onNavigateToHomePage = {
-                    navController.navigate(Destination.Profile.Stack.route) {
+                    navController.navigate(Destination.Group.Stack.route) {
                         popUpTo(Destination.Auth.Stack.route) { inclusive = true }
                     }
                 },
@@ -36,7 +36,7 @@ fun NavGraphBuilder.authNavigationGraph(navController: NavHostController) {
                     navController.navigate(Destination.Auth.Login.route)
                 },
                 onNavigateToHomePage = {
-                    navController.navigate(Destination.Profile.Stack.route) {
+                    navController.navigate(Destination.Group.Stack.route) {
                         popUpTo(Destination.Auth.Stack.route) { inclusive = true }
                     }
                 }

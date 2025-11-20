@@ -10,7 +10,7 @@ fun NavGraphBuilder.initialLoadingGraph(navController: NavHostController) {
     composable(route = Destination.InitialLoading.route) {
         InitialLoadingScreen(
             onAuthenticated = {
-                navController.navigate(Destination.Profile.Stack.route) {
+                navController.navigate(Destination.Group.Stack.route) {
                     popUpTo(Destination.InitialLoading.route) { inclusive = true }
                 }
             },
