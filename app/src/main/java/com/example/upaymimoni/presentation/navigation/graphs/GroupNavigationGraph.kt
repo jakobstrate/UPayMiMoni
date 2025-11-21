@@ -11,6 +11,7 @@ import com.example.upaymimoni.presentation.ui.ExpenseDetailScreen
 import com.example.upaymimoni.presentation.ui.groups.GroupScreen
 import com.example.upaymimoni.presentation.ui.groups.GroupsScreen
 import com.example.upaymimoni.presentation.ui.groups.EditGroupScreen
+import com.example.upaymimoni.presentation.ui.groups.GroupScreenRedirector
 
 
 fun NavGraphBuilder.groupNavigationGraph(navController: NavHostController) {
@@ -26,10 +27,28 @@ fun NavGraphBuilder.groupNavigationGraph(navController: NavHostController) {
             )
         }
 
-        composable(route = Destination.Group.Instance.route) {
-            GroupScreen(
+        composable(
+            route = Destination.Group.Instance.route,
+            arguments = listOf(
+                navArgument(Destination.Group.Instance.ARG_GROUP_ID) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getString(
+                Destination.Group.Instance.ARG_GROUP_ID
+            ) ?: error("groupId is required")
+
+            GroupScreenRedirector(
+                groupId = groupId,
                 onNavigateToEditGroup = {
                     navController.navigate(Destination.Group.Edit.route)
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Destination.Profile.Stack.route)
+                },
+                onNavigateBack = {
+                    navController.navigate(Destination.Group.Overview.route)
                 }
             )
         }

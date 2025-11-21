@@ -7,6 +7,7 @@ import com.example.upaymimoni.domain.repository.ExpenseRepository
 import com.example.upaymimoni.domain.repository.GroupRepository
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
 
@@ -30,14 +31,11 @@ class FirestoreGroupRepository (
     }
 
     override suspend fun getGroup(groupId: String): Result<Group> = try {
-        println("Before Access")
         val snapshot = groupCollection
             .document(groupId)
             .get()
             .await()
         val group = snapshot.toObject<Group>()
-
-        println("After Access")
 
         if (group != null) {
             Result.success(group)

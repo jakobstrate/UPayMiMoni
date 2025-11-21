@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -31,11 +32,14 @@ import com.example.upaymimoni.presentation.ui.theme.UPayMiMoniTheme
  * Popup for showing and selecting, who to split expense among
  */
 @Composable
-fun SplitBetweenPopup(options: List<UserUIData>,
-                      selected: List<String>,
-                      onToggleSelection: (String) -> Unit,
-                      onClose: () -> Unit,
-                      onConfirm: (List<String>) -> Unit){
+fun SplitBetweenPopup(
+    options: List<UserUIData>,
+    creditorUserId: String,
+    selected: List<String>,
+    onToggleSelection: (String) -> Unit,
+    onClose: () -> Unit,
+    onConfirm: (List<String>) -> Unit
+) {
     Dialog(onDismissRequest = onClose) {
         Surface(
             shape = MaterialTheme.shapes.medium,
@@ -55,21 +59,29 @@ fun SplitBetweenPopup(options: List<UserUIData>,
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f))
                 // List of Checkable Items
                 LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
-                    items(options, key = {it.id}) { item ->
+                    items(options.filter { it.id != creditorUserId }, key = { it.id }) { item ->
                         // elements of each item
-                        Row (modifier =
-                            Modifier.fillMaxWidth().padding(horizontal = 10.dp)
-                                .clickable {
-                                onToggleSelection(item.id) // Updates state and calls onDismiss via screen logic
-                            },
-                            verticalAlignment = Alignment.CenterVertically){
-                            if (selected.contains(item.id)) Icon(Icons.Filled.CheckBox,
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 10.dp)
+                                    .clickable {
+                                        onToggleSelection(item.id) // Updates state and calls onDismiss via screen logic
+                                    },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (selected.contains(item.id)) Icon(
+                                Icons.Filled.CheckBox,
                                 contentDescription = "Check",
-                                tint = MaterialTheme.colorScheme.primary)
+                                tint = MaterialTheme.colorScheme.primary
+                            )
                             else
-                                Icon(Icons.Filled.CheckBoxOutlineBlank,
-                                contentDescription = "Check",
-                                tint = MaterialTheme.colorScheme.primary)
+                                Icon(
+                                    Icons.Filled.CheckBoxOutlineBlank,
+                                    contentDescription = "Check",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
 
                             Text(
                                 text = item.name,
@@ -119,7 +131,7 @@ fun PreviewSplitBetweenPopup() {
             name = "Nick"
         ),
     )
-    UPayMiMoniTheme (darkTheme = false) {
+    UPayMiMoniTheme(darkTheme = false) {
         SplitBetweenPopup(
             options = users,
             selected = listOf(
@@ -130,6 +142,7 @@ fun PreviewSplitBetweenPopup() {
             onToggleSelection = {},
             onClose = {},
             onConfirm = {},
+            creditorUserId = "123"
         )
     }
 }

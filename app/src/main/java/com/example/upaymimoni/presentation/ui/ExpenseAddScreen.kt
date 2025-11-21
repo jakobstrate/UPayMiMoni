@@ -161,6 +161,7 @@ fun ExpenseAddScreen(
             selected = state.paidByUserId,
             onSelect = { selectedUser ->
                 viewModel.updatePaidByUserId(selectedUser) // Update selection
+                viewModel.saveConfirmedSplitBetweenUserIds(state.splitBetweenUserIds, selectedUser)
                 viewModel.closePaidByPopup() // Closes on selection
             },
             onClose = viewModel::closePaidByPopup
@@ -171,11 +172,12 @@ fun ExpenseAddScreen(
     if (showSplitBetweenPopup) {
         SplitBetweenPopup(
             options = state.uiData?.userOptions ?: null!!,
+            creditorUserId = state.paidByUserId,
             selected = pendingSelectedUserIds,
             onToggleSelection = viewModel::toggleUserSelection, // update selection
             onClose = viewModel::closeSpltBetweenPopup,
             onConfirm = { confirmedUsers ->
-                viewModel.saveConfirmedSplitBetweenUserIds(confirmedUsers) // Save choices
+                viewModel.saveConfirmedSplitBetweenUserIds(confirmedUsers, state.paidByUserId) // Save choices
                 viewModel.closeSpltBetweenPopup()
             }
         )

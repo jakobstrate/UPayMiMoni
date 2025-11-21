@@ -243,10 +243,10 @@ class ExpenseAddViewModel(
     }
 
     // Function to update the paidBy user
-    fun saveConfirmedSplitBetweenUserIds(confirmedUsers: List<String>) {
+    fun saveConfirmedSplitBetweenUserIds(confirmedUsers: List<String>, paidByUserId: String) {
         _state.update { currentState ->
             currentState.copy(
-                splitBetweenUserIds = confirmedUsers
+                splitBetweenUserIds = confirmedUsers.filter { it != paidByUserId }
             )
         }
     }

@@ -58,8 +58,11 @@ sealed interface Destination {
         data object Stack : Group("GroupStack")
         data object Overview : Group("GroupsOverview")
 
-        // Might need to change this to one that accepts arguments, look at Expense and Expense.Detail/Add
-        data object Instance : Group("GroupInstance")
+        data object Instance : Group("GroupInstance/{groupId}") {
+            fun createRoute(groupId: String) = "GroupInstance/$groupId"
+
+            const val ARG_GROUP_ID = "groupId"
+        }
 
         data object Edit : Group("GroupEdit/{groupId}") {
             fun createRoute(groupId: String) = "GroupEdit/$groupId"

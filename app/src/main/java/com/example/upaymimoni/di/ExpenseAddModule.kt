@@ -31,10 +31,6 @@ import org.koin.dsl.module
  * This defines how the app creates and provides instances of Repositories, Use Cases, and ViewModels.
  */
 val expenseAddModule = module {
-    // Data Layer
-    single { FirebaseFirestore.getInstance() }
-    single { FirebaseStorage.getInstance() }
-
     single<ExpenseRepository> {
         //MockExpenseRepository()
         FirestoreExpenseRepository(get())

@@ -8,6 +8,7 @@ import com.example.upaymimoni.data.repository.FirebaseAuthRepository
 import com.example.upaymimoni.data.repository.FirebasePictureStorageRepository
 import com.example.upaymimoni.data.repository.FirestoreFcmTokenRepository
 import com.example.upaymimoni.data.repository.FirestoreUserRepository
+import com.example.upaymimoni.data.service.AndroidToastService
 import com.example.upaymimoni.data.service.DeviceIdService
 import com.example.upaymimoni.data.service.FcmTokenManager
 import com.example.upaymimoni.data.session.UserSessionImpl
@@ -19,6 +20,7 @@ import com.example.upaymimoni.domain.repository.AvatarRepository
 import com.example.upaymimoni.domain.repository.FcmTokenRepository
 import com.example.upaymimoni.domain.repository.PictureStorageRepository
 import com.example.upaymimoni.domain.repository.UserRepository
+import com.example.upaymimoni.domain.service.ToastService
 import com.example.upaymimoni.domain.service.TokenManager
 import com.example.upaymimoni.domain.session.UserSession
 import com.example.upaymimoni.domain.state.AuthStateProvider
@@ -38,6 +40,9 @@ val ApplicationModule = module {
     single { FirebaseMessaging.getInstance() }
     single { FirebaseStorage.getInstance() }
     single { DeviceIdService(androidContext()) }
+    single<ToastService> {
+        AndroidToastService(androidContext())
+    }
 
     single<FcmTokenRepository> {
         FirestoreFcmTokenRepository(get())
